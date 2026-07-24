@@ -24,7 +24,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Edit Sub Bagian
+                        Edit Tujuan
                     </h2>
                 </div>
             </div>
@@ -40,26 +40,26 @@
         </div>
 
         <!-- Body Form -->
-        <form action="{{ route('sub.update') }}" method="POST">
+        <form action="{{ route('tujuan.update') }}" method="POST">
             @csrf
             @method('PUT')
 
             <!-- Tambahkan input hidden ini -->
-            <input type="hidden" name="id_sub_bagian" x-model="selectedSub.id">
+            <input type="hidden" name="id_tujuan" x-model="selectedSub.id">
 
             <div class="p-6 space-y-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Nama Sub Bagian <span class="text-red-500">*</span>
+                        Nama Tujuan <span class="text-red-500">*</span>
                     </label>
 
-                    <input type="text" name="nama_sub_bagian" x-model="selectedSub.nama"
-                        placeholder="Masukkan Nama Sub Bagian"
+                    <input type="text" name="nama_tujuan" x-model="selectedSub.nama"
+                        placeholder="Masukkan Nama Tujuan"
                         class="w-full rounded-xl border px-4 py-3 outline-none transition
                                focus:ring-2 focus:ring-amber-500 focus:border-amber-500
                                @error('nama_sub_bagian') border-red-400 @else border-gray-300 @enderror">
 
-                    @error('nama_sub_bagian')
+                    @error('nama_tujuan')
                         <p class="flex items-center gap-1 text-red-500 text-sm mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -74,10 +74,7 @@
 
             <!-- Footer -->
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                <button type="button" @click="openEdit = false"
-                    class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold transition">
-                    Batal
-                </button>
+
                 <button type="submit"
                     class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"

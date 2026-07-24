@@ -74,10 +74,7 @@
 
             <!-- Footer -->
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                <button type="button" @click="openEdit = false"
-                    class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold transition">
-                    Batal
-                </button>
+
                 <button type="submit"
                     class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"

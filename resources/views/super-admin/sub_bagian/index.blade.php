@@ -15,7 +15,7 @@
         },
         editUrl: '',
         deleteUrl: '',
-
+    
         setEditData(sub) {
             this.selectedSub = {
                 id: sub.id_sub_bagian || sub.id,
@@ -25,7 +25,7 @@
             this.editUrl = '{{ url('/super-admin/sub-bagian') }}/' + (sub.id_sub_bagian || sub.id);
             this.openEdit = true;
         },
-
+    
         setDeleteData(sub) {
             this.selectedSub = {
                 id: sub.id_sub_bagian || sub.id,
@@ -35,6 +35,7 @@
             this.openDelete = true;
         }
     }" class="relative">
+
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
@@ -69,10 +70,11 @@
                 </form>
 
                 <div class="flex gap-3">
-                    <a href="{{ route('arsip.sub') }}" class="bg-gray-200 hover:bg-gray-300 px-4 py-2.5 rounded-lg text-sm font-semibold">
+                    <a href="{{ route('arsip.sub') }}"
+                        class="bg-gray-200 hover:bg-gray-300 px-4 py-2.5 rounded-lg text-sm font-semibold">
                         Arsip
-                    </a> 
-                    
+                    </a>
+
                     <button type="button" @click="openCreate = true"
                         class="bg-[#080d1a] hover:bg-[#173860] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition">
                         + Tambah Data
@@ -90,41 +92,48 @@
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-100 text-gray-700 text-sm">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
                             <tr>
-                                <th class="px-6 py-4 text-center w-20">No</th>
-                                <th class="px-6 py-4">Nama Sub Bagian</th>
-                                <th class="px-6 py-4 text-center w-48">Aksi</th>
+                                <!-- Kolom Nomor: Dibuat ringkas di sisi kiri -->
+                                <th scope="col" class="px-8 py-4 text-center w-24">No</th>
+
+                                <!-- Kolom Nama Sub Bagian: Mengambil sisa ruang secara alami -->
+                                <th scope="col" class="px-8 py-4 text-left">Nama Sub Bagian</th>
+
+                                <!-- Kolom Aksi: Diberi batas lebar agar tombol rapi di kanan -->
+                                <th scope="col" class="px-8 py-4 text-center w-56">Aksi</th>
                             </tr>
                         </thead>
 
-                        <tbody class="divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 bg-white">
                             @forelse($subBagians as $index => $subBagian)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-center">
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-8 py-4 text-center text-sm text-gray-600">
                                         {{ $subBagians->firstItem() + $index }}
                                     </td>
-                                    <td class="px-6 py-4 font-semibold">
+
+                                    <td class="px-8 py-4 text-left text-sm font-semibold text-gray-900">
                                         {{ $subBagian->nama_sub_bagian }}
                                     </td>
-                                    <td class="px-6 py-4">
-                                        <div class="flex justify-center gap-2">
+
+                                    <td class="px-8 py-4 text-center">
+                                        <div class="flex justify-center items-center gap-2">
                                             <button type="button"
                                                 @click="setEditData({
-                                                    id_sub_bagian: {{ $subBagian->id_sub_bagian }},
-                                                    nama: @js($subBagian->nama_sub_bagian),
-                                                    status: @js($subBagian->status)
-                                                })"
+                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
+                                nama: @js($subBagian->nama_sub_bagian),
+                                status: @js($subBagian->status)
+                            })"
                                                 class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 rounded-lg text-white text-xs font-semibold transition">
                                                 Edit
                                             </button>
 
                                             <button type="button"
                                                 @click="setDeleteData({
-                                                    id_sub_bagian: {{ $subBagian->id_sub_bagian }},
-                                                    nama: @js($subBagian->nama_sub_bagian)
-                                                })"
+                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
+                                nama: @js($subBagian->nama_sub_bagian)
+                            })"
                                                 class="px-3 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white text-xs font-semibold transition">
                                                 Hapus
                                             </button>
@@ -133,10 +142,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3">
-                                        <div class="py-12 text-center text-gray-500">
-                                            Belum ada data Sub Bagian.
-                                        </div>
+                                    <td colspan="3" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                        Belum ada data Sub Bagian.
                                     </td>
                                 </tr>
                             @endforelse
@@ -144,7 +151,11 @@
                     </table>
                 </div>
 
-                <div class="px-6 py-4 border-t bg-gray-50">
+                <div
+                    class="px-6 py-4 border-t border-grey bg-white 
+            [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
+            [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
+            [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
                     {{ $subBagians->links() }}
                 </div>
             </div>

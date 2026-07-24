@@ -43,6 +43,11 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 
     // TUJUAN
     Route::get('/super/tujuan', [TujuanController::class, 'index'])->name('tujuan.index');
+    Route::get('/super/tujuan/arsip', [TujuanController::class, 'arsip'])->name('tujuan.arsip');
+    Route::post('/super/tujuan/add', [TujuanController::class, 'store'])->name('tujuan.add');
+    Route::put('/super/tujuan/update', [TujuanController::class, 'update'])->name('tujuan.update');
+    Route::delete('/super/tujuan/delete', [TujuanController::class, 'softdelete'])->name('tujuan.delete');
+    Route::put('/super/tujuan/pulihkan', [TujuanController::class, 'pulihkan'])->name('tujuan.pulihkan');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
