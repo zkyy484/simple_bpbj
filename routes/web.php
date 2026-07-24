@@ -61,3 +61,16 @@ require __DIR__ . '/auth.php';
 Route::get('/tujuan', function () {
     return view('super-admin.tujuan.index');
 });
+
+Route::get('/tamu', function () {
+    return view('super-admin.tamu.index');
+})->name('super-admin.tamu.index');
+
+// Route untuk halaman detail (modal)
+Route::get('/detailtamu', function () {
+    return view('super-admin.tamu.show');
+})->name('super-admin.tamu.show');
+
+Route::get('/arsiptamu', function () {
+    return view('super-admin.tamu.arsip');
+})->name('super-admin.tamu.arsip');
