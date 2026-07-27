@@ -3,32 +3,28 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SuperAdmin\SubBagianController;
 use App\Http\Controllers\SuperAdmin\TujuanController;
+use App\Http\Controllers\TamuController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 
 
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/form-page', [TamuController::class, 'FormPage'])->name('tamu.page');
+Route::get('/thanks-page', [TamuController::class,'Thanks'])->name('thanks.page');
+
+
+Route::get('/sur-page', [TamuController::class, 'SurveiPage'])->name('sur.page');
+Route::get('/sur-thanks', [TamuController::class, 'ThankSurvei'])->name('thanksur.page');
+
+
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
-    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])
-        ->name('super.dashboard');
+    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
     Route::get('/super/page', [SuperAkunController::class, 'AkunPage'])->name('index.akun');
 
 
@@ -39,7 +35,6 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::put('/super/sub/update', [SubBagianController::class, 'update'])->name('sub.update');
     Route::delete('/super/sub/delete', [SubBagianController::class, 'softdelete'])->name('sub.delete');
     Route::put('/super/sub/pulihkan', [SubBagianController::class, 'pulihkan'])->name('sub.pulihkan');
-
 
     // TUJUAN
     Route::get('/super/tujuan', [TujuanController::class, 'index'])->name('tujuan.index');
@@ -62,7 +57,3 @@ Route::middleware(['auth', 'role:pegawai'])->group(function () {
 
 
 require __DIR__ . '/auth.php';
-
-Route::get('/tujuan', function () {
-    return view('super-admin.tujuan.index');
-});
