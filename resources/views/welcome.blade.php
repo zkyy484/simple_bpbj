@@ -129,6 +129,7 @@
         splash.classList.add('hide');
         setTimeout(() => {
           splash.style.display = 'none';
+          window.location.href = "{{ route('tamu.form') }}";
           window.location.href = "{{ route('tamu.page') }}";
         }, 700);
       }

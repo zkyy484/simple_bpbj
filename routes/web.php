@@ -7,6 +7,8 @@ use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardCo
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
+use App\Http\Controllers\TamuController;
+use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
@@ -72,6 +74,16 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::put('/super/tujuan/update', [TujuanController::class, 'update'])->name('tujuan.update');
     Route::delete('/super/tujuan/delete', [TujuanController::class, 'softdelete'])->name('tujuan.delete');
     Route::put('/super/tujuan/pulihkan', [TujuanController::class, 'pulihkan'])->name('tujuan.pulihkan');
+
+    // TAMU
+    Route::prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/tamu', [SuperAdminTamuController::class, 'index'])->name('tamu.index');
+        Route::get('/tamu/arsip', [SuperAdminTamuController::class, 'arsip'])->name('tamu.arsip');
+        Route::patch('/tamu/{tamu}/approval', [SuperAdminTamuController::class, 'approval'])->name('tamu.approval');
+        Route::put('/tamu/{tamu}', [SuperAdminTamuController::class, 'update'])->name('tamu.update');
+        Route::delete('/tamu/{tamu}', [SuperAdminTamuController::class, 'destroy'])->name('tamu.destroy');
+        Route::put('/tamu/{tamu}/pulihkan', [SuperAdminTamuController::class, 'pulihkan'])->name('tamu.pulihkan');
+    });
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -84,6 +96,20 @@ Route::middleware(['auth', 'role:pegawai'])->group(function () {
         ->name('pegawai.dashboard');
 });
 
+// BUKU TAMU (Publik, tanpa login)
+Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');
+Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
+Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
+
+Route::prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/tamu', [SuperAdminTamuController::class, 'index'])->name('tamu.index');
+        Route::get('/tamu/arsip', [SuperAdminTamuController::class, 'arsip'])->name('tamu.arsip');
+        Route::patch('/tamu/{tamu}/approval', [SuperAdminTamuController::class, 'approval'])->name('tamu.approval');
+        Route::put('/tamu/{tamu}', [SuperAdminTamuController::class, 'update'])->name('tamu.update');
+        Route::delete('/tamu/{tamu}', [SuperAdminTamuController::class, 'destroy'])->name('tamu.destroy');
+        Route::put('/tamu/{tamu}/pulihkan', [SuperAdminTamuController::class, 'pulihkan'])->name('tamu.pulihkan');
+    });
+require __DIR__ . '/auth.php';
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';
