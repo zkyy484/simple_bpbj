@@ -23,9 +23,8 @@ class TujuanController extends Controller
             ->withQueryString();
 
         return view('super-admin.tujuan.index', compact(
-            'subBagians',
             'search',
-            'admins'
+            'admins',
             'Tujuans',
             'search'
         ));
@@ -35,6 +34,7 @@ class TujuanController extends Controller
     {
         // return view('super-admin.tujuan.index');
         $search = $request->search;
+        $admins = auth()->user();
 
         $Tujuans = Tujuan::where('status', 'nonaktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -46,7 +46,8 @@ class TujuanController extends Controller
 
         return view('super-admin.tujuan.arsip', compact(
             'Tujuans',
-            'search'
+            'search',
+            'admins'
         ));
     }
 

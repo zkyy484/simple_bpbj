@@ -10,14 +10,9 @@ use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 use App\Http\Controllers\TamuController;
 use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
-use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 
 
-Route::get('/', function () {
+Route::get('/', function() {
     return view('welcome');
 });
 
@@ -28,13 +23,6 @@ Route::get('/thanks-page', [TamuController::class,'Thanks'])->name('thanks.page'
 Route::get('/sur-page', [TamuController::class, 'SurveiPage'])->name('sur.page');
 Route::get('/sur-thanks', [TamuController::class, 'ThankSurvei'])->name('thanksur.page');
 
-
-Route::middleware(['auth', 'role:super_admin'])->group(function () {
-    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
-    Route::get('/super/page', [SuperAkunController::class, 'AkunPage'])->name('index.akun');
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])
@@ -112,21 +100,3 @@ Route::prefix('super-admin')->name('super-admin.')->group(function () {
 require __DIR__ . '/auth.php';
 
 require __DIR__ . '/auth.php';
-require __DIR__ . '/auth.php';
-
-Route::get('/tujuan', function () {
-    return view('super-admin.tujuan.index');
-});
-
-Route::get('/tamu', function () {
-    return view('super-admin.tamu.index');
-})->name('super-admin.tamu.index');
-
-// Route untuk halaman detail (modal)
-Route::get('/detailtamu', function () {
-    return view('super-admin.tamu.show');
-})->name('super-admin.tamu.show');
-
-Route::get('/arsiptamu', function () {
-    return view('super-admin.tamu.arsip');
-})->name('super-admin.tamu.arsip');

@@ -28,23 +28,23 @@ class ProfileController extends Controller
 
         $validated = $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:50'],
-            'email'        => ['required', 'email', 'max:50', Rule::unique('users', 'email')->ignore($user->id_user, 'id_user')],
-            'username'     => ['required', 'string', 'max:50', Rule::unique('users', 'username')->ignore($user->id_user, 'id_user')],
-            'no_telepon'   => ['nullable', 'string', 'max:20'],
-            'nip'          => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
-            'alamat'       => ['nullable', 'string'],
+            'email' => ['required', 'email', 'max:50', Rule::unique('users', 'email')->ignore($user->id_user, 'id_user')],
+            'username' => ['required', 'string', 'max:50', Rule::unique('users', 'username')->ignore($user->id_user, 'id_user')],
+            'no_telepon' => ['nullable', 'string', 'max:20'],
+            'nip' => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
+            'alamat' => ['nullable', 'string'],
         ], [
-            'nip.unique'      => 'NIP sudah digunakan oleh pengguna lain.',
-            'email.unique'    => 'Email sudah digunakan oleh pengguna lain.',
+            'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
+            'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
             'username.unique' => 'Username sudah digunakan oleh pengguna lain.',
         ]);
 
         $user->nama_lengkap = $validated['nama_lengkap'];
-        $user->email        = $validated['email'];
-        $user->username     = $validated['username'];
-        $user->no_telepon   = $validated['no_telepon'] ?? null;
-        $user->nip          = $validated['nip'];
-        $user->alamat       = $validated['alamat'] ?? null;
+        $user->email = $validated['email'];
+        $user->username = $validated['username'];
+        $user->no_telepon = $validated['no_telepon'] ?? null;
+        $user->nip = $validated['nip'];
+        $user->alamat = $validated['alamat'] ?? null;
         $user->save();
 
         return redirect()
@@ -59,29 +59,33 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
+        // 1. Validasi Input
         $request->validate([
             'current_password' => ['required', 'string'],
-            'password'          => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'current_password.required' => 'Masukkan password saat ini.',
-            'password.required'         => 'Password baru wajib diisi.',
-            'password.min'              => 'Password baru minimal 8 karakter.',
-            'password.confirmed'        => 'Konfirmasi password baru tidak cocok.',
+            'password.required' => 'Password baru wajib diisi.',
+            'password.min' => 'Password baru minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
         ]);
 
+        // 2. Cek Password Saat Ini -> Kirim session 'error' untuk SweetAlert
         if (!Hash::check($request->current_password, $user->password)) {
             return back()
                 ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
+                ->with('error', 'Password saat ini tidak sesuai!') // <- Memicu SweetAlert Error
                 ->withInput()
                 ->withFragment('password-section');
         }
 
+        // 3. Simpan Password Baru -> Kirim session 'success' untuk SweetAlert
         $user->password = Hash::make($request->password);
         $user->save();
 
         return redirect()
             ->route('super.profile')
-            ->with('success', 'Password berhasil diperbarui.')
+            ->with('success', 'Password berhasil diperbarui.') // <- Memicu SweetAlert Success
             ->withFragment('password-section');
     }
 }

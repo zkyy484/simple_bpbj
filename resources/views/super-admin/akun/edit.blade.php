@@ -73,8 +73,15 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Sub Bagian</label>
                     <select name="id_sub_bagian" x-model="selectedUser.id_sub_bagian"
                         class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer">
+
+                        <option value="" disabled>Pilih Sub Bagian</option>
+
                         @foreach ($subBagians as $sub)
-                            <option value="{{ $sub->id_sub_bagian }}">{{ $sub->nama_sub_bagian }}</option>
+                            @if ($sub->status == 'aktif')
+                                <option value="{{ $sub->id_sub_bagian }}">
+                                    {{ $sub->nama_sub_bagian }}
+                                </option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
@@ -90,7 +97,6 @@
                     <select name="role" x-model="selectedUser.role"
                         class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer">
                         <option value="admin">Admin</option>
-                        <option value="super_admin">Super Admin</option>
                         <option value="pegawai">Pegawai</option>
                     </select>
                 </div>

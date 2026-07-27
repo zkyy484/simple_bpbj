@@ -14,29 +14,29 @@ class AkunController extends Controller
     /**
      * Daftar akun aktif (bukan arsip)
      */
-public function index(Request $request)
-{
-    $search = $request->query('search');
-    $admins = auth()->user();
+    public function index(Request $request)
+    {
+        $search = $request->query('search');
+        $admins = auth()->user();
 
-    $accounts = User::with('subBagian')
-        ->where('status', 'aktif')
-        ->whereIn('role', ['admin', 'pegawai']) // Hanya admin & pegawai
-        ->when($search, function ($query) use ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama_lengkap', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('nip', 'like', "%{$search}%");
-            });
-        })
-        ->orderBy('nama_lengkap')
-        ->paginate(10)
-        ->withQueryString();
+        $accounts = User::with('subBagian')
+            ->where('status', 'aktif')
+            ->whereIn('role', ['admin', 'pegawai']) // Hanya admin & pegawai
+            ->when($search, function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%");
+                });
+            })
+            ->orderBy('nama_lengkap')
+            ->paginate(10)
+            ->withQueryString();
 
-    $subBagians = SubBagian::all();
+        $subBagians = SubBagian::all();
 
-    return view('super-admin.akun.index', compact('accounts', 'subBagians', 'admins'));
-}
+        return view('super-admin.akun.index', compact('accounts', 'subBagians', 'admins'));
+    }
     /**
      * Daftar akun yang diarsipkan (status nonaktif)
      */
@@ -50,8 +50,8 @@ public function index(Request $request)
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('nip', 'like', "%{$search}%");
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('nip', 'like', "%{$search}%");
                 });
             })
             ->orderBy('nama_lengkap')
@@ -63,7 +63,7 @@ public function index(Request $request)
 
     public function create()
     {
-        $subBagians = SubBagian::all();
+        $subBagians = SubBagian::where('status', 'aktif')->get();
         $admins = auth()->user();
 
         return view('super-admin.akun.create', compact('subBagians', 'admins'));
@@ -72,46 +72,46 @@ public function index(Request $request)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_lengkap'  => ['required', 'string', 'max:50'],
-            'nip'           => ['required', 'string', 'max:30', 'unique:users,nip'],
-            'email'         => ['required', 'email', 'max:50', 'unique:users,email'],
-            'no_telepon'    => ['required', 'string', 'max:20'],
+            'nama_lengkap' => ['required', 'string', 'max:50'],
+            'nip' => ['required', 'string', 'max:30', 'unique:users,nip'],
+            'email' => ['required', 'email', 'max:50', 'unique:users,email'],
+            'no_telepon' => ['required', 'string', 'max:20'],
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
-            'alamat'        => ['required', 'string'],
-            'username'      => ['required', 'string', 'max:50', 'unique:users,username'],
-            'password'      => ['required', 'string', 'min:8'],
-            'role'          => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
+            'alamat' => ['required', 'string'],
+            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:8'],
+            'role' => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
         ], [
             // Pesan Error Kustom
-            'nama_lengkap.required'  => 'Nama lengkap wajib diisi.',
-            'nip.required'           => 'NIP wajib diisi.',
-            'nip.unique'             => 'NIP sudah digunakan oleh pengguna lain.',
-            'email.required'         => 'Alamat email wajib diisi.',
-            'email.email'            => 'Format email tidak valid.',
-            'email.unique'           => 'Email sudah digunakan oleh pengguna lain.',
-            'no_telepon.required'    => 'Nomor telepon wajib diisi.',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'nip.required' => 'NIP wajib diisi.',
+            'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
+            'no_telepon.required' => 'Nomor telepon wajib diisi.',
             'id_sub_bagian.required' => 'Sub bagian wajib dipilih.',
-            'id_sub_bagian.exists'   => 'Sub bagian yang dipilih tidak valid.',
-            'alamat.required'        => 'Alamat wajib diisi.',
-            'username.required'      => 'Username wajib diisi.',
-            'username.unique'        => 'Username sudah digunakan oleh pengguna lain.',
-            'password.required'      => 'Password wajib diisi.',
-            'password.min'           => 'Password minimal harus 8 karakter.',
-            'role.required'          => 'Role wajib dipilih.',
-            'role.in'                => 'Role yang dipilih tidak valid.',
+            'id_sub_bagian.exists' => 'Sub bagian yang dipilih tidak valid.',
+            'alamat.required' => 'Alamat wajib diisi.',
+            'username.required' => 'Username wajib diisi.',
+            'username.unique' => 'Username sudah digunakan oleh pengguna lain.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal harus 8 karakter.',
+            'role.required' => 'Role wajib dipilih.',
+            'role.in' => 'Role yang dipilih tidak valid.',
         ]);
 
         User::create([
-            'nama_lengkap'  => $validated['nama_lengkap'],
-            'nip'           => $validated['nip'],
-            'email'         => $validated['email'],
-            'username'      => $validated['username'],
-            'password'      => Hash::make($validated['password']),
-            'no_telepon'    => $validated['no_telepon'],
-            'alamat'        => $validated['alamat'],
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'nip' => $validated['nip'],
+            'email' => $validated['email'],
+            'username' => $validated['username'],
+            'password' => Hash::make($validated['password']),
+            'no_telepon' => $validated['no_telepon'],
+            'alamat' => $validated['alamat'],
             'id_sub_bagian' => $validated['id_sub_bagian'],
-            'role'          => $validated['role'],
-            'status'        => 'aktif',
+            'role' => $validated['role'],
+            'status' => 'aktif',
         ]);
 
         return redirect()
@@ -127,27 +127,27 @@ public function index(Request $request)
         $user = User::findOrFail($request->id_user);
 
         $validated = $request->validate([
-            'id_user'       => ['required', 'exists:users,id_user'],
-            'nama_lengkap'  => ['required', 'string', 'max:50'],
-            'nip'           => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
-            'email'         => ['required', 'email', 'max:50', Rule::unique('users', 'email')->ignore($user->id_user, 'id_user')],
-            'no_telepon'    => ['required', 'string', 'max:20'],
+            'id_user' => ['required', 'exists:users,id_user'],
+            'nama_lengkap' => ['required', 'string', 'max:50'],
+            'nip' => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
+            'email' => ['required', 'email', 'max:50', Rule::unique('users', 'email')->ignore($user->id_user, 'id_user')],
+            'no_telepon' => ['required', 'string', 'max:20'],
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
-            'alamat'        => ['required', 'string'],
-            'role'          => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
+            'alamat' => ['required', 'string'],
+            'role' => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
         ], [
-            'nip.unique'   => 'NIP sudah digunakan oleh pengguna lain.',
+            'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
             'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
         ]);
 
         $user->update([
-            'nama_lengkap'  => $validated['nama_lengkap'],
-            'nip'           => $validated['nip'],
-            'email'         => $validated['email'],
-            'no_telepon'    => $validated['no_telepon'],
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'nip' => $validated['nip'],
+            'email' => $validated['email'],
+            'no_telepon' => $validated['no_telepon'],
             'id_sub_bagian' => $validated['id_sub_bagian'],
-            'alamat'        => $validated['alamat'],
-            'role'          => $validated['role'],
+            'alamat' => $validated['alamat'],
+            'role' => $validated['role'],
         ]);
 
         return redirect()

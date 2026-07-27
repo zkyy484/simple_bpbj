@@ -18,7 +18,7 @@
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </div>
-                <h2 class="text-lg font-bold text-gray-900 leading-tight">Arsipkan Akun</h2>
+                <h2 class="text-lg font-bold text-gray-900 leading-tight">Hapus Akun</h2>
             </div>
             <button type="button" @click="openDelete = false" aria-label="Tutup modal"
                 class="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm">
@@ -30,7 +30,7 @@
         </div>
 
         <div class="p-6 text-center space-y-3">
-            <p class="text-gray-600 text-sm">Apakah Anda yakin ingin mengarsipkan akun ini?</p>
+            <p class="text-gray-600 text-sm">Apakah Anda yakin ingin menghapus akun ini?</p>
             <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-700 font-semibold text-sm">
                 <span x-text="selectedUser.nama"></span>
             </div>
@@ -53,7 +53,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Arsipkan
+                    Hapus Data
                 </button>
             </div>
         </form>
