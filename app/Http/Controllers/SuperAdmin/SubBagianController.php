@@ -11,6 +11,7 @@ class SubBagianController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+        $admins = auth()->user();
 
         $subBagians = SubBagian::where('status', 'aktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -22,13 +23,15 @@ class SubBagianController extends Controller
 
         return view('super-admin.sub_bagian.index', compact(
             'subBagians',
-            'search'
+            'search',
+            'admins'
         ));
     }
 
     public function arsip(Request $request)
     {
         $search = $request->search;
+        $admins = auth()->user();
 
         $subBagians = SubBagian::where('status', 'nonaktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -40,7 +43,8 @@ class SubBagianController extends Controller
 
         return view('super-admin.sub_bagian.arsip', compact(
             'subBagians',
-            'search'
+            'search',
+            'admins'
         ));
     }
 

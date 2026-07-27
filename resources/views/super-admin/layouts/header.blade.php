@@ -23,10 +23,13 @@
     </div>
 
     <!-- Profile -->
+    <a href="{{ route('super.profile') }}"
+
+    
     <div class="flex items-center gap-3 shrink-0">
         <div class="hidden md:block text-right leading-tight">
-            <p class="text-sm font-semibold">Moch. Dzaky Musyaddad</p>
-            <p class="text-[11px] text-gray-300">Admin</p>
+            <p class="text-sm font-semibold">{{$admins->nama_lengkap}}</p>
+            <p class="text-[11px] text-gray-300">{{$admins->role}}</p>
         </div>
 
         <button class="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition shrink-0">
@@ -36,6 +39,7 @@
             </svg>
         </button>
     </div>
+
 
 </header>
 
