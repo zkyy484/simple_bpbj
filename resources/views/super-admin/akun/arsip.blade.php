@@ -1,30 +1,21 @@
 @extends('super-admin.layouts.app')
 
-@section('title', 'Manajemen Akun')
+@section('title', 'Arsip Akun')
 
 @section('content')
-<div x-data="{
-        openCreate: Boolean({{ $errors->any() && old('form_type') == 'create' ? 1 : 0 }}),
-        openEdit: false,
-        openDelete: false,
-        selectedUser: {}
-    }" class="relative">
+<div class="relative">
+    <div class="space-y-6">
 
-    {{-- CONTENT MAIN --}}
-    <div class="space-y-6 transition-all duration-300"
-        :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openCreate || openEdit || openDelete }">
-
-        {{-- Header --}}
         <div>
             <nav class="text-xs text-gray-500 mb-1">
-                <span>Dashboard</span> <span>/</span> <span class="font-semibold text-gray-700">Akun</span>
+                <span>Dashboard</span> <span>/</span> <span>Akun</span> <span>/</span>
+                <span class="font-semibold text-gray-700">Arsip</span>
             </nav>
-            <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen Akun</h2>
+            <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Arsip Data Akun</h2>
         </div>
 
-        {{-- Search & Button --}}
         <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col lg:flex-row justify-between items-center gap-4">
-            <form action="{{ route('index.akun') }}" method="GET" class="flex-1 w-full max-w-md">
+            <form action="{{ route('akun.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
                 <div class="flex">
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Cari Akun..."
@@ -38,21 +29,16 @@
                 </div>
             </form>
             <div class="flex gap-3">
-                <a href="{{ route('akun.arsip') }}"
-                    class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg text-sm font-semibold transition">
-                    Arsip
-                </a>
-                <button type="button" @click="openCreate = true"
+                <a href="{{ route('index.akun') }}"
                     class="bg-[#080d1a] hover:bg-[#173860] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition">
-                    + Tambah Akun
-                </button>
+                    Kembali
+                </a>
             </div>
         </div>
 
-        {{-- Card Table --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-5 border-b flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-900">Daftar Akun</h3>
+                <h3 class="text-lg font-bold text-gray-900">Daftar Akun Terarsip</h3>
                 <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
                     Total : {{ $accounts->total() ?? 0 }}
                 </span>
@@ -75,36 +61,27 @@
                                 <td class="px-6 py-4 font-semibold">{{ $account->nama_lengkap }}</td>
                                 <td class="px-6 py-4 text-gray-600">{{ $account->email }}</td>
                                 <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 text-xs font-bold text-white rounded-full bg-[#173860]">
+                                    <span class="px-3 py-1 text-xs font-bold text-white rounded-full bg-gray-400">
                                         {{ strtoupper($account->role) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center whitespace-nowrap">
-                                    <button type="button"
-                                        @click="openEdit = true; selectedUser = {
-                                            id: '{{ $account->id_user }}',
-                                            nama_lengkap: @js($account->nama_lengkap),
-                                            nip: @js($account->nip),
-                                            email: @js($account->email),
-                                            no_telepon: @js($account->no_telepon),
-                                            alamat: @js($account->alamat),
-                                            id_sub_bagian: '{{ $account->id_sub_bagian }}',
-                                            role: '{{ $account->role }}'
-                                        }"
-                                        class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-semibold transition">
-                                        Edit
-                                    </button>
-                                    <button type="button"
-                                        @click="openDelete = true; selectedUser = { id: '{{ $account->id_user }}', nama: @js($account->nama_lengkap) }"
-                                        class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-semibold transition">
-                                        Hapus
-                                    </button>
+                                <td class="px-6 py-4 text-center">
+                                    <form action="{{ route('akun.pulihkan') }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <input type="hidden" name="id_user" value="{{ $account->id_user }}">
+                                        <button type="submit"
+                                            onclick="return confirm('Apakah Anda yakin ingin memulihkan akun {{ $account->nama_lengkap }}?')"
+                                            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-semibold transition">
+                                            Pulihkan
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="5">
-                                    <div class="py-12 text-center text-gray-500">Belum ada data akun.</div>
+                                    <div class="py-12 text-center text-gray-500">Belum ada data Arsip Akun.</div>
                                 </td>
                             </tr>
                         @endforelse
@@ -114,10 +91,5 @@
             <div class="px-6 py-4 border-t bg-gray-50">{{ $accounts->links() }}</div>
         </div>
     </div>
-
-    {{-- INCLUDES MODAL --}}
-    @include('super-admin.akun.create')
-    @include('super-admin.akun.edit')
-    @include('super-admin.akun.delete')
 </div>
 @endsection

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -14,10 +13,9 @@ class User extends Authenticatable
 
     /**
      * Primary key kolom pada tabel users adalah "id_user", bukan "id" bawaan
-     * Laravel (lihat migration create_users_table). Tanpa ini, Eloquent
-     * (dan sistem Auth/session) akan mencari kolom "id" yang tidak ada,
-     * sehingga identitas user yang tersimpan di session menjadi null dan
-     * user langsung dianggap logout setelah redirect ke dashboard.
+     * Laravel. Tanpa ini, Eloquent (dan sistem Auth/session) akan mencari
+     * kolom "id" yang tidak ada, sehingga identitas user di session jadi
+     * null dan user langsung dianggap logout setelah redirect.
      *
      * @var string
      */
@@ -60,8 +58,15 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relasi ke Sub Bagian.
+     */
+    public function subBagian()
+    {
+        return $this->belongsTo(SubBagian::class, 'id_sub_bagian', 'id_sub_bagian');
     }
 }
