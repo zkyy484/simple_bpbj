@@ -3,7 +3,6 @@
 @section('title', 'Manajemen Sub Bagian')
 
 @section('content')
-
     <div x-data="{
         openCreate: Boolean({{ $errors->any() ? 1 : 0 }}),
         openEdit: false,
@@ -36,12 +35,9 @@
         }
     }" class="relative">
 
-
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
-            :class="{
-                'blur-sm pointer-events-none select-none scale-[0.99]': openCreate || openEdit || openDelete
-            }">
+            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openCreate || openEdit || openDelete }">
 
             {{-- Header --}}
             <div>
@@ -70,9 +66,15 @@
                 </form>
 
                 <div class="flex gap-3">
+                    <!-- Tombol Halaman Arsip dengan Icon -->
                     <a href="{{ route('arsip.sub') }}"
-                        class="bg-gray-200 hover:bg-gray-300 px-4 py-2.5 rounded-lg text-sm font-semibold">
-                        Arsip
+                        class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                        </svg>
+                        <span>Arsip</span>
                     </a>
 
                     <button type="button" @click="openCreate = true"
@@ -95,47 +97,54 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
                             <tr>
-                                <!-- Kolom Nomor: Dibuat ringkas di sisi kiri -->
-                                <th scope="col" class="px-8 py-4 text-center w-24">No</th>
-
-                                <!-- Kolom Nama Sub Bagian: Mengambil sisa ruang secara alami -->
-                                <th scope="col" class="px-8 py-4 text-left">Nama Sub Bagian</th>
-
-                                <!-- Kolom Aksi: Diberi batas lebar agar tombol rapi di kanan -->
-                                <th scope="col" class="px-8 py-4 text-center w-56">Aksi</th>
+                                <th scope="col" class="px-6 py-4 text-center w-16">No</th>
+                                <th scope="col" class="px-6 py-4 text-left">Nama Sub Bagian</th>
+                                <th scope="col" class="px-6 py-4 text-center w-48">Aksi</th>
                             </tr>
                         </thead>
 
                         <tbody class="divide-y divide-gray-100 bg-white">
                             @forelse($subBagians as $index => $subBagian)
                                 <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-8 py-4 text-center text-sm text-gray-600">
+                                    <td class="px-6 py-4 text-center text-sm text-gray-600">
                                         {{ $subBagians->firstItem() + $index }}
                                     </td>
 
-                                    <td class="px-8 py-4 text-left text-sm font-semibold text-gray-900">
+                                    <td class="px-6 py-4 text-left text-sm font-semibold text-gray-900">
                                         {{ $subBagian->nama_sub_bagian }}
                                     </td>
 
-                                    <td class="px-8 py-4 text-center">
+                                    <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <div class="flex justify-center items-center gap-2">
+                                            <!-- Tombol Edit -->
                                             <button type="button"
                                                 @click="setEditData({
-                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
-                                nama: @js($subBagian->nama_sub_bagian),
-                                status: @js($subBagian->status)
-                            })"
-                                                class="px-3 py-1.5 bg-amber-400 hover:bg-amber-500 rounded-lg text-white text-xs font-semibold transition">
-                                                Edit
+                                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
+                                                nama: @js($subBagian->nama_sub_bagian),
+                                                status: @js($subBagian->status)
+                                            })"
+                                                class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 012.828 0L21.8 4.2a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                                                </svg>
+                                                <span>Edit</span>
                                             </button>
 
+                                            <!-- Tombol Arsip -->
                                             <button type="button"
                                                 @click="setDeleteData({
-                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
-                                nama: @js($subBagian->nama_sub_bagian)
-                            })"
-                                                class="px-3 py-1.5 bg-red-500 hover:bg-red-600 rounded-lg text-white text-xs font-semibold transition">
-                                                Hapus
+                                                id_sub_bagian: {{ $subBagian->id_sub_bagian }},
+                                                nama: @js($subBagian->nama_sub_bagian)
+                                            })"
+                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Hapus</span>
                                             </button>
                                         </div>
                                     </td>
@@ -152,10 +161,10 @@
                 </div>
 
                 <div
-                    class="px-6 py-4 border-t border-grey bg-white 
-            [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
-            [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
-            [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
+                    class="px-6 py-4 border-t border-gray-200 bg-white 
+                [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
+                [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
+                [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
                     {{ $subBagians->links() }}
                 </div>
             </div>
@@ -168,5 +177,4 @@
         @include('super-admin.sub_bagian.delete')
 
     </div>
-
 @endsection

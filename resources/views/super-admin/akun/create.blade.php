@@ -108,13 +108,17 @@
                             Sub Bagian <span class="text-red-500">*</span>
                         </label>
                         <select name="id_sub_bagian"
-                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] cursor-pointer @error('id_sub_bagian') border-red-400 @else border-gray-300 @enderror">
-                            <option value="" disabled {{ old('id_sub_bagian') ? '' : 'selected' }}>Pilih Sub Bagian</option>
+                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860]">
+
+                            <option value="" disabled selected>Pilih Sub Bagian</option>
+
                             @foreach ($subBagians as $sub)
-                                <option value="{{ $sub->id_sub_bagian }}"
-                                    {{ old('id_sub_bagian') == $sub->id_sub_bagian ? 'selected' : '' }}>
-                                    {{ $sub->nama_sub_bagian }}
-                                </option>
+                                @if ($sub->status == 'aktif')
+                                    <option value="{{ $sub->id_sub_bagian }}"
+                                        {{ old('id_sub_bagian') == $sub->id_sub_bagian ? 'selected' : '' }}>
+                                        {{ $sub->nama_sub_bagian }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                         @error('id_sub_bagian')
@@ -177,8 +181,10 @@
                             </label>
                             <select name="role"
                                 class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] cursor-pointer bg-white @error('role') border-red-400 @else border-gray-300 @enderror">
-                                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih Role Akses</option>
-                                <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai</option>
+                                <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih Role Akses
+                                </option>
+                                <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai
+                                </option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
                             </select>
                             @error('role')
@@ -188,13 +194,14 @@
 
                         <!-- Catatan kecil -->
                         <div class="flex items-start gap-2 pt-1 text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 shrink-0 text-[#173860]" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 shrink-0 text-[#173860]"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p class="text-xs leading-relaxed">
-                                Pastikan <strong>Username</strong> unik, <strong>Password</strong> aman, dan <strong>Role</strong> sesuai hak akses pegawai.
+                                Pastikan <strong>Username</strong> unik, <strong>Password</strong> aman, dan
+                                <strong>Role</strong> sesuai hak akses pegawai.
                             </p>
                         </div>
                     </div>
