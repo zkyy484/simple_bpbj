@@ -216,6 +216,7 @@
                 <div class="fade-up">
 
                     <a href="{{ route('tamu.form') }}"
+                    <a href="{{ route('sur.page') }}"
                         class="inline-block bg-[#112D55] text-white px-8 py-2.5 rounded-md hover:bg-[#0d2342] transition duration-200 text-sm font-semibold tracking-wide shadow">
 
                         Isi Data Kunjungan Baru

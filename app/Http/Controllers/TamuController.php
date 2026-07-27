@@ -46,6 +46,9 @@ class TamuController extends Controller
         $validated['status_aktif'] = 'aktif';
 
         $tamu = Tamu::create($validated);
+    public function SurveiPage() {
+        return view('tamu.survei');
+    }    
 
         return redirect()->route('thanks.page', $tamu->id_tamu);
     }
