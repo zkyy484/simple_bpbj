@@ -31,6 +31,8 @@ return new class extends Migration
 
             $table->string('jabatan', 50)->nullable();
 
+            $table->string('paraf')->nullable();
+
             $table->foreignId('id_sub_bagian')
                   ->nullable()
                   ->constrained('sub_bagians', 'id_sub_bagian')
@@ -83,4 +85,3 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
     }
 };
-

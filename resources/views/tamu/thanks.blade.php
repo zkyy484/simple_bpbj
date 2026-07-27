@@ -169,11 +169,21 @@
 
                     <div class="flex justify-between border-b border-gray-200 pb-2">
                         <span class="text-gray-500">
+                            Kode Tiket:
+                        </span>
+
+                        <span class="font-semibold text-gray-700">
+                            {{ $tamu->kode_tiket }}
+                        </span>
+                    </div>
+
+                    <div class="flex justify-between border-b border-gray-200 pb-2">
+                        <span class="text-gray-500">
                             Waktu Pengisian:
                         </span>
 
                         <span class="font-semibold text-gray-700">
-                            {{ now()->translatedFormat('l, d F Y H:i') }}
+                            {{ $tamu->created_at->translatedFormat('l, d F Y H:i') }}
                         </span>
                     </div>
 
@@ -196,7 +206,7 @@
                         </span>
 
                         <span class="font-semibold text-gray-700">
-                            Bagian Pengadaan Barang & Jasa
+                            {{ $tamu->tujuan->nama_tujuan ?? 'Bagian Pengadaan Barang & Jasa' }}
                         </span>
 
                     </div>
@@ -205,10 +215,10 @@
 
                 <div class="fade-up">
 
-                    <a href="{{ route('survei.page') }}"
+                    <a href="{{ route('tamu.form') }}"
                         class="inline-block bg-[#112D55] text-white px-8 py-2.5 rounded-md hover:bg-[#0d2342] transition duration-200 text-sm font-semibold tracking-wide shadow">
 
-                        Kembali ke Halaman Utama
+                        Isi Data Kunjungan Baru
 
                     </a>
 
