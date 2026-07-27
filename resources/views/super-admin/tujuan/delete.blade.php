@@ -24,7 +24,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Hapus Sub Bagian
+                        Hapus Tujuan
                     </h2>
                 </div>
             </div>
@@ -42,7 +42,7 @@
         <!-- Body -->
         <div class="p-6 text-center space-y-3">
             <p class="text-gray-600 text-sm">
-                Apakah Anda yakin ingin menghapus Sub Bagian ini?
+                Apakah Anda yakin ingin menghapus Tujuan ini?
             </p>
             <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-700 font-semibold text-sm">
                 <span x-text="selectedSub.nama"></span>
@@ -51,18 +51,15 @@
 
         <!-- Footer -->
         <!-- Footer Form -->
-        <form action="{{ route('sub.delete') }}" method="POST">
+        <form action="{{ route('tujuan.delete') }}" method="POST">
             @csrf
             @method('DELETE')
 
             <!-- Input Hidden untuk mengirimkan ID Sub Bagian ke Controller -->
-            <input type="hidden" name="id_sub_bagian" x-model="selectedSub.id">
+            <input type="hidden" name="id_tujuan" x-model="selectedSub.id">
 
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-                <button type="button" @click="openDelete = false"
-                    class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold transition">
-                    Batal
-                </button>
+
                 <button type="submit"
                     class="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"

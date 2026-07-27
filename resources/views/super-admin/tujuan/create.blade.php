@@ -23,7 +23,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Tambah Sub Bagian
+                        Tambah Tujuan
                     </h2>
                 </div>
             </div>
@@ -39,19 +39,19 @@
         </div>
 
         <!-- Body -->
-        <form action="{{ route('sub.store') }}" method="POST">
+        <form action="{{ route('tujuan.add') }}" method="POST">
             @csrf
             <div class="p-6 space-y-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Nama Sub Bagian <span class="text-red-500">*</span>
+                        Nama Tujuan <span class="text-red-500">*</span>
                     </label>
 
-                    <input type="text" name="nama_sub_bagian" value="{{ old('nama_sub_bagian') }}"
-                        placeholder="Masukkan nama sub bagian"
-                        class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nama_sub_bagian') border-red-400 @else border-gray-300 @enderror">
+                    <input type="text" name="nama_tujuan" value="{{ old('nama_tujuan') }}"
+                        placeholder="Masukkan nama tujuan"
+                        class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nama_tujuan') border-red-400 @else border-gray-300 @enderror">
 
-                    @error('nama_sub_bagian')
+                    @error('nama_tujuan')
                         <p class="mt-2 text-sm text-red-500">
                             {{ $message }}
                         </p>

@@ -18,7 +18,7 @@ class SubBagianController extends Controller
                 $query->where('nama_sub_bagian', 'like', "%{$search}%");
             })
             ->latest('id_sub_bagian')
-            ->paginate(10)
+            ->paginate(5)
             ->withQueryString();
 
         return view('super-admin.sub_bagian.index', compact(

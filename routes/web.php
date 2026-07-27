@@ -50,6 +50,11 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     // ARSIP AKUN
     Route::get('/super/akun/arsip', [SuperAkunController::class, 'arsip'])->name('akun.arsip');
     Route::put('/super/akun/pulihkan', [SuperAkunController::class, 'pulihkan'])->name('akun.pulihkan');
+    Route::get('/super/tujuan/arsip', [TujuanController::class, 'arsip'])->name('tujuan.arsip');
+    Route::post('/super/tujuan/add', [TujuanController::class, 'store'])->name('tujuan.add');
+    Route::put('/super/tujuan/update', [TujuanController::class, 'update'])->name('tujuan.update');
+    Route::delete('/super/tujuan/delete', [TujuanController::class, 'softdelete'])->name('tujuan.delete');
+    Route::put('/super/tujuan/pulihkan', [TujuanController::class, 'pulihkan'])->name('tujuan.pulihkan');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -67,3 +72,16 @@ require __DIR__ . '/auth.php';
 Route::get('/tujuan', function () {
     return view('super-admin.tujuan.index');
 });
+
+Route::get('/tamu', function () {
+    return view('super-admin.tamu.index');
+})->name('super-admin.tamu.index');
+
+// Route untuk halaman detail (modal)
+Route::get('/detailtamu', function () {
+    return view('super-admin.tamu.show');
+})->name('super-admin.tamu.show');
+
+Route::get('/arsiptamu', function () {
+    return view('super-admin.tamu.arsip');
+})->name('super-admin.tamu.arsip');
