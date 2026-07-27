@@ -14,7 +14,7 @@ class TamuController extends Controller
         return view('tamu.thanks');
     }    
 
-    public function Survei() {
+    public function SurveiPage() {
         return view('tamu.survei');
     }    
 

@@ -2,17 +2,34 @@
 
 use App\Http\Controllers\SuperAdmin\SubBagianController;
 use App\Http\Controllers\SuperAdmin\TujuanController;
+use App\Http\Controllers\TamuController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
 use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
+use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
+
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/form-page', [TamuController::class, 'FormPage'])->name('tamu.page');
+Route::get('/thanks-page', [TamuController::class,'Thanks'])->name('thanks.page');
+
+
+Route::get('/sur-page', [TamuController::class, 'SurveiPage'])->name('sur.page');
+Route::get('/sur-thanks', [TamuController::class, 'ThankSurvei'])->name('thanksur.page');
+
+
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
+    Route::get('/super/page', [SuperAkunController::class, 'AkunPage'])->name('index.akun');
 // Route::get('/dashboard', function () {
 //     return view('dashboard');
 // })->middleware(['auth', 'verified'])->name('dashboard');
@@ -67,6 +84,8 @@ Route::middleware(['auth', 'role:pegawai'])->group(function () {
         ->name('pegawai.dashboard');
 });
 
+
+require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';
 
 Route::get('/tujuan', function () {
