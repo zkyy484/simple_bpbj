@@ -3,142 +3,161 @@
 @section('title', 'Arsip Data Tamu')
 
 @section('content')
-
-<div class="p-6"
-     x-data="{
+    <div x-data="{
         openPulihkan: false,
         selected: { id: '', nama_lengkap: '' },
         pulihkanUrl: '',
 
         setPulihkan(tamu) {
             this.selected = tamu;
-            this.pulihkanUrl = '{{ url('/super-admin/tamu') }}/' + tamu.id + '/pulihkan';
+            this.pulihkanUrl = '{{ url('/super/tamu') }}/' + tamu.id + '/pulihkan';
             this.openPulihkan = true;
         }
-     }">
-    <!-- Breadcrumb & Title -->
-    <div class="text-gray-500 text-sm mb-1">Dashboard / Akun</div>
-    <h2 class="text-3xl font-bold text-gray-800 mb-6">Arsip Data Tamu</h2>
+    }" class="relative">
 
-    @if (session('success'))
-        <div class="mb-4 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md p-4">
-            {{ session('success') }}
-        </div>
-    @endif
+        <!-- CONTENT MAIN -->
+        <div class="space-y-6 transition-all duration-300"
+            :class="{
+                'blur-sm pointer-events-none select-none scale-[0.99]': openPulihkan
+            }">
 
-    <!-- Toolbar -->
-    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-6">
-        <div class="flex-1 max-w-lg">
-            <form action="{{ route('super-admin.tamu.arsip') }}" method="GET">
-                <div class="flex border border-gray-300 rounded-xl overflow-hidden bg-white shadow-sm">
-                    <input 
-                        type="text" 
-                        name="search" 
-                        value="{{ request('search') }}"
-                        placeholder="Cari Data Tamu..."
-                        class="flex-1 px-5 py-3 outline-none text-sm focus:ring-1 focus:ring-[#173860] min-w-0"
-                    >
-                    <button type="submit" 
-                            class="bg-[#173860] hover:bg-[#102a48] text-white px-6 flex items-center justify-center transition shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            {{-- Header --}}
+            <div>
+                <nav class="text-xs text-gray-500 mb-1">
+                    <span>Dashboard</span>
+                    <span>/</span>
+                    <span>Tamu</span>
+                    <span>/</span>
+                    <span class="font-semibold text-gray-700">Arsip</span>
+                </nav>
+                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Arsip Data Tamu</h2>
+            </div>
+
+            {{-- Search & Button --}}
+            <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col lg:flex-row justify-between items-center gap-4 border border-gray-100">
+                <form action="{{ route('tamu.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
+                    <div class="flex">
+                        <input 
+                            type="text" 
+                            name="search" 
+                            value="{{ request('search') }}"
+                            placeholder="Cari Data Tamu..."
+                            class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none"
+                        >
+                        <button type="submit" class="bg-[#173860] hover:bg-[#102a48] text-white px-4 rounded-r-lg transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+
+                <div class="flex gap-3 w-full lg:w-auto justify-end">
+                    <!-- Tombol Kembali dengan Icon -->
+                    <a href="{{ route('tamu.index') }}" 
+                       class="bg-[#080d1a] hover:bg-[#173860] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                    </button>
+                        <span>Kembali</span>
+                    </a>
                 </div>
-            </form>
-        </div>
-
-        <a href="{{ route('super-admin.tamu.index') }}" 
-           class="px-6 py-3 bg-[#173860] hover:bg-[#102a48] text-white font-semibold rounded-xl transition text-center whitespace-nowrap shrink-0">
-            Kembali
-        </a>
-    </div>
-
-    <!-- Table -->
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full min-w-[800px] text-sm">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase whitespace-nowrap">NAMA</th>
-                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase whitespace-nowrap">TUJUAN</th>
-                        <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase whitespace-nowrap">PEGAWAI</th>
-                        <th class="w-12 px-4 py-3"></th> <!-- Checkbox -->
-                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase whitespace-nowrap">STATUS</th>
-                        <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase whitespace-nowrap w-36">AKSI</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($tamus as $tamu)
-                        @php
-                            $statusColor = match ($tamu->status_tindak_lanjut) {
-                                'selesai' => 'bg-green-600',
-                                'eskalasi' => 'bg-red-600',
-                                default => 'bg-gray-400',
-                            };
-                            $statusLabel = match ($tamu->status_tindak_lanjut) {
-                                'selesai' => 'Selesai',
-                                'eskalasi' => 'Eskalasi',
-                                default => 'Menunggu',
-                            };
-                        @endphp
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-4 align-top">
-                                <div class="max-w-[180px] truncate font-medium">{{ $tamu->nama_lengkap }}</div>
-                                <div class="text-xs font-normal text-gray-400">{{ $tamu->kode_tiket }}</div>
-                            </td>
-                            <td class="px-4 py-4 text-gray-600 align-top">
-                                <div class="max-w-[150px] truncate">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</div>
-                            </td>
-                            <td class="px-4 py-4 text-gray-600 align-top">
-                                <div class="max-w-[150px] truncate">{{ $tamu->pegawai->name ?? '-' }}</div>
-                            </td>
-                            <td class="px-4 py-4 text-center align-top">
-                                <input type="checkbox" class="w-5 h-5 accent-[#173860]" disabled
-                                       @checked($tamu->status !== 'menunggu')>
-                            </td>
-                            <td class="px-4 py-4 text-center align-top">
-                                <span class="inline-block px-4 py-1 text-xs font-bold rounded-full text-white whitespace-nowrap {{ $statusColor }}">
-                                    {{ $statusLabel }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-4 text-center align-top">
-                                <button type="button"
-                                        @click="setPulihkan({ id: {{ $tamu->id_tamu }}, nama_lengkap: @js($tamu->nama_lengkap) })"
-                                        class="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition mx-auto whitespace-nowrap">
-                                    <i class="fa fa-undo"></i>
-                                    Pulihkan
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-12 text-center text-gray-500 text-sm">
-                                Belum ada data tamu yang diarsipkan.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Footer -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-5 bg-gray-50 border-t">
-            <div class="text-sm text-gray-600 whitespace-nowrap">
-                Showing <strong>{{ $tamus->firstItem() ?? 0 }}</strong> to <strong>{{ $tamus->lastItem() ?? 0 }}</strong> of <strong>{{ $tamus->total() }}</strong> entries
             </div>
-            <div class="flex flex-wrap gap-2
-                [&_a]:!bg-white [&_a]:!text-gray-700 [&_a]:!border [&_a]:!border-gray-300 [&_a]:!rounded-lg [&_a]:!px-4 [&_a]:!py-2 [&_a]:!text-sm hover:[&_a]:!bg-gray-100
-                [&_span[aria-current='page']>span]:!bg-[#173860] [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!rounded-lg [&_span[aria-current='page']>span]:!px-4 [&_span[aria-current='page']>span]:!py-2 [&_span[aria-current='page']>span]:!text-sm
-                [&_span[aria-disabled='true']>span]:!hidden">
-                {{ $tamus->links() }}
+
+            {{-- Card Table --}}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-lg font-bold text-gray-900">Daftar Arsip Tamu</h3>
+                    <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
+                        Total : {{ $tamus->total() ?? 0 }}
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-100 text-gray-700 text-xs font-semibold uppercase">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left whitespace-nowrap">NAMA</th>
+                                <th scope="col" class="px-6 py-4 text-left whitespace-nowrap">TUJUAN</th>
+                                <th scope="col" class="px-6 py-4 text-left whitespace-nowrap">PEGAWAI</th>
+                                <th scope="col" class="px-4 py-4 text-center w-12">CHECK</th>
+                                <th scope="col" class="px-6 py-4 text-center whitespace-nowrap">STATUS</th>
+                                <th scope="col" class="px-6 py-4 text-center w-48 whitespace-nowrap">AKSI</th>
+                            </tr>
+                        </thead>
+
+                        <tbody class="divide-y divide-gray-100 bg-white">
+                            @forelse ($tamus as $tamu)
+                                @php
+                                    $statusColor = match ($tamu->status_tindak_lanjut) {
+                                        'selesai' => 'bg-green-600',
+                                        'eskalasi' => 'bg-red-600',
+                                        default => 'bg-gray-400',
+                                    };
+                                    $statusLabel = match ($tamu->status_tindak_lanjut) {
+                                        'selesai' => 'Selesai',
+                                        'eskalasi' => 'Eskalasi',
+                                        default => 'Menunggu',
+                                    };
+                                @endphp
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 align-middle">
+                                        <div class="font-semibold text-gray-900">{{ $tamu->nama_lengkap }}</div>
+                                        <div class="text-xs font-normal text-gray-400">{{ $tamu->kode_tiket }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600 align-middle">
+                                        {{ $tamu->tujuan->nama_tujuan ?? '-' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-600 align-middle">
+                                        {{ $tamu->pegawai->name ?? '-' }}
+                                    </td>
+                                    <td class="px-4 py-4 text-center align-middle">
+                                        <input type="checkbox" class="w-4 h-4 accent-[#173860] rounded" disabled @checked($tamu->status !== 'menunggu')>
+                                    </td>
+                                    <td class="px-6 py-4 text-center align-middle">
+                                        <span class="inline-block px-3 py-1 text-xs font-bold rounded-full text-white whitespace-nowrap {{ $statusColor }}">
+                                            {{ $statusLabel }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center align-middle whitespace-nowrap">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <!-- Tombol Pulihkan dengan Icon & Style Emerald -->
+                                            <button type="button"
+                                                @click="setPulihkan({ id: {{ $tamu->id_tamu }}, nama_lengkap: @js($tamu->nama_lengkap) })"
+                                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                                </svg>
+                                                <span>Pulihkan</span>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                        Belum ada data tamu yang diarsipkan.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Pagination Footer --}}
+                <div class="px-6 py-4 border-t border-gray-200 bg-white 
+                    [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
+                    [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
+                    [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
+                    {{ $tamus->links() }}
+                </div>
             </div>
+
         </div>
+
+        {{-- INCLUDE MODAL PULIHKAN --}}
+        @include('super-admin.tamu.pulihkan')
+
     </div>
-
-    <!-- Modal Pulihkan -->
-    @include('super-admin.tamu.pulihkan')
-</div>
-
 @endsection
