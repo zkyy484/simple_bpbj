@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdmin\SubBagianController;
 use App\Http\Controllers\SuperAdmin\TujuanController;
 use App\Http\Controllers\TamuController;
@@ -9,6 +9,8 @@ use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardControll
 use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
+use App\Http\Controllers\Admin\TamuController as AdminTamuController;
+use App\Http\Controllers\Admin\AkunController as AdminAkunController;
 
 
 Route::get('/', function () {
@@ -81,6 +83,26 @@ Route::middleware(['auth', 'role:pegawai'])->group(function () {
 Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');
 Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
 Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
+
+
+
+
+// INI ADMIN 
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
+
+    // TAMU (Admin)
+    Route::get('/admin/tamu', [AdminTamuController::class, 'index'])->name('admin.tamu.index');
+    Route::get('/admin/tamu/arsip', [AdminTamuController::class, 'arsip'])->name('admin.tamu.arsip');
+    Route::patch('/admin/tamu/{tamu}/approval', [AdminTamuController::class, 'approval'])->name('admin.tamu.approval');
+    Route::put('/admin/tamu/{tamu}', [AdminTamuController::class, 'update'])->name('admin.tamu.update');
+    Route::delete('/admin/tamu/{tamu}', [AdminTamuController::class, 'destroy'])->name('admin.tamu.destroy');
+    Route::put('/admin/tamu/{tamu}/pulihkan', [AdminTamuController::class, 'pulihkan'])->name('admin.tamu.pulihkan');
+});
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin/akun', [AdminAkunController::class, 'index'])->name('admin.index.akun');
+});
 
 require __DIR__ . '/auth.php';
 

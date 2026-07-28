@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use DB;
-use Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,9 +17,9 @@ class SuperAdminSeeder extends Seeder
         DB::table('users')->insert([
             'nama_lengkap' => 'Super Administrator',
             'nip' => '000000000000000000',
-            'email' => 'dzakymusyaddad@gmail.com',
+            'email' => 'superadmin@gmail.com',
             'username' => 'superadmin',
-            'password' => Hash::make('11111111'),
+            'password' => Hash::make('admin123'),
             'no_telepon' => '081234567890',
             'alamat' => 'Denpasar',
             'jabatan' => 'Super Administrator',
