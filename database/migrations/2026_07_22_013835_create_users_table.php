@@ -31,7 +31,7 @@ return new class extends Migration
 
             $table->string('jabatan', 50)->nullable();
 
-            $table->string('paraf')->nullable();
+            $table->longText('paraf')->nullable();
 
             $table->foreignId('id_sub_bagian')
                   ->nullable()

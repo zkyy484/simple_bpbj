@@ -31,6 +31,7 @@ class TamuController extends Controller
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
             'id_tujuan' => ['required', 'exists:tujuans,id_tujuan'],
             'permasalahan' => ['nullable', 'string'],
+            'paraf' => ['required', 'string'],
         ]);
 
         $validated['kode_tiket'] = 'KNS-' . now()->format('Ymd') . str_pad(
@@ -46,11 +47,13 @@ class TamuController extends Controller
         $validated['status_aktif'] = 'aktif';
 
         $tamu = Tamu::create($validated);
-    public function SurveiPage() {
-        return view('tamu.survei');
-    }    
 
         return redirect()->route('thanks.page', $tamu->id_tamu);
+    }
+
+    public function SurveiPage()
+    {
+        return view('tamu.survei');
     }
 
     // Menampilkan halaman terima kasih setelah data tersimpan

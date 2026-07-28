@@ -13,6 +13,7 @@ class TamuController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+         $admins = auth()->user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'aktif')
@@ -28,13 +29,14 @@ class TamuController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('super-admin.tamu.index', compact('tamus', 'search'));
+        return view('super-admin.tamu.index', compact('tamus', 'search', 'admins'));
     }
 
     // Menampilkan daftar tamu non-aktif (arsip)
     public function arsip(Request $request)
     {
         $search = $request->search;
+        $admins = auth()->user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'non_aktif')
@@ -46,7 +48,7 @@ class TamuController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('super-admin.tamu.arsip', compact('tamus', 'search'));
+        return view('super-admin.tamu.arsip', compact('tamus', 'search', 'admins'));
     }
 
     // Memulihkan data tamu dari arsip
@@ -96,7 +98,6 @@ class TamuController extends Controller
         return back()->with('success', 'Status approval berhasil diperbarui.');
     }
 
-    // "Menghapus" data tamu -> ubah status_aktif jadi non_aktif
     public function destroy(Tamu $tamu)
     {
         $tamu->update(['status_aktif' => 'non_aktif']);
