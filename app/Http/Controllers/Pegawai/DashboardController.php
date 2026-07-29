@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 class DashboardController extends Controller
 {
     public function index() {
-        return view('pegawai.dashboard');
+        $pegawai = auth()->user();
+
+     return view('pegawai.dashboard', compact('pegawai'));
     }
 }

@@ -63,4 +63,18 @@ class TamuController extends Controller
 
         return view('tamu.thanks-survei', compact('tamu'));
     }
+
+
+    // TRACKING TIKET
+    public function show($kode_tiket)
+    {
+        $tamu = Tamu::with([
+            'pegawai',
+            'subBagian',
+            'tujuan'
+        ])->where('kode_tiket', $kode_tiket)
+          ->firstOrFail();
+
+        return view('tamu.tracking', compact('tamu'));
+    }
 }

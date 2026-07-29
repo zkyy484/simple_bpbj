@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(SubBagian::class, 'id_sub_bagian', 'id_sub_bagian');
     }
+
+    public function tamus()
+    {
+        return $this->hasMany(Tamu::class, 'id_user', 'id_user');
+    }
 }
