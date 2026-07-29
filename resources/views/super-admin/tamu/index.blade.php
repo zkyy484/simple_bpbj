@@ -110,7 +110,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->pegawai->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
                                     <td class="px-6 py-4 text-sm">
                                         @php
                                             $statusColor = match ($tamu->status_tindak_lanjut) {
