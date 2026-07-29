@@ -68,7 +68,7 @@ return new class extends Migration
             ])->default('menunggu');
 
             // Paraf pegawai/admin yang melakukan approval terhadap tamu ini
-            $table->string('paraf')->nullable();
+            $table->longText('paraf')->nullable();
 
             // Status aktif/non-aktif data tamu (pengganti soft delete)
             $table->enum('status_aktif', [

@@ -34,13 +34,13 @@ class Tamu extends Model
         return $this->belongsTo(SubBagian::class, 'id_sub_bagian', 'id_sub_bagian');
     }
 
-    public function tujuan()
-    {
-        return $this->belongsTo(Tujuan::class, 'id_tujuan', 'id_tujuan');
-    }
-
     public function pegawai()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
+
+    public function tujuan()
+    {
+        return $this->belongsTo(Tujuan::class, 'id_tujuan', 'id_tujuan');
     }
 }

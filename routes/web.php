@@ -1,8 +1,11 @@
 <?php
 
-use App\Http\Controllers\SuperAdmin\SubBagianController;
-use App\Http\Controllers\SuperAdmin\TujuanController;
 use App\Http\Controllers\TamuController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SuperAdmin\SubBagianController;
+use App\Http\Controllers\Pegawai\ProfileController as PegawaiProfileController;
+use App\Http\Controllers\SuperAdmin\TujuanController;
+use App\Http\Controllers\Pegawai\TamuController as PegawaiTamuController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Pegawai\DashboardController as PegawaiDashboardController;
@@ -73,19 +76,30 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 });
 
-Route::middleware(['auth', 'role:pegawai'])->group(function () {
-    Route::get('/pegawai/dashboard', [PegawaiDashboardController::class, 'index'])->name('pegawai.dashboard');
+Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
+    Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/tamu', [PegawaiTamuController::class, 'index'])->name('tamu.index');
+    Route::put('/tamu/{id}/tindak-lanjut', [PegawaiTamuController::class, 'updateTindakLanjut'])->name('tamu.tindak-lanjut.update');
+    Route::post('/tamu/{id}/kirim-email', [PegawaiTamuController::class, 'kirimEmail'])->name('tamu.kirim-email');
+
+    // PROFILE
+    Route::get('/profile', [PegawaiProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [PegawaiProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [PegawaiProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
+
 
 // BUKU TAMU (Publik, tanpa login)
 Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');
 Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
 Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
 
+// HALAMAN TRACKING TAMU
+Route::get('/tracking/{kode_tiket}', [TamuController::class, 'show'])
+    ->name('tracking.tamu');
+    
 require __DIR__ . '/auth.php';
 
-Route::get('/tes-waktu', function () {
-    return now();
-});
 
 
