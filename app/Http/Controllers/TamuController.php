@@ -57,7 +57,7 @@ class TamuController extends Controller
     }
 
     // Menampilkan halaman terima kasih setelah data tersimpan
-    public function Thanks($id)
+    public function Thanks(int $id)
     {
         $tamu = Tamu::with('tujuan')->findOrFail($id);
 
