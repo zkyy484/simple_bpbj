@@ -66,7 +66,7 @@ class TamuController extends Controller
 
 
     // TRACKING TIKET
-    public function show($kode_tiket)
+    public function show(String $kode_tiket)
     {
         $tamu = Tamu::with([
             'pegawai',

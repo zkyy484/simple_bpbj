@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash; // <-- WAJIB ditambahkan, tanpa ini Hash::check() error
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         return view('pegawai.profile', compact('user'));
     }
@@ -21,7 +22,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $validated = $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:50'],
@@ -42,7 +43,7 @@ class ProfileController extends Controller
         $user->no_telepon = $validated['no_telepon'] ?? null;
         $user->nip = $validated['nip'];
         $user->alamat = $validated['alamat'] ?? null;
-        $user->save();
+        $user->Auth::save();
 
         return redirect()
             ->route('pegawai.profile')
@@ -54,7 +55,7 @@ class ProfileController extends Controller
      */
     public function updatePassword(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         $request->validate([
             'current_password' => ['required', 'string'],
@@ -75,7 +76,7 @@ class ProfileController extends Controller
         }
 
         $user->password = Hash::make($request->password);
-        $user->save();
+        $user->Auth::save();
 
         return redirect()
             ->route('pegawai.profile')

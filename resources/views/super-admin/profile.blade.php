@@ -10,7 +10,8 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
-<body class="bg-[#dbe5ff] font-sans text-gray-800 min-h-screen flex flex-col justify-between">
+<body class="bg-[#dbe5ff] font-sans text-gray-800 min-h-screen flex flex-col justify-between"
+    data-password-error="{{ $errors->has('current_password') || old('current_password') ? '1' : '0' }}">
 
     <!-- Top Action Bar -->
     <div class="bg-white px-8 py-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
@@ -21,6 +22,10 @@
             <h2 class="text-2xl font-bold text-gray-900">Pengaturan Profile</h2>
         </div>
         <div class="flex gap-3">
+            <button type="button" onclick="openPasswordModal()"
+                class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition flex items-center gap-2">
+                <i data-lucide="lock" class="w-4 h-4"></i> Ubah Password
+            </button>
             <button type="button" onclick="window.history.back()"
                 class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
                 Batal
@@ -41,6 +46,7 @@
             class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             @csrf
             @method('PUT')
+            <input type="hidden" name="paraf" id="paraf-input">
 
             <!-- Left: Summary Card -->
             <div class="lg:col-span-4 bg-white rounded-xl p-6 shadow-sm flex flex-col items-center text-center">
@@ -129,23 +135,88 @@
         </form>
 
         {{-- ============================ --}}
-        {{-- FORM 2: UBAH PASSWORD --}}
+        {{-- SECTION: PARAF / TANDA TANGAN --}}
         {{-- ============================ --}}
-        <div id="password-section" class="mt-6">
-            <form action="{{ route('super.profile.password.update') }}" method="POST"
-                class="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div id="paraf-section" class="mt-6 bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="pen-tool" class="w-5 h-5 text-gray-800"></i>
+                    <h3 class="text-base font-bold text-gray-900">Paraf / Tanda Tangan Digital</h3>
+                </div>
+                <span class="text-xs text-gray-500 font-medium">Digunakan untuk validasi dokumen</span>
+            </div>
+
+            <div class="p-6">
+                @if ($user->paraf)
+                    {{-- Tampilkan paraf yang sudah tersimpan --}}
+                    <div class="mb-5">
+                        <label class="block text-xs font-semibold text-gray-700 mb-2">Paraf Tersimpan</label>
+                        <div class="border border-gray-200 rounded-lg p-4 bg-[#f9fafb] inline-block">
+                            <img src="{{ $user->paraf }}" alt="Paraf" class="h-24 object-contain">
+                        </div>
+                        <form action="{{ route('super.profile.paraf.delete') }}" method="POST" class="inline-block ml-3"
+                            onsubmit="return confirm('Yakin ingin menghapus paraf ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="text-xs text-red-600 hover:text-red-800 font-semibold mt-2 inline-flex items-center gap-1">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Hapus Paraf
+                            </button>
+                        </form>
+                    </div>
+                @endif
+
+                <label class="block text-xs font-semibold text-gray-700 mb-2">
+                    {{ $user->paraf ? 'Ganti Paraf (gambar di area bawah)' : 'Buat Paraf (gambar di area bawah)' }}
+                </label>
+
+                <div class="border-2 border-dashed border-gray-300 rounded-lg bg-[#f9fafb] relative"
+                    style="touch-action: none;">
+                    <canvas id="signature-pad" class="w-full rounded-lg" height="180"></canvas>
+                    <span id="signature-placeholder"
+                        class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm pointer-events-none">
+                        Tanda tangani di sini
+                    </span>
+                </div>
+
+                <div class="flex justify-between items-center mt-3">
+                    <button type="button" onclick="clearSignature()"
+                        class="px-4 py-2 text-xs font-semibold text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-1.5">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Bersihkan Canvas
+                    </button>
+                    <p class="text-[11px] text-gray-500">Paraf akan otomatis tersimpan saat Anda klik
+                        <b>"Simpan Perubahan"</b> di atas.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {{-- ============================ --}}
+    {{-- MODAL: UBAH PASSWORD --}}
+    {{-- ============================ --}}
+    <div id="password-modal-overlay"
+        class="hidden fixed inset-0 bg-black/50 z-40 items-center justify-center p-4">
+        <div id="password-modal-box"
+            class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+
+            <form action="{{ route('super.profile.password.update') }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
+                <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl">
                     <div class="flex items-center gap-3">
                         <i data-lucide="lock" class="w-5 h-5 text-gray-800"></i>
                         <h3 class="text-base font-bold text-gray-900">Ubah Password</h3>
                     </div>
-                    <span class="text-xs text-gray-500 font-medium">Wajib diisi semua jika ingin mengganti
-                        password</span>
+                    <button type="button" onclick="closePasswordModal()"
+                        class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
                 </div>
+
                 <div class="p-6 space-y-5">
+                    <p class="text-xs text-gray-500 font-medium -mt-1">Wajib diisi semua jika ingin mengganti password</p>
+
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-2">Password Saat Ini</label>
                         <div class="relative">
@@ -198,17 +269,21 @@
                             </p>
                         </div>
                     </div>
+                </div>
 
-                    <div class="flex justify-end">
-                        <button type="submit"
-                            class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
-                            Simpan Password
-                        </button>
-                    </div>
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white rounded-b-2xl">
+                    <button type="button" onclick="closePasswordModal()"
+                        class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
+                        Simpan Password
+                    </button>
                 </div>
             </form>
         </div>
-    </main>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-[#0f2545] text-white pt-8 pb-4 px-8 mt-12">
@@ -236,6 +311,7 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
         lucide.createIcons();
 
@@ -251,6 +327,78 @@
             }
             lucide.createIcons();
         }
+
+        // ===== Modal Ubah Password =====
+        const passwordOverlay = document.getElementById('password-modal-overlay');
+
+        function openPasswordModal() {
+            passwordOverlay.classList.remove('hidden');
+            passwordOverlay.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePasswordModal() {
+            passwordOverlay.classList.add('hidden');
+            passwordOverlay.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Tutup modal jika klik area gelap di luar box
+        passwordOverlay.addEventListener('click', function (e) {
+            if (e.target === passwordOverlay) {
+                closePasswordModal();
+            }
+        });
+
+        // Tutup modal dengan tombol Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !passwordOverlay.classList.contains('hidden')) {
+                closePasswordModal();
+            }
+        });
+
+        // Jika validasi password gagal di server, otomatis buka kembali modal
+        if (document.body.dataset.passwordError === '1') {
+            openPasswordModal();
+        }
+
+        // ===== Signature Pad (Paraf) =====
+        const canvas = document.getElementById('signature-pad');
+        const placeholder = document.getElementById('signature-placeholder');
+        let signaturePad;
+
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext('2d').scale(ratio, ratio);
+            if (signaturePad) signaturePad.clear();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgba(255,255,255,0)',
+            penColor: '#1b3a6b'
+        });
+
+        signaturePad.addEventListener('beginStroke', () => {
+            placeholder.style.display = 'none';
+        });
+
+        function clearSignature() {
+            signaturePad.clear();
+            placeholder.style.display = 'flex';
+            document.getElementById('paraf-input').value = '';
+        }
+
+        // Ambil hasil tanda tangan sebagai base64 sebelum form Info Profil disubmit
+        document.getElementById('profile-form').addEventListener('submit', function () {
+            if (!signaturePad.isEmpty()) {
+                document.getElementById('paraf-input').value = signaturePad.toDataURL('image/png');
+            }
+        });
     </script>
 
     @if (session('success'))

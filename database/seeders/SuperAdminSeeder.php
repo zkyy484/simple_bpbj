@@ -22,7 +22,6 @@ class SuperAdminSeeder extends Seeder
             'password' => Hash::make('admin123'),
             'no_telepon' => '081234567890',
             'alamat' => 'Denpasar',
-            'jabatan' => 'Super Administrator',
             'id_sub_bagian' => null,
             'role' => 'super_admin',
             'status' => 'aktif',

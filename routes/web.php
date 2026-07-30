@@ -14,6 +14,7 @@ use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
 use App\Http\Controllers\Admin\TamuController as AdminTamuController;
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
+use App\Http\Controllers\SuperAdmin\LaporanController as SuperAdminLaporanController;
 
 
 Route::get('/', function () {
@@ -36,6 +37,9 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 
     // GANTI PASSWORD (terpisah dari update profil)
     Route::put('/super/profile/password', [SuperProfileController::class, 'updatePassword'])->name('super.profile.password.update');
+
+    // PARAF / TANDA TANGAN (BARU)
+    Route::delete('/super/profile/paraf', [SuperProfileController::class, 'deleteParaf'])->name('super.profile.paraf.delete');
 
     // SUB BAGIAN
     Route::get('/super/sub', [SubBagianController::class, 'Index'])->name('index.sub');
@@ -72,6 +76,13 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::delete('/super/tamu/{tamu}', [SuperAdminTamuController::class, 'destroy'])->name('tamu.destroy');
     Route::put('/super/tamu/{tamu}/pulihkan', [SuperAdminTamuController::class, 'pulihkan'])->name('tamu.pulihkan');
 
+    // LAPORAN
+    Route::get('/super/laporan/buku-tamu', [SuperAdminLaporanController::class, 'bukuTamu'])->name('laporan.buku-tamu.index');
+    Route::get('/super/laporan/buku-tamu/export', [SuperAdminLaporanController::class, 'exportBukuTamuPdf'])->name('laporan.buku-tamu.export');
+
+    // LAPORAN PENGUNJUNG
+    Route::get('/super/laporan/pengunjung', [SuperAdminLaporanController::class, 'pengunjung'])->name('laporan.pengunjung.index');
+    Route::get('/super/laporan/pengunjung/export', [SuperAdminLaporanController::class, 'exportPengunjungPdf'])->name('laporan.pengunjung.export');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {

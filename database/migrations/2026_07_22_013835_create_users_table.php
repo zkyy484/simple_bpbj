@@ -29,8 +29,6 @@ return new class extends Migration
 
             $table->text('alamat')->nullable();
 
-            $table->string('jabatan', 50)->nullable();
-
             $table->longText('paraf')->nullable();
 
             $table->foreignId('id_sub_bagian')
