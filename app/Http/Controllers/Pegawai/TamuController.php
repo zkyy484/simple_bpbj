@@ -7,14 +7,14 @@ use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TindakLanjutMail;
-
+use Illuminate\Support\Facades\Auth;
 
 class TamuController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->search;
-        $pegawai = auth()->user();
+        $pegawai = Auth::user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'aktif')
@@ -33,28 +33,23 @@ class TamuController extends Controller
         return view('pegawai.tamu.index', compact('tamus', 'search', 'pegawai'));
     }
 
-    public function updateTindakLanjut(Request $request, $id)
+    public function updateTindakLanjut(Request $request, int $id)
     {
         $tamu = Tamu::findOrFail($id);
 
         // Jika belum ada yang menangani, pegawai yang login menjadi penanggung jawab
         if (is_null($tamu->id_user)) {
-
-            $tamu->id_user = auth()->user()->id_user;
-
+            $tamu->id_user = Auth::user()->id_user;
         }
         // Jika sudah ditangani pegawai lain
-        elseif ($tamu->id_user != auth()->user()->id_user) {
-
+        elseif ($tamu->id_user != Auth::user()->id_user) {
             return redirect()
                 ->route('pegawai.tamu.index')
                 ->with('error', 'Data sudah ditangani oleh pegawai lain.');
-
         }
 
         $tamu->solusi = $request->solusi;
         $tamu->status_tindak_lanjut = $request->status_tindak_lanjut;
-
         $tamu->save();
 
         return redirect()
@@ -62,36 +57,29 @@ class TamuController extends Controller
             ->with('success', 'Data berhasil diperbarui.');
     }
 
-
-    public function kirimEmail(Request $request, $id)
+    public function kirimEmail(Request $request, int $id)
     {
-         $tamu = Tamu::findOrFail($id);
+        $tamu = Tamu::findOrFail($id);
 
-    // Jika belum ada yang menangani, pegawai yang login menjadi penanggung jawab
-    if (is_null($tamu->id_user)) {
+        // Jika belum ada yang menangani, pegawai yang login menjadi penanggung jawab
+        if (is_null($tamu->id_user)) {
+            $tamu->id_user = Auth::user()->id_user;
+            $tamu->save();
+        }
+        // Jika sudah ditangani pegawai lain
+        elseif ($tamu->id_user != Auth::user()->id_user) {
+            return redirect()
+                ->back()
+                ->with('error', 'Data sudah ditangani oleh pegawai lain.');
+        }
 
-        $tamu->id_user = auth()->user()->id_user;
-        $tamu->save();
+        // ===== proses kirim email =====
+        $tamu->load(['pegawai', 'tujuan', 'subBagian']);
 
-    }
-    // Jika sudah ditangani pegawai lain
-    elseif ($tamu->id_user != auth()->user()->id_user) {
+        Mail::to($tamu->email)->send(new TindakLanjutMail($tamu));
 
         return redirect()
             ->back()
-            ->with('error', 'Data sudah ditangani oleh pegawai lain.');
-
+            ->with('success', 'Email berhasil dikirim.');
     }
-
-    // ===== proses kirim email =====
-    $tamu->load(['pegawai', 'tujuan', 'subBagian']);
-
-    Mail::to($tamu->email)->send(new TindakLanjutMail($tamu));
-
-    return redirect()
-        ->back()
-        ->with('success', 'Email berhasil dikirim.');
-    }
-
-    
 }

@@ -80,12 +80,16 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse ($pengunjungs as $pengunjung)
                         @php
-                            $statusMap = [
-                                'belum_eskalasi' => ['label' => 'Belum Ditindak', 'class' => 'bg-gray-300 text-gray-700'],
-                                'eskalasi' => ['label' => 'Ditindak', 'class' => 'bg-lime-400 text-lime-900'],
-                                'selesai' => ['label' => 'Selesai', 'class' => 'bg-emerald-500 text-white'],
-                            ];
-                            $badge = $statusMap[$pengunjung->status_tindak_lanjut] ?? ['label' => '-', 'class' => 'bg-gray-200 text-gray-600'];
+                            $statusColor = match ($pengunjung->status_tindak_lanjut) {
+                                'selesai' => 'bg-emerald-500 text-white',
+                                'eskalasi' => 'bg-lime-400 text-lime-900',
+                                default => 'bg-gray-300 text-gray-700',
+                            };
+                            $statusLabel = match ($pengunjung->status_tindak_lanjut) {
+                                'selesai' => 'Selesai',
+                                'eskalasi' => 'Eskalasi',
+                                default => 'Belum Eskalasi',
+                            };
                         @endphp
                         <tr class="hover:bg-gray-50/50 transition align-top">
                             <td class="px-6 py-4 font-semibold text-gray-900">{{ $pengunjung->id_tamu }}</td>
@@ -95,8 +99,8 @@
                             <td class="px-6 py-4 text-gray-700">{{ $pengunjung->nama_perusahaan ?? '-' }}</td>
                             <td class="px-6 py-4 text-gray-700">{{ $pengunjung->jenis_permohonan ?? '-' }}</td>
                             <td class="px-6 py-4">
-                                <span class="px-3 py-1 {{ $badge['class'] }} rounded-full text-[11px] font-bold whitespace-nowrap">
-                                    {{ $badge['label'] }}
+                                <span class="px-3 py-1 {{ $statusColor }} rounded-full text-[11px] font-bold whitespace-nowrap">
+                                    {{ $statusLabel }}
                                 </span>
                             </td>
                         </tr>

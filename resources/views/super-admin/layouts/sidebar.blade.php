@@ -117,8 +117,8 @@
                         </svg>
                     </button>
                     <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.buku-tamu.*') }}">Laporan Buku Tamu</a>
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.pengunjung.*') }}">Laporan Pengunjung</a>
+                        <a href="{{ route('laporan.buku-tamu.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.buku-tamu.*') }}">Laporan Buku Tamu</a>
+                        <a href="{{ route('laporan.pengunjung.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.pengunjung.*') }}">Laporan Pengunjung</a>
                         <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.survei.*') }}">Laporan Survei</a>
                     </div>
                 </div>
