@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Models\SubBagian;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ class AkunController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $accounts = User::with('subBagian')
             ->where('status', 'aktif')
@@ -43,7 +44,7 @@ class AkunController extends Controller
     public function arsip(Request $request)
     {
         $search = $request->query('search');
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $accounts = User::with('subBagian')
             ->where('status', 'nonaktif')
@@ -64,7 +65,7 @@ class AkunController extends Controller
     public function create()
     {
         $subBagians = SubBagian::where('status', 'aktif')->get();
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         return view('super-admin.akun.create', compact('subBagians', 'admins'));
     }

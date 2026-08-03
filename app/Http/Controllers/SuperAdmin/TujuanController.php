@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tujuan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class TujuanController extends Controller
@@ -12,7 +13,7 @@ class TujuanController extends Controller
     {
         // return view('super-admin.tujuan.index');
         $search = $request->search;
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $Tujuans = Tujuan::where('status', 'aktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -34,7 +35,7 @@ class TujuanController extends Controller
     {
         // return view('super-admin.tujuan.index');
         $search = $request->search;
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $Tujuans = Tujuan::where('status', 'nonaktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\SuperAdmin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +14,7 @@ class TamuController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-         $admins = auth::user();
+        $admins = Auth::user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'aktif')
@@ -30,34 +30,7 @@ class TamuController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('super-admin.tamu.index', compact('tamus', 'search', 'admins'));
-    }
-
-    // Menampilkan daftar tamu non-aktif (arsip)
-    public function arsip(Request $request)
-    {
-        $search = $request->search;
-        $admins = auth::user();
-
-        $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
-            ->where('status_aktif', 'non_aktif')
-            ->when($search, function ($query) use ($search) {
-                $query->where('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('kode_tiket', 'like', "%{$search}%");
-            })
-            ->latest('id_tamu')
-            ->paginate(10)
-            ->withQueryString();
-
-        return view('super-admin.tamu.arsip', compact('tamus', 'search', 'admins'));
-    }
-
-    // Memulihkan data tamu dari arsip
-    public function pulihkan(Tamu $tamu)
-    {
-        $tamu->update(['status_aktif' => 'aktif']);
-
-        return back()->with('success', 'Data tamu berhasil dipulihkan.');
+        return view('admin.tamu.index', compact('tamus', 'search', 'admins'));
     }
 
     // Memperbarui solusi, status tindak lanjut, status, dan pegawai penanggung jawab
@@ -99,10 +72,4 @@ class TamuController extends Controller
         return back()->with('success', 'Status approval berhasil diperbarui.');
     }
 
-    public function destroy(Tamu $tamu)
-    {
-        $tamu->update(['status_aktif' => 'non_aktif']);
-
-        return back()->with('success', 'Data tamu berhasil dipindahkan ke arsip.');
-    }
 }
