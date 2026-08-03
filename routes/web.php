@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SuperAdmin\PertanyaanController;
+use App\Http\Controllers\SuperAdmin\SurveiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SuperAdmin\SubBagianController;
 use App\Http\Controllers\SuperAdmin\TujuanController;
@@ -14,6 +16,7 @@ use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
 use App\Http\Controllers\Admin\TamuController as AdminTamuController;
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
+use Illuminate\Validation\Rule;
 
 
 Route::get('/', function () {
@@ -26,8 +29,7 @@ Route::get('/sur-thanks', [TamuController::class, 'ThankSurvei'])->name('thanksu
 
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
-    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])
-        ->name('super.dashboard');
+    Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
     Route::get('/super/page', [SuperAkunController::class, 'AkunPage'])->name('super.page');
 
     // PROFILE AKUN
@@ -72,6 +74,19 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::delete('/super/tamu/{tamu}', [SuperAdminTamuController::class, 'destroy'])->name('tamu.destroy');
     Route::put('/super/tamu/{tamu}/pulihkan', [SuperAdminTamuController::class, 'pulihkan'])->name('tamu.pulihkan');
 
+    // SURVEI PERTANYAAN
+    Route::get('/pertanyaan', [PertanyaanController::class, 'index'])->name('index.pertanyaan');
+    Route::post('/pertanyaan', [PertanyaanController::class, 'store'])->name('pertanyaan.store');
+    Route::put('/pertanyaan/{id}', [PertanyaanController::class, 'update'])->name('pertanyaan.update');
+    Route::delete('/pertanyaan/delete', [PertanyaanController::class, 'destroy'])->name('pertanyaan.destroy');
+    Route::get('/super/pertanyaan/arsip', [PertanyaanController::class, 'arsip'])->name('pertanyaan.arsip');
+    Route::put('/super/pertanyaan/pulihkan', [PertanyaanController::class, 'pulihkan'])->name('pertanyaan.pulihkan');
+
+    // SURVEI TAMU
+    Route::get('/super/survei', [SurveiController::class, 'index'])->name('survei.index');
+    Route::get('/super/survei/arsip', [SurveiController::class, 'arsip'])->name('survei.arsip');
+    Route::delete('/super/survei/delete', [SurveiController::class, 'destroy'])->name('survei.destroy');
+    Route::put('/super/survei/pulihkan', [SurveiController::class, 'pulihkan'])->name('survei.pulihkan');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
@@ -88,12 +103,6 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
 });
 
 
-// BUKU TAMU (Publik, tanpa login)
-Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');
-Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
-Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
-
-
 // INI ADMIN
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
@@ -108,6 +117,27 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     // AKUN (Admin)
     Route::get('/admin/akun', [AdminAkunController::class, 'index'])->name('admin.index.akun');
+
+    // PROFILE ADMIN
+    Route::get('/admin/profile', [AdminDashboardController::class, 'profile'])->name('admin.profile');
+    Route::put('/admin/profile/update', [AdminDashboardController::class, 'update'])->name('admin.profile.update');
+    Route::put('/admin/update/password', [AdminDashboardController::class, 'UpdatePassword'])->name('admin.update.password');
 });
+
+
+// BUKU TAMU (Publik, tanpa login)
+Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');
+Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
+Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
+
+// SURVEI TAMU
+Route::get('/survei', [TamuController::class, 'create'])->name('survei.create');
+Route::post('/survei/tamu', [TamuController::class, 'storeSurvei'])->name('survei.store');
+Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name('survei.thanks');
+
+
+
+
+
 
 require __DIR__ . '/auth.php';

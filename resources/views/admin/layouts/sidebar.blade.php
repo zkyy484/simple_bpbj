@@ -27,24 +27,24 @@
                 </p>
 
                 <a href="{{ route('admin.dashboard') }}"
-                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.dashboard') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('super.dashboard') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('admin.dashboard') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('admin.dashboard') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7m-9-2v10a1 1 0 001 1h3m6-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                     </svg>
                     Dashboard
                 </a>
 
                 <a href="{{ route('admin.index.akun') }}"
-                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('index.akun') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('index.akun') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('admin.index.akun') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('admin.index.akun') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                     Akun
                 </a>
 
                 <a href="{{ route('admin.tamu.index') }}"
-                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('tamu.index') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('tamu.index') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('admin.tamu.index') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('admin.tamu.index') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-4.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     Tamu

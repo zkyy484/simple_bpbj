@@ -56,12 +56,6 @@ return new class extends Migration
                 'selesai',
             ])->default('belum_eskalasi');
 
-            $table->enum('status', [
-                'menunggu',
-                'diproses',
-                'selesai',
-            ])->default('menunggu');
-
             $table->enum('approval', [
                 'menunggu',
                 'approve',

@@ -23,7 +23,7 @@
     </div>
 
     <!-- Profile -->
-    <a href="{{ route('super.profile') }}"
+    <a href="{{ route('admin.profile') }}"
 
     
     <div class="flex items-center gap-3 shrink-0">
