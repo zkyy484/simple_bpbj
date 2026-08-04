@@ -16,13 +16,12 @@ class SuperAdminSeeder extends Seeder
     {
         DB::table('users')->insert([
             'nama_lengkap' => 'Super Administrator',
-            'nip' => '000000000000000000',
+            'nip' => 'admin123',
             'email' => 'superadmin@gmail.com',
             'username' => 'superadmin',
             'password' => Hash::make('admin123'),
             'no_telepon' => '081234567890',
             'alamat' => 'Denpasar',
-            'jabatan' => 'Super Administrator',
             'id_sub_bagian' => null,
             'role' => 'super_admin',
             'status' => 'aktif',

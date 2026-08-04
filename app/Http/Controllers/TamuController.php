@@ -9,7 +9,8 @@ use App\Models\Respon;
 use App\Models\Tamu;
 use App\Models\SubBagian;
 use App\Models\Tujuan;
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 
 class TamuController extends Controller
@@ -47,7 +48,6 @@ class TamuController extends Controller
         );
 
         $validated['status_tindak_lanjut'] = 'belum_eskalasi';
-        $validated['status'] = 'menunggu';
         $validated['approval'] = 'menunggu';
         $validated['status_aktif'] = 'aktif';
 
@@ -58,7 +58,12 @@ class TamuController extends Controller
 
     public function SurveiPage()
     {
-        return view('tamu.survei');
+        $pertanyaans = Pertanyaan::with('opsi')
+            ->where('status', 'aktif')
+            ->orderBy('urutan')
+            ->get();
+
+        return view('tamu.survei', compact('pertanyaans'));
     }
 
     // Menampilkan halaman terima kasih setelah data tersimpan (buku tamu)
@@ -71,7 +76,7 @@ class TamuController extends Controller
 
 
     // TRACKING TIKET
-    public function show($kode_tiket)
+    public function show(String $kode_tiket)
     {
         $tamu = Tamu::with([
             'pegawai',
@@ -89,15 +94,15 @@ class TamuController extends Controller
     // ========================================
 
     public function create()
-{
-    $pertanyaans = Pertanyaan::with('opsi')
-        ->where('status', 'aktif')
-        ->orderBy('urutan')
-        ->get();
+    {
+        $pertanyaans = Pertanyaan::with('opsi')
+            ->where('status', 'aktif')
+            ->orderBy('urutan')
+            ->get();
 
-    // Sesuaikan path view dengan lokasi Blade Anda
-    return view('tamu.survei', compact('pertanyaans'));
-}
+        // Sesuaikan path view dengan lokasi Blade Anda
+        return view('tamu.survei', compact('pertanyaans'));
+    }
 
     public function storeSurvei(Request $request)
     {
@@ -185,7 +190,7 @@ class TamuController extends Controller
 
         } catch (\Exception $e) {
             // Log pesan error sesungguhnya ke storage/logs/laravel.log
-            \Log::error('Gagal simpan survei: ' . $e->getMessage());
+            Log::error('Gagal simpan survei: ' . $e->getMessage());
 
             // Kembalikan ke halaman form dengan pesan error
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan survei: ' . $e->getMessage());

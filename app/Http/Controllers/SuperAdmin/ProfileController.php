@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
@@ -14,17 +15,19 @@ class ProfileController extends Controller
      */
     public function index()
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         return view('super-admin.profile', compact('user'));
     }
 
     /**
-     * Update informasi personal (TANPA password, TANPA avatar).
+     * Update informasi personal (TANPA password) + Paraf.
      */
     public function update(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $validated = $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:50'],
@@ -33,6 +36,7 @@ class ProfileController extends Controller
             'no_telepon' => ['nullable', 'string', 'max:20'],
             'nip' => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
             'alamat' => ['nullable', 'string'],
+            'paraf' => ['nullable', 'string'],
         ], [
             'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
             'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
@@ -45,6 +49,13 @@ class ProfileController extends Controller
         $user->no_telepon = $validated['no_telepon'] ?? null;
         $user->nip = $validated['nip'];
         $user->alamat = $validated['alamat'] ?? null;
+
+        // Hanya update paraf jika ada data gambar baru (base64) dikirim dari canvas.
+        // Jika kosong, paraf lama yang sudah tersimpan tetap dipertahankan.
+        if (!empty($validated['paraf']) && str_starts_with($validated['paraf'], 'data:image')) {
+            $user->paraf = $validated['paraf'];
+        }
+
         $user->save();
 
         return redirect()
@@ -53,11 +64,29 @@ class ProfileController extends Controller
     }
 
     /**
+     * Hapus paraf/tanda tangan yang tersimpan.
+     */
+    public function deleteParaf(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $user->paraf = null;
+        $user->save();
+
+        return redirect()
+            ->route('super.profile')
+            ->with('success', 'Paraf berhasil dihapus.')
+            ->withFragment('paraf-section');
+    }
+
+    /**
      * Update password saja (form & tombol terpisah).
      */
     public function updatePassword(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // 1. Validasi Input
         $request->validate([

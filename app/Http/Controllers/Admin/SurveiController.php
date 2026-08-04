@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\SuperAdmin;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Respon;
@@ -10,9 +10,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class SurveiController extends Controller
 {
+    // Menampilkan daftar data survei aktif (+ detail via AJAX)
     public function index(Request $request)
     {
         $admins = Auth::user();
+
+        // Request AJAX untuk memuat detail 1 respon (dipanggil dari tombol "Detail")
         if ($request->ajax() && $request->filled('id_respon')) {
             $respon = Respon::with([
                 'jawaban.pertanyaan.opsi' => function ($query) {
@@ -39,7 +42,7 @@ class SurveiController extends Controller
                 })
                 ->values();
 
-            return view('super-admin.survei.data.detail-content', compact('respon', 'jawabans'));
+            return view('admin.survei.detail-content', compact('respon', 'jawabans'));
         }
 
         $query = Respon::query()
@@ -95,7 +98,7 @@ class SurveiController extends Controller
             });
         }
 
-        return view('super-admin.survei.data.index', compact('respons', 'admins', 'onlyAnomali'));
+        return view('admin.survei.index', compact('respons', 'admins', 'onlyAnomali'));
     }
 
     /**
@@ -223,6 +226,7 @@ class SurveiController extends Controller
         return ['pola' => 'normal', 'anomali' => false];
     }
 
+    // Menampilkan daftar data survei yang sudah diarsipkan
     public function arsip(Request $request)
     {
         $admins = Auth::user();
@@ -242,7 +246,7 @@ class SurveiController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('super-admin.survei.data.arsip', compact('respons', 'admins'));
+        return view('admin.survei.arsip', compact('respons', 'admins'));
     }
 
     // Mengubah status pengecekan respon (kolom "cek") menjadi approve
@@ -262,6 +266,7 @@ class SurveiController extends Controller
             ->with('success', 'Status survei berhasil diubah menjadi approve.');
     }
 
+    // Memindahkan data survei ke arsip (soft delete via status)
     public function destroy(Request $request)
     {
         $request->validate([
@@ -274,10 +279,11 @@ class SurveiController extends Controller
             ]);
 
         return redirect()
-            ->route('survei.index')
+            ->route('admin.survei.index')
             ->with('success', 'Data survei berhasil diarsipkan.');
     }
 
+    // Memulihkan data survei dari arsip
     public function pulihkan(Request $request)
     {
         $request->validate([
@@ -291,7 +297,7 @@ class SurveiController extends Controller
         ]);
 
         return redirect()
-            ->route('survei.arsip')
+            ->route('admin.survei.arsip')
             ->with('success', 'Data survei berhasil dipulihkan.');
     }
 }

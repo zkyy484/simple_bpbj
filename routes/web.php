@@ -15,7 +15,9 @@ use App\Http\Controllers\SuperAdmin\AkunController as SuperAkunController;
 use App\Http\Controllers\SuperAdmin\TamuController as SuperAdminTamuController;
 use App\Http\Controllers\SuperAdmin\ProfileController as SuperProfileController;
 use App\Http\Controllers\Admin\TamuController as AdminTamuController;
+use App\Http\Controllers\SuperAdmin\LaporanController as SuperAdminLaporanController;
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
+use App\Http\Controllers\Admin\SurveiController as AdminSurveiController;
 use Illuminate\Validation\Rule;
 
 
@@ -102,6 +104,19 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     Route::put('/profile/password', [PegawaiProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
+Route::middleware(['auth', 'role:super_admin'])->group(function () {
+    // LAPORAN
+    Route::get('/super/laporan/buku-tamu', [SuperAdminLaporanController::class, 'bukuTamu'])->name('laporan.buku-tamu.index');
+    Route::get('/super/laporan/buku-tamu/export', [SuperAdminLaporanController::class, 'exportBukuTamuPdf'])->name('laporan.buku-tamu.export');
+
+    // LAPORAN PENGUNJUNG
+    Route::get('/super/laporan/pengunjung', [SuperAdminLaporanController::class, 'pengunjung'])->name('laporan.pengunjung.index');
+    Route::get('/super/laporan/pengunjung/export', [SuperAdminLaporanController::class, 'exportPengunjungPdf'])->name('laporan.pengunjung.export');
+
+    Route::get('/super/laporan/survei', [SuperAdminLaporanController::class, 'surveiTamu'])->name('laporan.survei.index');
+    Route::get('/super/laporan/survei/export', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])->name('laporan.survei.export');
+});
+
 
 // INI ADMIN
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -135,9 +150,12 @@ Route::get('/survei', [TamuController::class, 'create'])->name('survei.create');
 Route::post('/survei/tamu', [TamuController::class, 'storeSurvei'])->name('survei.store');
 Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name('survei.thanks');
 
-
-
-
-
-
 require __DIR__ . '/auth.php';
+
+
+
+Route::get('/admin/survei', [AdminSurveiController::class, 'index'])->name('admin.survei.index');
+Route::get('/admin/survei/arsip', [AdminSurveiController::class, 'arsip'])->name('admin.survei.arsip');
+Route::delete('/admin/survei/delete', [AdminSurveiController::class, 'destroy'])->name('admin.survei.destroy');
+Route::put('/admin/survei/pulihkan', [AdminSurveiController::class, 'pulihkan'])->name('admin.survei.pulihkan');
+Route::post('admin/survei/approve', [SurveiController::class, 'approve'])->name('admin.survei.approve');
