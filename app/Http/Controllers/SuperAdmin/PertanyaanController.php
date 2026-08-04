@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\User;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Opsi;
 use App\Models\Pertanyaan;
@@ -28,7 +29,7 @@ class PertanyaanController extends Controller
     public function arsip(Request $request)
     {
         $search = $request->search;
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $pertanyaans = Pertanyaan::where('status', 'nonaktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -56,7 +57,7 @@ class PertanyaanController extends Controller
             'opsi.*.nilai' => 'nullable|integer',
         ], [], [], );
 
-        DB::transaction(function () use ($validated, $request) {
+        $pertanyaan = DB::transaction(function () use ($validated, $request) {
             $pertanyaan = Pertanyaan::create([
                 'pertanyaan' => $validated['pertanyaan'],
                 'tipe_pertanyaan' => $validated['tipe_pertanyaan'],
@@ -71,7 +72,14 @@ class PertanyaanController extends Controller
                     ]);
                 }
             }
+
+            return $pertanyaan;
         });
+
+        ActivityLog::catat(
+            'Tambah Pertanyaan Survei',
+            "Menambahkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\" (tipe: {$pertanyaan->tipe_pertanyaan})."
+        );
 
         return redirect()->route('index.pertanyaan')->with('success', 'Pertanyaan berhasil ditambahkan');
     }
@@ -131,6 +139,11 @@ class PertanyaanController extends Controller
             }
         });
 
+        ActivityLog::catat(
+            'Ubah Pertanyaan Survei',
+            "Memperbarui pertanyaan survei: \"{$pertanyaan->pertanyaan}\"."
+        );
+
         return redirect()->route('index.pertanyaan')->with('success', 'Pertanyaan berhasil diperbarui');
     }
 
@@ -149,6 +162,11 @@ class PertanyaanController extends Controller
             'status' => 'nonaktif'
         ]);
 
+        ActivityLog::catat(
+            'Arsipkan Pertanyaan Survei',
+            "Mengarsipkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\"."
+        );
+
         return back()->with('success', 'Pertanyaan berhasil dihapus');
     }
 
@@ -164,6 +182,11 @@ class PertanyaanController extends Controller
         $pertanyaan->update([
             'status' => 'aktif'
         ]);
+
+        ActivityLog::catat(
+            'Pulihkan Pertanyaan Survei',
+            "Memulihkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\" dari arsip."
+        );
 
         return back()->with('success', 'Pertanyaan berhasil dipulihkan');
     }

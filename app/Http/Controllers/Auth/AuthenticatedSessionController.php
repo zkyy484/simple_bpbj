@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ActivityLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,8 @@ class AuthenticatedSessionController extends Controller
 
         $user = Auth::user();
 
+        ActivityLog::catat('Login', 'Berhasil login ke sistem.', $user);
+
         return match ($user->role) {
             'super_admin' => redirect()->route('super.dashboard'),
             'admin' => redirect()->route('admin.dashboard'),
@@ -43,7 +46,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Ambil data user sebelum logout, karena setelah Auth::logout()
+        // dipanggil, Auth::user() sudah null sehingga tidak bisa dicatat lagi.
+        $user = Auth::user();
+
         Auth::guard('web')->logout();
+
+        ActivityLog::catat('Logout', 'Berhasil logout dari sistem.', $user);
 
         $request->session()->invalidate();
 

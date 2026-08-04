@@ -226,9 +226,8 @@
             </div>
         </div>
 
-        {{-- INCLUDES MODAL --}}
         @include('super-admin.survei.data.delete')
-        @include('super-admin.survei.detail')
+        @include('super-admin.survei.data.detail')
     </div>
 @endsection
 
