@@ -1,152 +1,195 @@
+{{-- resources/views/survei/create.blade.php --}}
 @extends('tamu.layouts.app')
 
-@section('title', 'Survei Kepuasan Pelayanan')
-
-@push('styles')
-    <!-- Import Google Font: Poppins -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <style>
-        body, input, select, textarea, button {
-            font-family: 'Poppins', sans-serif !important;
-        }
-    </style>
-@endpush
-
 @section('content')
-    <main class="container mx-auto mt-8 mb-12 px-4 max-w-4xl font-['Poppins']">
-        <!-- Main Form Card -->
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-            
-            <!-- Header Section with Theme Gradient -->
-            <div class="bg-gradient-to-r from-[#173860] to-[#080d1a] px-8 py-10 text-center text-white">
-                <h2 class="text-3xl font-extrabold tracking-tight">Survei Kepuasan Pelayanan</h2>
-                <p class="mt-2 text-sm text-gray-200 max-w-xl mx-auto leading-relaxed font-light">
-                    Bantu kami meningkatkan kualitas pelayanan dengan memberikan penilaian dan masukan Anda mengenai layanan Pengadaan Barang dan Jasa Kota Denpasar.
-                </p>
+    <div class="max-w-2xl mx-auto py-10 px-4" 
+         x-data="{ 
+            step: 1, 
+            totalSteps: 3, 
+            waktuMulai: Math.floor(Date.now() / 1000) 
+         }">
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8">
+            <h1 class="text-2xl font-bold text-gray-900 mb-1">Survei Kepuasan Layanan</h1>
+            <p class="text-sm text-gray-500 mb-6">Buku Tamu Digital - Kota Denpasar</p>
+
+            {{-- Progress Indicator / Steps Bar --}}
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-semibold text-[#173860]" x-text="'Langkah ' + step + ' dari ' + totalSteps"></span>
+                    <span class="text-xs font-semibold text-gray-400" x-text="Math.round((step / totalSteps) * 100) + '% Selesai'"></span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-[#173860] h-2 rounded-full transition-all duration-300"
+                         :style="'width: ' + ((step / totalSteps) * 100) + '%'"></div>
+                </div>
             </div>
 
-            <!-- Form Start -->
-            <form action="{{ route('thanksur.page') }}" method="POST" id="surveyForm" class="p-8 md:p-10 space-y-8">
+            {{-- Flash Alert Errors --}}
+            @if (session('error'))
+                <div class="mb-6 rounded-lg bg-red-100 border border-red-300 text-red-700 p-4">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-6 rounded-lg bg-red-100 border border-red-300 text-red-700 p-4">
+                    <p class="font-semibold mb-1">Mohon periksa kembali isian survei:</p>
+                    <ul class="list-disc list-inside text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('survei.store') }}" method="POST">
                 @csrf
+                <input type="hidden" name="waktu_mulai" x-bind:value="waktuMulai">
 
-                <!-- BAGIAN 1: DATA DIRI RESPONDEN --> 
-                <div class="border-b border-gray-200 pb-8">
-                    <h3 class="text-base font-bold text-[#173860] mb-5 flex items-center gap-2.5">
-                        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-[#173860]/10 text-[#173860] text-xs font-bold">1</span>
-                        Data Diri Responden
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        <!-- Nama Lengkap -->
-                        <div>
-                            <label for="nama_lengkap" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                Nama Lengkap <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="nama_lengkap" name="nama_lengkap" required 
-                                placeholder="Masukkan nama"
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none transition placeholder:text-gray-400">
-                        </div>
+                {{-- ================= SLIDE 1: Identitas & Pilihan Ganda ================= --}}
+                <div x-show="step === 1" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0" class="space-y-6">
+                    <div class="pb-4 border-b border-gray-100">
+                        <h2 class="text-lg font-bold text-gray-800 mb-4">Informasi Diri</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Nama Lengkap <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required
+                                    class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860] @error('nama_lengkap') border-red-400 @else border-gray-300 @enderror">
+                                @error('nama_lengkap')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                        <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                Email <span class="text-red-500">*</span>
-                            </label>
-                            <input type="email" id="email" name="email" required 
-                                placeholder="nama@email.com"
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none transition placeholder:text-gray-400">
-                        </div>
-
-                        <!-- Instansi / Perusahaan -->
-                        <div>
-                            <label for="instansi" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                                Instansi / Perusahaan <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" id="instansi" name="instansi" required 
-                                placeholder="Nama instansi"
-                                class="w-full px-4 py-2.5 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none transition placeholder:text-gray-400">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+                                    <input type="email" name="email" value="{{ old('email') }}"
+                                        class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Instansi</label>
+                                    <input type="text" name="instansi" value="{{ old('instansi') }}"
+                                        class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- BAGIAN 2: PERTANYAAN SURVEI -->
-                <div class="border-b border-gray-200 pb-8 space-y-6">
-                    <h3 class="text-base font-bold text-[#173860] mb-5 flex items-center gap-2.5">
-                        <span class="flex items-center justify-center w-7 h-7 rounded-lg bg-[#173860]/10 text-[#173860] text-xs font-bold">2</span>
-                        Penilaian Pelayanan
-                    </h3>
+                    {{-- Pertanyaan Pilihan Ganda --}}
+                    @php
+                        $pilihanGanda = $pertanyaans->where('tipe_pertanyaan', 'pilihan_ganda');
+                    @endphp
 
-                    <!-- Q1 -->
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
-                        <label class="block text-sm font-semibold text-gray-800 mb-4 leading-relaxed">
-                            1. Bagaimana kemudahan akses informasi dan prosedur layanan di Bagian Pengadaan Barang dan Jasa? <span class="text-red-500">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            @foreach(['Sangat Kurang', 'Kurang', 'Baik', 'Sangat Baik'] as $option)
-                                <label class="flex items-center p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-[#173860] hover:bg-blue-50/50 transition">
-                                    <input type="radio" name="q1" value="{{ $option }}" required class="w-4 h-4 text-[#173860] focus:ring-[#173860]">
-                                    <span class="ml-2.5 text-gray-700 font-medium">{{ $option }}</span>
-                                </label>
+                    @if($pilihanGanda->count() > 0)
+                        <div class="space-y-6 pt-2">
+                            <h2 class="text-lg font-bold text-gray-800">Pertanyaan UMUM</h2>
+                            @foreach ($pilihanGanda as $i => $p)
+                                <div class="pb-4 border-b border-gray-100">
+                                    <label class="block text-sm font-semibold text-gray-900 mb-3">
+                                        {{ $i + 1 }}. {{ $p->pertanyaan }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="space-y-2">
+                                        @foreach ($p->opsi as $o)
+                                            <label class="flex items-center gap-3 border border-gray-300 rounded-xl px-4 py-3 cursor-pointer hover:border-[#173860] has-[:checked]:bg-blue-50 has-[:checked]:border-[#173860] transition">
+                                                <input type="radio" name="jawaban[{{ $p->id_pertanyaan }}]"
+                                                    value="{{ $o->id_opsi }}"
+                                                    {{ old("jawaban.{$p->id_pertanyaan}") == $o->id_opsi ? 'checked' : '' }}
+                                                    class="w-4 h-4 accent-[#173860]">
+                                                <span class="text-sm text-gray-800">{{ $o->opsi }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                    @error("jawaban.{$p->id_pertanyaan}")
+                                        <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             @endforeach
                         </div>
-                    </div>
-
-                    <!-- Q2 -->
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
-                        <label class="block text-sm font-semibold text-gray-800 mb-4 leading-relaxed">
-                            2. Bagaimana keramahan, kesopanan, dan profesionalisme petugas dalam memberikan konsultasi/layanan? <span class="text-red-500">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            @foreach(['Sangat Kurang', 'Kurang', 'Baik', 'Sangat Baik'] as $option)
-                                <label class="flex items-center p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-[#173860] hover:bg-blue-50/50 transition">
-                                    <input type="radio" name="q2" value="{{ $option }}" required class="w-4 h-4 text-[#173860] focus:ring-[#173860]">
-                                    <span class="ml-2.5 text-gray-700 font-medium">{{ $option }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Q3 -->
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
-                        <label class="block text-sm font-semibold text-gray-800 mb-4 leading-relaxed">
-                            3. Bagaimana ketepatan waktu dan kejelasan solusi yang diberikan oleh tim? <span class="text-red-500">*</span>
-                        </label>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            @foreach(['Sangat Kurang', 'Kurang', 'Baik', 'Sangat Baik'] as $option)
-                                <label class="flex items-center p-3 bg-white rounded-xl border border-gray-200 cursor-pointer hover:border-[#173860] hover:bg-blue-50/50 transition">
-                                    <input type="radio" name="q3" value="{{ $option }}" required class="w-4 h-4 text-[#173860] focus:ring-[#173860]">
-                                    <span class="ml-2.5 text-gray-700 font-medium">{{ $option }}</span>
-                                </label>
-                            @endforeach
-                        </div>
-                    </div>
+                    @endif
                 </div>
 
-                <!-- BAGIAN 3: SARAN & MASUKAN -->
-                <div>
-                    <label for="saran" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Kritik, Saran, atau Masukan (Opsional)
-                    </label>
-                    <textarea id="saran" name="saran" rows="4" 
-                        placeholder="Tuliskan masukan Anda untuk peningkatan kualitas layanan kami..." 
-                        class="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl text-sm text-gray-900 focus:bg-white focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none transition resize-none placeholder:text-gray-400"></textarea>
+                {{-- ================= SLIDE 2: Rating ================= --}}
+                <div x-show="step === 2" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0" class="space-y-6" style="display: none;">
+                    <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3">Penilaian & Rating Layanan</h2>
+                    
+                    @php
+                        $ratings = $pertanyaans->where('tipe_pertanyaan', 'rating');
+                    @endphp
+
+                    @foreach ($ratings as $i => $p)
+                        <div class="pb-4 border-b border-gray-100">
+                            <label class="block text-sm font-semibold text-gray-900 mb-3">
+                                {{ $i + 1 }}. {{ $p->pertanyaan }} <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex flex-wrap gap-3">
+                                @foreach ($p->opsi as $o)
+                                    <label class="flex items-center gap-2 border border-gray-300 rounded-xl px-4 py-2.5 cursor-pointer hover:border-[#173860] has-[:checked]:bg-[#173860] has-[:checked]:text-white has-[:checked]:border-[#173860] transition">
+                                        <input type="radio" name="jawaban[{{ $p->id_pertanyaan }}]"
+                                            value="{{ $o->id_opsi }}"
+                                            {{ old("jawaban.{$p->id_pertanyaan}") == $o->id_opsi ? 'checked' : '' }}
+                                            class="hidden">
+                                        <span class="text-sm font-medium">{{ $o->opsi }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                            @error("jawaban.{$p->id_pertanyaan}")
+                                <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endforeach
                 </div>
 
-                <!-- Submit Button -->
-                <div class="pt-4 border-t border-gray-100 flex justify-end">
+                {{-- ================= SLIDE 3: Textarea / Masukan ================= --}}
+                <div x-show="step === 3" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0" class="space-y-6" style="display: none;">
+                    <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3">Saran & Masukan</h2>
+
+                    @php
+                        $textareas = $pertanyaans->whereNotIn('tipe_pertanyaan', ['pilihan_ganda', 'rating']);
+                    @endphp
+
+                    @foreach ($textareas as $i => $p)
+                        <div class="pb-4 border-b border-gray-100">
+                            <label class="block text-sm font-semibold text-gray-900 mb-3">
+                                {{ $i + 1 }}. {{ $p->pertanyaan }}
+                            </label>
+                            <textarea name="jawaban[{{ $p->id_pertanyaan }}]" rows="4" placeholder="Tulis jawaban Anda di sini..."
+                                class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">{{ old("jawaban.{$p->id_pertanyaan}") }}</textarea>
+                            @error("jawaban.{$p->id_pertanyaan}")
+                                <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    @endforeach
+                </div>
+
+                {{-- Navigasi Tombol Slider --}}
+                <div class="flex justify-between items-center pt-6 mt-6 border-t border-gray-100">
+                    <button type="button" 
+                            x-show="step > 1" 
+                            @click="step--" 
+                            class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition">
+                        &larr; Kembali
+                    </button>
+
+                    <div x-show="step === 1"></div> {{-- Spacer jika tombol kembali tidak ada --}}
+
+                    <button type="button" 
+                            x-show="step < totalSteps" 
+                            @click="step++" 
+                            class="px-6 py-2.5 rounded-xl bg-[#173860] hover:bg-[#102a48] text-white font-semibold text-sm transition">
+                        Lanjut &rarr;
+                    </button>
+
                     <button type="submit" 
-                        class="w-full sm:w-auto px-8 py-3 rounded-xl bg-[#173860] hover:bg-[#080d1a] text-white text-sm font-semibold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-                        </svg>
-                        Kirim Survei Kepuasan
+                            x-show="step === totalSteps" 
+                            class="px-6 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold text-sm transition">
+                        Kirim Survei
                     </button>
                 </div>
             </form>
-            <!-- Form End -->
-
         </div>
-    </main>
+    </div>
 @endsection

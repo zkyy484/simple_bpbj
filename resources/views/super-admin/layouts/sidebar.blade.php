@@ -81,11 +81,11 @@
                 </p>
 
                 {{-- Dropdown Survei --}}
-                <div x-data="{ open: {{ request()->routeIs('survei.*') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('index.pertanyaan') || request()->routeIs('survei.index') ? 'true' : 'false' }} }">
                     <button @click="open = !open"
-                            class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('survei.*') }}">
+                            class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('index.pertanyaan') }}">
                         <span class="flex items-center gap-3">
-                            <svg class="w-5 h-5 {{ $iconClass('survei.*') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 {{ $iconClass('index.pertanyaan') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             Survei
@@ -96,8 +96,8 @@
                         </svg>
                     </button>
                     <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('survei.pertanyaan.*') }}">Pertanyaan</a>
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('survei.tamu.*') }}">Survei Tamu</a>
+                        <a href="{{ route('index.pertanyaan') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('index.pertanyaan') }}">Pertanyaan</a>
+                        <a href="{{ route('survei.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('survei.index') }}">Survei Tamu</a>
                     </div>
                 </div>
 
@@ -119,7 +119,7 @@
                     <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
                         <a href="{{ route('laporan.buku-tamu.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.buku-tamu.*') }}">Laporan Buku Tamu</a>
                         <a href="{{ route('laporan.pengunjung.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.pengunjung.*') }}">Laporan Pengunjung</a>
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.survei.*') }}">Laporan Survei</a>
+                        <a href="{{ route('laporan.survei.index') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('laporan.survei.*') }}">Laporan Survei</a>
                     </div>
                 </div>
             </div>

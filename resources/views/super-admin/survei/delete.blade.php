@@ -46,7 +46,7 @@
                 Apakah Anda yakin ingin menghapus pertanyaan ini? Semua opsi dan jawaban terkait juga akan terhapus.
             </p>
             <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-700 font-semibold text-sm">
-                <span x-text="selectedItem.pertanyaan"></span>
+                <span x-text="selectedItem ? selectedItem.pertanyaan : ''"></span>
             </div>
         </div>
 
@@ -55,8 +55,8 @@
             @csrf
             @method('DELETE')
 
-            <!-- Input Hidden menggunakan binding :value agar id terkirim secara reaktif -->
-            <input type="hidden" name="id_pertanyaan" :value="selectedItem.id">
+            <!-- Input Hidden dengan penanganan null-safe -->
+            <input type="hidden" name="id_pertanyaan" :value="selectedItem ? selectedItem.id : ''">
 
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
                 <button type="button" @click="openDelete = false"

@@ -4,18 +4,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Buku Tamu Digital - Kota Denpasar')</title>
-        <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
 
     <!-- Google Fonts Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+    <script>
+        async loadDetail(id) {
+            this.openDetail = true;
+            this.loadingDetail = true;
+            this.detailContent = '';
+            try {
+                const res = await fetch(`{{ route('survei.index') }}?id_respon=${id}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    }
+                });
+
+                if (!res.ok) {
+                    throw new Error(`HTTP Error Status: ${res.status}`);
+                }
+
+                this.detailContent = await res.text();
+            } catch (e) {
+                console.error('Error fetching detail:', e); // Buka Inspect -> Console untuk melihat error detail
+                this.detailContent =
+                    `<p class="text-red-600 text-sm text-center py-10">Gagal memuat detail survei. (${e.message})</p>`;
+            } finally {
+                this.loadingDetail = false;
+            }
+        }
+    </script>
+
 </head>
 
 <body class="font-['Poppins'] bg-[#cddcfd] text-gray-800 min-h-screen flex flex-col antialiased">

@@ -1,16 +1,22 @@
-{{-- super-admin/pertanyaan/delete.blade.php --}}
 <div x-show="openDelete" x-cloak class="fixed inset-0 z-[999] flex items-center justify-center p-4">
 
     <!-- Overlay -->
-    <div x-show="openDelete" x-transition.opacity @click="openDelete = false"
+    <div x-show="openDelete"
+        x-transition.opacity
+        @click="openDelete = false"
         class="absolute inset-0 bg-black/50 backdrop-blur-sm">
     </div>
 
-    <!-- Modal Card -->
-    <div x-show="openDelete" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
-        x-transition:leave-end="opacity-0 scale-90" @click.outside="openDelete = false"
+    <!-- Modal -->
+    <div
+        x-show="openDelete"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-90"
+        x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-90"
+        @click.outside="openDelete = false"
         class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
 
         <!-- Header -->
@@ -24,15 +30,15 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Hapus Pertanyaan
+                    <h2 class="text-lg font-bold text-gray-900">
+                        Hapus Data Survei
                     </h2>
                 </div>
             </div>
 
-            <!-- Tombol Close Merah -->
-            <button type="button" @click="openDelete = false" aria-label="Tutup modal"
-                class="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+            <!-- Close -->
+            <button type="button" @click="openDelete = false"
+                class="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition shadow-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -43,20 +49,21 @@
         <!-- Body -->
         <div class="p-6 text-center space-y-3">
             <p class="text-gray-600 text-sm">
-                Apakah Anda yakin ingin menghapus pertanyaan ini? Semua opsi dan jawaban terkait juga akan terhapus.
+                Apakah Anda yakin ingin menghapus data survei berikut?
+                Data akan dipindahkan ke arsip dan masih dapat dipulihkan kembali.
             </p>
-            <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-700 font-semibold text-sm">
-                <span x-text="selectedItem.pertanyaan"></span>
+
+            <div class="p-3 bg-red-50 rounded-xl border border-red-100">
+                <span class="font-semibold text-red-700" x-text="selectedItem ? selectedItem.nama : ''"></span>
             </div>
         </div>
 
-        <!-- Footer Form -->
-        <form action="{{ route('pertanyaan.destroy') }}" method="POST">
+        <!-- Form -->
+        <form action="{{ route('admin.survei.destroy') }}" method="POST">
             @csrf
             @method('DELETE')
 
-            <!-- Input Hidden menggunakan binding :value agar id terkirim secara reaktif -->
-            <input type="hidden" name="id_pertanyaan" :value="selectedItem.id">
+            <input type="hidden" name="id_respon" :value="selectedItem ? selectedItem.id : ''">
 
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
                 <button type="button" @click="openDelete = false"
@@ -77,4 +84,5 @@
         </form>
 
     </div>
+
 </div>
