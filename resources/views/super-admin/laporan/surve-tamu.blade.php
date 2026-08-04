@@ -1,6 +1,6 @@
 @extends('super-admin.layouts.app')
 
-@section('title', 'Laporan Survei')
+@section('title', 'Laporan Survei - Buku Tamu Digital')
 
 @section('content')
     <div x-data="{
@@ -27,137 +27,126 @@
             }
         }
     }" class="relative">
+        <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
             :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openDetail || openDelete }">
 
             {{-- Breadcrumb & Title --}}
             <div>
-                <nav class="text-xs text-gray-500 mb-1">
-                    <span>Dashboard</span> <span>/</span> <span>Laporan</span> <span>/</span>
-                    <span class="font-semibold text-gray-700">Laporan Survei</span>
-                </nav>
-                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Laporan Survei</h2>
+                <div class="text-sm text-gray-500 mb-1">
+                    <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                    <span class="mx-1">/</span>
+                    <span>Laporan</span>
+                    <span class="mx-1">/</span>
+                    <span class="text-gray-700 font-medium">Laporan Survei</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Laporan Survei</h1>
             </div>
 
-            {{-- Filter Bar --}}
-            <div class="bg-white rounded-xl shadow-sm p-5">
-                <form action="{{ route('laporan.survei.index') }}" method="GET"
-                    class="flex flex-col lg:flex-row lg:items-end gap-4">
+            {{-- Filter Card --}}
+            <form action="{{ route('laporan.survei.index') }}" method="GET" id="filter-form"
+                class="bg-white rounded-2xl shadow-sm p-6">
+                <div class="flex flex-col lg:flex-row lg:items-end gap-5">
 
-                    <div class="flex-1 w-full">
-                        <label class="block text-[11px] font-bold tracking-wide text-gray-500 mb-1.5">
-                            TANGGAL AWAL
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
+                            Tanggal Awal
                         </label>
-                        <div class="relative">
-                            <input type="date" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
-                                class="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#173860] outline-none">
-                            <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
+                        <input type="date" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
                     </div>
 
-                    <div class="flex-1 w-full">
-                        <label class="block text-[11px] font-bold tracking-wide text-gray-500 mb-1.5">
-                            TANGGAL AKHIR
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
+                            Tanggal Akhir
                         </label>
-                        <div class="relative">
-                            <input type="date" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
-                                class="w-full border border-gray-300 rounded-lg pl-4 pr-10 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#173860] outline-none">
-                            <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </div>
+                        <input type="date" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
                     </div>
 
-                    <div class="flex-1 w-full">
-                        <label class="block text-[11px] font-bold tracking-wide text-gray-500 mb-1.5">
-                            DETEKSI
+                    <div class="flex-1 min-w-[160px]">
+                        <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
+                            Deteksi
                         </label>
                         <select name="deteksi"
-                            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-[#173860] outline-none bg-white">
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
                             <option value="" {{ request('deteksi') == '' ? 'selected' : '' }}>Semua Opsi</option>
                             <option value="normal" {{ request('deteksi') == 'normal' ? 'selected' : '' }}>Normal</option>
                             <option value="anomali" {{ request('deteksi') == 'anomali' ? 'selected' : '' }}>Anomali</option>
                         </select>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full lg:w-auto">
+                    <div class="flex gap-3 shrink-0">
                         <a href="{{ route('laporan.survei.export', request()->query()) }}"
-                            class="flex-1 lg:flex-none bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg text-xs font-bold tracking-wide transition flex items-center justify-center gap-2 whitespace-nowrap">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16" />
-                            </svg>
-                            EXPORT DOKUMEN PDF
+                            class="px-5 py-2.5 bg-red-600 text-white text-xs font-bold tracking-wide rounded-lg hover:bg-red-700 transition flex items-center gap-2 whitespace-nowrap">
+                            <i data-lucide="file-down" class="w-4 h-4"></i>
+                            <span>EXPORT DOKUMEN PDF</span>
                         </a>
 
                         <button type="submit"
-                            class="bg-[#173860] hover:bg-[#102a48] text-white px-6 py-2.5 rounded-lg text-sm font-bold transition whitespace-nowrap">
-                            FILTER
+                            class="px-6 py-2.5 bg-[#173860] text-white text-xs font-bold tracking-wide rounded-lg hover:bg-[#12294a] transition whitespace-nowrap flex items-center gap-2">
+                            <i data-lucide="filter" class="w-4 h-4"></i>
+                            <span>FILTER</span>
                         </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
 
-            {{-- Table --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            {{-- Table Card --}}
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-[#f5f1ea] text-gray-700 text-xs font-bold tracking-wide">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-4 text-center w-16">ID</th>
-                                <th class="px-6 py-4 text-left">NAMA</th>
-                                <th class="px-6 py-4 text-center">EMAIL</th>
-                                <th class="px-6 py-4 text-center">INSTANSI</th>
-                                <th class="px-6 py-4 text-center">STATUS</th>
-                                <th class="px-6 py-4 text-center w-48">AKSI</th>
+                                <th class="px-6 py-3.5 text-center w-16">ID</th>
+                                <th class="px-6 py-3.5">Nama</th>
+                                <th class="px-6 py-3.5 text-center">Email</th>
+                                <th class="px-6 py-3.5 text-center">Instansi</th>
+                                <th class="px-6 py-3.5 text-center">Status</th>
+                                <th class="px-6 py-3.5 text-center w-48">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 bg-white">
+                        <tbody class="divide-y divide-gray-100">
                             @forelse($respons as $respon)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-center text-sm text-gray-700">
+                                <tr class="hover:bg-gray-50/50 transition align-top">
+                                    <td class="px-6 py-4 text-center font-semibold text-gray-500">
                                         {{ $loop->iteration + ($respons->firstItem() - 1) }}
                                     </td>
 
-                                    <td class="px-6 py-4">
-                                        <div class="font-semibold text-gray-900 text-sm">
-                                            {{ $respon->nama_lengkap }}
-                                        </div>
+                                    <td class="px-6 py-4 font-semibold text-gray-900">
+                                        {{ $respon->nama_lengkap }}
                                     </td>
 
-                                    <td class="px-6 py-4 text-center text-sm text-gray-700">
+                                    <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->email ?? '-' }}
                                     </td>
 
-                                    <td class="px-6 py-4 text-center text-sm text-gray-700">
+                                    <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->instansi ?? '-' }}
                                     </td>
 
                                     <td class="px-6 py-4 text-center">
                                         @if($respon->cek === 'approve')
-                                            <span class="inline-block px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                                            <span class="px-3 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-bold whitespace-nowrap">
                                                 Approve
                                             </span>
                                         @else
-                                            <span class="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-semibold">
+                                            <span class="px-3 py-1 rounded-full bg-amber-500 text-white text-[11px] font-bold whitespace-nowrap">
                                                 Menunggu
                                             </span>
                                         @endif
                                     </td>
 
-                                    <td class="px-6 py-4">
-                                        <div class="flex justify-center gap-2">
+                                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <!-- Tombol Detail -->
                                             <button type="button" @click="loadDetail('{{ $respon->id_respon }}')"
-                                                class="px-4 py-1.5 rounded-full border border-gray-300 text-gray-700 text-xs font-semibold hover:bg-gray-50 transition">
-                                                Detail
+                                                class="px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                                <span>Detail</span>
                                             </button>
 
+                                            <!-- Tombol Hapus -->
                                             <button type="button"
                                                 @click="
                                                     selectedItem = {
@@ -166,15 +155,16 @@
                                                     };
                                                     openDelete = true;
                                                 "
-                                                class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition">
-                                                Hapus
+                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                <span>Hapus</span>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-10 text-gray-500 text-sm">
+                                    <td colspan="6" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data laporan survei.
                                     </td>
                                 </tr>
@@ -183,14 +173,56 @@
                     </table>
                 </div>
 
-                {{-- Pagination footer --}}
-                <div class="px-6 py-4 border-t flex items-center justify-between">
-                    <p class="text-sm text-gray-500">
-                        Showing {{ $respons->firstItem() ?? 0 }} to {{ $respons->lastItem() ?? 0 }}
-                        of {{ $respons->total() }} entries
-                    </p>
-                    {{ $respons->links() }}
-                </div>
+                <!-- Pagination -->
+                @if ($respons->hasPages())
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $respons->firstItem() }} to {{ $respons->lastItem() }} of {{ $respons->total() }} entries
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            @if ($respons->onFirstPage())
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </span>
+                            @else
+                                <a href="{{ $respons->previousPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </a>
+                            @endif
+
+                            @foreach ($respons->getUrlRange(1, $respons->lastPage()) as $page => $url)
+                                @if ($page == $respons->currentPage())
+                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                        {{ $page }}
+                                    </span>
+                                @else
+                                    <a href="{{ $url }}"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            @endforeach
+
+                            @if ($respons->hasMorePages())
+                                <a href="{{ $respons->nextPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </a>
+                            @else
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $respons->count() ? 1 : 0 }} to {{ $respons->count() }} of {{ $respons->total() }} entries
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -198,3 +230,10 @@
         @include('super-admin.survei.data.detail')
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+@endpush

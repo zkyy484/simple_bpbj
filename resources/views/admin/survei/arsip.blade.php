@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Arsip Survei')
+@section('title', 'Arsip Survei - Buku Tamu Digital')
 
 @section('content')
     <div x-data="{
@@ -22,122 +22,115 @@
 
     }" class="relative">
 
+        <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
-            :class="{
-                'blur-sm pointer-events-none select-none scale-[0.99]': openRestore
-            }">
+            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openRestore }">
 
-            {{-- Header --}}
+            {{-- Breadcrumb & Title --}}
             <div>
-                <nav class="text-xs text-gray-500 mb-1">
-                    <span>Dashboard</span>
-                    <span>/</span>
-                    <span>Survei</span>
-                    <span>/</span>
-                    <span class="font-semibold text-gray-700">Arsip</span>
-                </nav>
-
-                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">
-                    Arsip Data Survei
-                </h2>
+                <div class="text-sm text-gray-500 mb-1">
+                    <a href="{{ route('admin.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                    <span class="mx-1">/</span>
+                    <a href="{{ route('admin.survei.index') }}" class="hover:text-gray-700">Survei</a>
+                    <span class="mx-1">/</span>
+                    <span class="text-gray-700 font-medium">Arsip</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Arsip Data Survei</h1>
             </div>
 
-            {{-- Search --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col lg:flex-row justify-between items-center gap-4">
-
-                <form action="{{ route('admin.survei.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
-                    <div class="flex">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Responden..."
-                            class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
-
-                        <button type="submit" class="bg-[#173860] hover:bg-[#102a48] text-white px-4 rounded-r-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+            {{-- Search & Action Bar --}}
+            <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
+                <form action="{{ route('admin.survei.arsip') }}" method="GET" class="flex-1 w-full max-w-lg">
+                    <div class="relative flex items-center">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari Responden / Email / Instansi..."
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                            <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </form>
 
-                <a href="{{ route('admin.survei.index') }}"
-                    class="bg-[#080d1a] hover:bg-[#173860] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    <span>Kembali</span>
-                </a>
-
+                <div class="flex gap-3 shrink-0">
+                    <a href="{{ route('admin.survei.index') }}"
+                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
+                        <span>KEMBALI</span>
+                    </a>
+                </div>
             </div>
 
-            {{-- Table --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-
-                <div class="px-6 py-5 border-b flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">
-                        Daftar Arsip Survei
-                    </h3>
-                    <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
-                        Total : {{ $respons->total() }}
+            {{-- Table Card --}}
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-base font-bold text-gray-900">Daftar Arsip Survei</h3>
+                    <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
+                        Total : {{ $respons->total() ?? 0 }}
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-4 text-center w-16">No</th>
-                                <th class="px-6 py-4 text-left">Nama</th>
-                                <th class="px-6 py-4 text-center">Email</th>
-                                <th class="px-6 py-4 text-center">Instansi</th>
-                                <th class="px-6 py-4 text-center">Status</th>
-                                <th class="px-6 py-4 text-center w-48">Aksi</th>
+                                <th class="px-6 py-3.5 text-center w-16">NO</th>
+                                <th class="px-6 py-3.5">NAMA</th>
+                                <th class="px-6 py-3.5 text-center">EMAIL</th>
+                                <th class="px-6 py-3.5 text-center">INSTANSI</th>
+                                <th class="px-6 py-3.5 text-center">STATUS</th>
+                                <th class="px-6 py-3.5 text-center w-48">AKSI</th>
                             </tr>
                         </thead>
 
-                        <tbody class="divide-y divide-gray-100 bg-white">
+                        <tbody class="divide-y divide-gray-100">
                             @forelse($respons as $index => $respon)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 text-center">
+                                <tr class="hover:bg-gray-50/50 transition align-top">
+                                    <td class="px-6 py-4 text-center font-semibold text-gray-500">
                                         {{ $respons->firstItem() + $index }}
                                     </td>
-                                    <td class="px-6 py-4 font-semibold">
+
+                                    <td class="px-6 py-4 font-semibold text-gray-900">
                                         {{ $respon->nama_lengkap }}
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+
+                                    <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->email ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 text-center">
+
+                                    <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->instansi ?? '-' }}
                                     </td>
+
                                     <td class="px-6 py-4 text-center">
                                         @if ($respon->cek == 'approve')
-                                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                            <span class="px-3 py-1 bg-emerald-500 text-white rounded-full text-[11px] font-bold whitespace-nowrap">
                                                 APPROVE
                                             </span>
                                         @else
-                                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
+                                            <span class="px-3 py-1 bg-amber-500 text-white rounded-full text-[11px] font-bold whitespace-nowrap">
                                                 MENUNGGU
                                             </span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <button type="button"
-                                            @click="setRestoreData({
-                                                id: {{ $respon->id_respon }},
-                                                nama: @js($respon->nama_lengkap)
-                                            })"
-                                            class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1.5 mx-auto">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                            </svg>
-                                            <span>Pulihkan</span>
-                                        </button>
+
+                                    <td class="px-6 py-4 text-center whitespace-nowrap">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <!-- Tombol Pulihkan -->
+                                            <button type="button"
+                                                @click="setRestoreData({
+                                                    id: {{ $respon->id_respon }},
+                                                    nama: @js($respon->nama_lengkap)
+                                                })"
+                                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                                <span>Pulihkan</span>
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-10 text-gray-500">
+                                    <td colspan="6" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada arsip survei.
                                     </td>
                                 </tr>
@@ -146,18 +139,69 @@
                     </table>
                 </div>
 
-                <div class="px-6 py-4 border-t border-gray-200 bg-white
-                    [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
-                    [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
-                    [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
-                    {{ $respons->links() }}
-                </div>
+                <!-- Pagination -->
+                @if ($respons->hasPages())
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $respons->firstItem() }} to {{ $respons->lastItem() }} of {{ $respons->total() }} entries
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            @if ($respons->onFirstPage())
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </span>
+                            @else
+                                <a href="{{ $respons->previousPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </a>
+                            @endif
+
+                            @foreach ($respons->getUrlRange(1, $respons->lastPage()) as $page => $url)
+                                @if ($page == $respons->currentPage())
+                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                        {{ $page }}
+                                    </span>
+                                @else
+                                    <a href="{{ $url }}"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            @endforeach
+
+                            @if ($respons->hasMorePages())
+                                <a href="{{ $respons->nextPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </a>
+                            @else
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $respons->count() ? 1 : 0 }} to {{ $respons->count() }} of {{ $respons->total() }} entries
+                        </p>
+                    </div>
+                @endif
             </div>
 
         </div>
 
         {{-- Modal Restore --}}
-        @include('admin.survei.data.pulihkan')
+        @include('admin.survei.pulihkan')
 
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+@endpush
