@@ -194,7 +194,7 @@
             </div>
         </div>
 
-        @include('super-admin.survei.delete')
-        @include('super-admin.survei.detail')
+        @include('super-admin.survei.data.delete')
+        @include('super-admin.survei.data.detail')
     </div>
 @endsection
