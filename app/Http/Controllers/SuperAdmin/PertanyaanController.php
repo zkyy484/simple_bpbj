@@ -20,7 +20,7 @@ class PertanyaanController extends Controller
             ->where('status', 'aktif')
             ->when($request->search, fn($q) => $q->where('pertanyaan', 'like', '%' . $request->search . '%'))
             ->orderBy('urutan')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('super-admin.survei.index', compact('pertanyaans', 'admins'));
     }
