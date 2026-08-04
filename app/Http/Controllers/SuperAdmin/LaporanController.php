@@ -149,6 +149,37 @@ class LaporanController extends Controller
     public function surveiTamu(Request $request)
     {
         $admins = Auth::user();
+
+        // Permintaan AJAX untuk memuat detail satu respon survei (dipakai oleh
+        // modal "Detail" di halaman Laporan Survei). Tampilan detailnya memakai
+        // partial yang sama dengan halaman super-admin/survei/data agar konsisten.
+        if ($request->ajax() && $request->filled('id_respon')) {
+            $respon = Respon::with([
+                'jawaban.pertanyaan.opsi' => function ($query) {
+                    $query->orderBy('nilai', 'asc');
+                },
+                'jawaban.opsi',
+            ])->findOrFail($request->id_respon);
+
+            $priorityMap = [
+                'pilihan_ganda' => 1,
+                'rating' => 2,
+                'textarea' => 3,
+            ];
+
+            $jawabans = $respon->jawaban
+                ->sortBy(function ($j) use ($priorityMap) {
+                    $tipe = $j->pertanyaan->tipe_pertanyaan ?? '';
+                    $priority = $priorityMap[$tipe] ?? 99;
+                    $urutan = $j->pertanyaan->urutan ?? 0;
+
+                    return sprintf('%02d-%04d', $priority, $urutan);
+                })
+                ->values();
+
+            return view('super-admin.survei.data.detail-content', compact('respon', 'jawabans'));
+        }
+
         $deteksi = $request->deteksi;
 
         if (in_array($deteksi, ['normal', 'anomali'])) {

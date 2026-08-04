@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\TamuController as AdminTamuController;
 use App\Http\Controllers\SuperAdmin\LaporanController as SuperAdminLaporanController;
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
 use App\Http\Controllers\Admin\SurveiController as AdminSurveiController;
+use App\Http\Controllers\SuperAdmin\LogAktivitasController;
 use Illuminate\Validation\Rule;
 
 
@@ -89,6 +90,8 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super/survei/arsip', [SurveiController::class, 'arsip'])->name('survei.arsip');
     Route::delete('/super/survei/delete', [SurveiController::class, 'destroy'])->name('survei.destroy');
     Route::put('/super/survei/pulihkan', [SurveiController::class, 'pulihkan'])->name('survei.pulihkan');
+
+    Route::get('/super/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas.index');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {

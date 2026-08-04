@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -52,11 +53,20 @@ class ProfileController extends Controller
 
         // Hanya update paraf jika ada data gambar baru (base64) dikirim dari canvas.
         // Jika kosong, paraf lama yang sudah tersimpan tetap dipertahankan.
+        $parafDiperbarui = false;
         if (!empty($validated['paraf']) && str_starts_with($validated['paraf'], 'data:image')) {
             $user->paraf = $validated['paraf'];
+            $parafDiperbarui = true;
         }
 
         $user->save();
+
+        ActivityLog::catat(
+            'Ubah Profil',
+            $parafDiperbarui
+                ? 'Memperbarui informasi profil beserta paraf.'
+                : 'Memperbarui informasi profil.'
+        );
 
         return redirect()
             ->route('super.profile')
@@ -73,6 +83,8 @@ class ProfileController extends Controller
 
         $user->paraf = null;
         $user->save();
+
+        ActivityLog::catat('Hapus Paraf', 'Menghapus paraf/tanda tangan yang tersimpan.');
 
         return redirect()
             ->route('super.profile')
@@ -101,6 +113,8 @@ class ProfileController extends Controller
 
         // 2. Cek Password Saat Ini -> Kirim session 'error' untuk SweetAlert
         if (!Hash::check($request->current_password, $user->password)) {
+            ActivityLog::catat('Gagal Ubah Password', 'Percobaan ubah password gagal: password saat ini tidak sesuai.');
+
             return back()
                 ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
                 ->with('error', 'Password saat ini tidak sesuai!') // <- Memicu SweetAlert Error
@@ -111,6 +125,10 @@ class ProfileController extends Controller
         // 3. Simpan Password Baru -> Kirim session 'success' untuk SweetAlert
         $user->password = Hash::make($request->password);
         $user->save();
+
+        // Catatan: deskripsi log SENGAJA tidak menyertakan password lama/baru
+        // dalam bentuk apapun (termasuk hash-nya) demi keamanan.
+        ActivityLog::catat('Ubah Password', 'Berhasil memperbarui password akun.');
 
         return redirect()
             ->route('super.profile')
