@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -50,14 +51,21 @@ class TamuController extends Controller
             'id_user' => $validated['id_user'] ?? $tamu->id_user,
         ]);
 
+        ActivityLog::catat(
+            'Ubah Data Tamu',
+            "Memperbarui data tindak lanjut tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+        );
+
         return back()->with('success', 'Data tamu berhasil diperbarui.');
     }
 
     // Mengubah status approval + upload paraf admin/pegawai
     public function approval(Request $request, Tamu $tamu)
     {
+        $approvalBaru = $tamu->approval === 'approve' ? 'menunggu' : 'approve';
+
         $data = [
-            'approval' => $tamu->approval === 'approve' ? 'menunggu' : 'approve',
+            'approval' => $approvalBaru,
         ];
 
         if ($request->hasFile('paraf')) {
@@ -68,6 +76,11 @@ class TamuController extends Controller
         }
 
         $tamu->update($data);
+
+        ActivityLog::catat(
+            $approvalBaru === 'approve' ? 'Approve Tamu' : 'Batalkan Approval Tamu',
+            "Mengubah status approval tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket}) menjadi {$approvalBaru}."
+        );
 
         return back()->with('success', 'Status approval berhasil diperbarui.');
     }

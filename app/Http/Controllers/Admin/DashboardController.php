@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Hash;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
@@ -17,14 +18,16 @@ class DashboardController extends Controller
     }
 
     public function profile() {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         return view('admin.profile', compact('user'));
     }
 
     public function update(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $validated = $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:50'],
@@ -47,6 +50,8 @@ class DashboardController extends Controller
         $user->alamat = $validated['alamat'] ?? null;
         $user->save();
 
+        ActivityLog::catat('Ubah Profil', 'Memperbarui informasi profil.');
+
         return redirect()
             ->route('admin.profile')
             ->with('success', 'Informasi profil berhasil disimpan.');
@@ -54,7 +59,8 @@ class DashboardController extends Controller
 
     public function UpdatePassword(Request $request)
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $request->validate([
             'current_password' => ['required', 'string'],
@@ -67,6 +73,8 @@ class DashboardController extends Controller
         ]);
 
         if (!Hash::check($request->current_password, $user->password)) {
+            ActivityLog::catat('Gagal Ubah Password', 'Percobaan ubah password gagal: password saat ini tidak sesuai.');
+
             return back()
                 ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
                 ->with('error', 'Password saat ini tidak sesuai!')
@@ -76,6 +84,10 @@ class DashboardController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->save();
+
+        // Catatan: deskripsi log SENGAJA tidak menyertakan password lama/baru
+        // dalam bentuk apapun (termasuk hash-nya) demi keamanan.
+        ActivityLog::catat('Ubah Password', 'Berhasil memperbarui password akun.');
 
         return redirect()
             ->route('admin.profile')

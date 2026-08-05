@@ -3,15 +3,17 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\SubBagian;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SubBagianController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->search;
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $subBagians = SubBagian::where('status', 'aktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -31,7 +33,7 @@ class SubBagianController extends Controller
     public function arsip(Request $request)
     {
         $search = $request->search;
-        $admins = auth()->user();
+        $admins = Auth::user();
 
         $subBagians = SubBagian::where('status', 'nonaktif') // Filter hanya data aktif
             ->when($search, function ($query) use ($search) {
@@ -54,10 +56,15 @@ class SubBagianController extends Controller
             'nama_sub_bagian' => 'required|max:50|unique:sub_bagians,nama_sub_bagian',
         ]);
 
-        SubBagian::create([
+        $subBagian = SubBagian::create([
             'nama_sub_bagian' => $request->nama_sub_bagian,
             'status' => 'aktif',
         ]);
+
+        ActivityLog::catat(
+            'Tambah Sub Bagian',
+            "Menambahkan sub bagian \"{$subBagian->nama_sub_bagian}\"."
+        );
 
         return back()->with('success', 'Sub Bagian berhasil ditambahkan');
 
@@ -72,9 +79,16 @@ class SubBagianController extends Controller
             'nama_sub_bagian' => 'required|max:50|unique:sub_bagians,nama_sub_bagian,' . $subBagian->id_sub_bagian . ',id_sub_bagian',
         ]);
 
+        $namaLama = $subBagian->nama_sub_bagian;
+
         $subBagian->update([
             'nama_sub_bagian' => $request->nama_sub_bagian,
         ]);
+
+        ActivityLog::catat(
+            'Ubah Sub Bagian',
+            "Mengubah nama sub bagian dari \"{$namaLama}\" menjadi \"{$subBagian->nama_sub_bagian}\"."
+        );
 
         return back()->with('success', 'Data berhasil diperbarui');
     }
@@ -94,6 +108,11 @@ class SubBagianController extends Controller
             'status' => 'nonaktif'
         ]);
 
+        ActivityLog::catat(
+            'Arsipkan Sub Bagian',
+            "Mengarsipkan sub bagian \"{$subBagian->nama_sub_bagian}\"."
+        );
+
         return back()->with('success', 'Sub Bagian berhasil dihapus');
     }
 
@@ -109,6 +128,11 @@ class SubBagianController extends Controller
         $subBagian->update([
             'status' => 'aktif'
         ]);
+
+        ActivityLog::catat(
+            'Pulihkan Sub Bagian',
+            "Memulihkan sub bagian \"{$subBagian->nama_sub_bagian}\" dari arsip."
+        );
 
         return back()->with('success', 'Sub Bagian berhasil dipulihkan');
     }

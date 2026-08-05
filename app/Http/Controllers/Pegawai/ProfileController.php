@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash; // <-- WAJIB ditambahkan, tanpa ini Hash::check() error
@@ -12,6 +13,7 @@ class ProfileController extends Controller
 {
     public function index()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         return view('pegawai.profile', compact('user'));
@@ -22,6 +24,7 @@ class ProfileController extends Controller
      */
     public function update(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $validated = $request->validate([
@@ -43,7 +46,9 @@ class ProfileController extends Controller
         $user->no_telepon = $validated['no_telepon'] ?? null;
         $user->nip = $validated['nip'];
         $user->alamat = $validated['alamat'] ?? null;
-        $user->Auth::save();
+        $user->save();
+
+        ActivityLog::catat('Ubah Profil', 'Memperbarui informasi profil.');
 
         return redirect()
             ->route('pegawai.profile')
@@ -55,6 +60,7 @@ class ProfileController extends Controller
      */
     public function updatePassword(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $request->validate([
@@ -68,6 +74,8 @@ class ProfileController extends Controller
         ]);
 
         if (!Hash::check($request->current_password, $user->password)) {
+            ActivityLog::catat('Gagal Ubah Password', 'Percobaan ubah password gagal: password saat ini tidak sesuai.');
+
             return back()
                 ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
                 ->with('error', 'Password saat ini tidak sesuai!')
@@ -76,7 +84,11 @@ class ProfileController extends Controller
         }
 
         $user->password = Hash::make($request->password);
-        $user->Auth::save();
+        $user->save();
+
+        // Catatan: deskripsi log SENGAJA tidak menyertakan password lama/baru
+        // dalam bentuk apapun (termasuk hash-nya) demi keamanan.
+        ActivityLog::catat('Ubah Password', 'Berhasil memperbarui password akun.');
 
         return redirect()
             ->route('pegawai.profile')
