@@ -47,7 +47,6 @@ class TamuController extends Controller
         );
 
         $validated['status_tindak_lanjut'] = 'belum_eskalasi';
-        $validated['status'] = 'menunggu';
         $validated['approval'] = 'menunggu';
         $validated['status_aktif'] = 'aktif';
 
