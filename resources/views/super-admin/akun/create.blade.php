@@ -41,6 +41,18 @@
         <!-- Body -->
         <form action="{{ route('akun.store') }}" method="POST">
             @csrf
+            <input type="hidden" name="form_type" value="create">
+
+            {{-- Ringkasan error, supaya kelihatan jelas kalau ada input yang gagal disimpan --}}
+            @if ($errors->any() && old('form_type') == 'create')
+                <div class="mx-6 mt-6 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm space-y-1">
+                    <p class="font-semibold">Data belum tersimpan, mohon periksa kembali:</p>
+                    @foreach ($errors->all() as $error)
+                        <p>&bull; {{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
+
             <div class="p-6 space-y-6">
 
                 <!-- SECTION 1: DATA DIRI & PEGAWAI -->
@@ -53,9 +65,11 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
+                            {{-- Tentukan class border di PHP dulu, supaya hanya 1 class border yang muncul di HTML --}}
+                            @php $borderNama = $errors->has('nama_lengkap') ? 'border-red-400' : 'border-gray-300'; @endphp
                             <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}"
                                 placeholder="Masukkan nama lengkap"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nama_lengkap') border-red-400 @else border-gray-300 @enderror">
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderNama }}">
                             @error('nama_lengkap')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
@@ -66,8 +80,9 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 NIP <span class="text-red-500">*</span>
                             </label>
+                            @php $borderNip = $errors->has('nip') ? 'border-red-400' : 'border-gray-300'; @endphp
                             <input type="text" name="nip" value="{{ old('nip') }}" placeholder="Masukkan NIP"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nip') border-red-400 @else border-gray-300 @enderror">
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderNip }}">
                             @error('nip')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
@@ -80,9 +95,10 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Alamat Email <span class="text-red-500">*</span>
                             </label>
+                            @php $borderEmail = $errors->has('email') ? 'border-red-400' : 'border-gray-300'; @endphp
                             <input type="email" name="email" value="{{ old('email') }}"
                                 placeholder="contoh@denpasarkota.go.id"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('email') border-red-400 @else border-gray-300 @enderror">
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderEmail }}">
                             @error('email')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
@@ -93,9 +109,10 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Nomor Telepon <span class="text-red-500">*</span>
                             </label>
+                            @php $borderTelepon = $errors->has('no_telepon') ? 'border-red-400' : 'border-gray-300'; @endphp
                             <input type="tel" name="no_telepon" value="{{ old('no_telepon') }}"
                                 placeholder="08xxxxxxxxxx"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('no_telepon') border-red-400 @else border-gray-300 @enderror">
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderTelepon }}">
                             @error('no_telepon')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
@@ -131,8 +148,9 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
                             Alamat Tinggal <span class="text-red-500">*</span>
                         </label>
+                        @php $borderAlamat = $errors->has('alamat') ? 'border-red-400' : 'border-gray-300'; @endphp
                         <textarea name="alamat" rows="2" placeholder="Masukkan alamat lengkap tinggal"
-                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] resize-none @error('alamat') border-red-400 @else border-gray-300 @enderror">{{ old('alamat') }}</textarea>
+                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] resize-none {{ $borderAlamat }}">{{ old('alamat') }}</textarea>
                         @error('alamat')
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
@@ -153,9 +171,10 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Username <span class="text-red-500">*</span>
                                 </label>
+                                @php $borderUsername = $errors->has('username') ? 'border-red-400' : 'border-gray-300'; @endphp
                                 <input type="text" name="username" value="{{ old('username') }}"
                                     placeholder="Masukkan username"
-                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white @error('username') border-red-400 @else border-gray-300 @enderror">
+                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderUsername }}">
                                 @error('username')
                                     <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
@@ -166,8 +185,9 @@
                                 <label class="block text-sm font-semibold text-gray-700 mb-2">
                                     Password <span class="text-red-500">*</span>
                                 </label>
+                                @php $borderPassword = $errors->has('password') ? 'border-red-400' : 'border-gray-300'; @endphp
                                 <input type="password" name="password" placeholder="Masukkan password"
-                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white @error('password') border-red-400 @else border-gray-300 @enderror">
+                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderPassword }}">
                                 @error('password')
                                     <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
@@ -179,8 +199,9 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Role Akses <span class="text-red-500">*</span>
                             </label>
+                            @php $borderRole = $errors->has('role') ? 'border-red-400' : 'border-gray-300'; @endphp
                             <select name="role"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] cursor-pointer bg-white @error('role') border-red-400 @else border-gray-300 @enderror">
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] cursor-pointer bg-white {{ $borderRole }}">
                                 <option value="" disabled {{ old('role') ? '' : 'selected' }}>Pilih Role Akses
                                 </option>
                                 <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai

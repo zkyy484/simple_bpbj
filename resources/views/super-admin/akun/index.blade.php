@@ -5,9 +5,20 @@
 @section('content')
     <div x-data="{
         openCreate: Boolean({{ $errors->any() && old('form_type') == 'create' ? 1 : 0 }}),
-        openEdit: false,
+        openEdit: Boolean({{ $errors->any() && old('form_type') == 'edit' ? 1 : 0 }}),
         openDelete: false,
-        selectedUser: {}
+        selectedUser: {{ $errors->any() && old('form_type') == 'edit'
+            ? Js::from([
+                'id' => old('id_user'),
+                'nama_lengkap' => old('nama_lengkap'),
+                'nip' => old('nip'),
+                'email' => old('email'),
+                'no_telepon' => old('no_telepon'),
+                'id_sub_bagian' => old('id_sub_bagian'),
+                'alamat' => old('alamat'),
+                'role' => old('role'),
+            ])
+            : '{}' }}
     }" class="relative">
 
         {{-- CONTENT MAIN --}}
@@ -188,10 +199,3 @@
         @include('super-admin.akun.delete')
     </div>
 @endsection
-
-@push('scripts')
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
-@endpush

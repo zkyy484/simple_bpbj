@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Respon;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
@@ -50,6 +51,11 @@ class LaporanController extends Controller
             'status' => $request->status,
         ])->setPaper('a4', 'landscape');
 
+        ActivityLog::catat(
+            'Export Laporan Buku Tamu',
+            "Mengekspor laporan buku tamu periode {$periode} ke PDF."
+        );
+
         return $pdf->download('laporan-buku-tamu-' . now()->format('Ymd-His') . '.pdf');
     }
 
@@ -96,6 +102,11 @@ class LaporanController extends Controller
             'periode' => $periode,
             'pelakuUsaha' => $request->pelaku_usaha,
         ])->setPaper('a4', 'landscape');
+
+        ActivityLog::catat(
+            'Export Laporan Pengunjung',
+            "Mengekspor laporan pengunjung periode {$periode} ke PDF."
+        );
 
         return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
     }
@@ -241,6 +252,11 @@ class LaporanController extends Controller
             'periode' => $periode,
             'deteksi' => $deteksi,
         ])->setPaper('a4', 'landscape');
+
+        ActivityLog::catat(
+            'Export Laporan Survei Tamu',
+            "Mengekspor laporan survei tamu periode {$periode} ke PDF."
+        );
 
         return $pdf->download('laporan-survei-tamu-' . now()->format('Ymd-His') . '.pdf');
     }

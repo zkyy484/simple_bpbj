@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Pegawai;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -52,6 +53,11 @@ class TamuController extends Controller
         $tamu->status_tindak_lanjut = $request->status_tindak_lanjut;
         $tamu->save();
 
+        ActivityLog::catat(
+            'Ubah Tindak Lanjut Tamu',
+            "Memperbarui tindak lanjut tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+        );
+
         return redirect()
             ->route('pegawai.tamu.index')
             ->with('success', 'Data berhasil diperbarui.');
@@ -77,6 +83,11 @@ class TamuController extends Controller
         $tamu->load(['pegawai', 'tujuan', 'subBagian']);
 
         Mail::to($tamu->email)->send(new TindakLanjutMail($tamu));
+
+        ActivityLog::catat(
+            'Kirim Email Tindak Lanjut',
+            "Mengirim email tindak lanjut kepada tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+        );
 
         return redirect()
             ->back()

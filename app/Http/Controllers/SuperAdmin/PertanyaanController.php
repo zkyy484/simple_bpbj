@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Opsi;
 use App\Models\Pertanyaan;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class PertanyaanController extends Controller
 {
@@ -84,7 +84,7 @@ class PertanyaanController extends Controller
         return redirect()->route('index.pertanyaan')->with('success', 'Pertanyaan berhasil ditambahkan');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, string $id)
     {
         $pertanyaan = Pertanyaan::findOrFail($id);
         $terkunci = $pertanyaan->sudahAdaRespon();

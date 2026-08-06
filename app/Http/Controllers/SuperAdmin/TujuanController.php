@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Tujuan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -62,6 +63,11 @@ class TujuanController extends Controller
             'status' => 'aktif',
         ]);
 
+        ActivityLog::catat(
+            'Tambah Tujuan',
+            "Menambahkan tujuan kunjungan \"{$request->nama_tujuan}\"."
+        );
+
         return back()->with('success', 'Tujuan berhasil ditambahkan');
     }
 
@@ -76,6 +82,11 @@ class TujuanController extends Controller
         $Tujuans->update([
             'nama_tujuan' => $request->nama_tujuan,
         ]);
+
+        ActivityLog::catat(
+            'Ubah Tujuan',
+            "Memperbarui tujuan kunjungan menjadi \"{$request->nama_tujuan}\"."
+        );
 
         return back()->with('success', 'Data berhasil diperbarui');
     }
@@ -95,6 +106,11 @@ class TujuanController extends Controller
             'status' => 'nonaktif'
         ]);
 
+        ActivityLog::catat(
+            'Arsipkan Tujuan',
+            "Mengarsipkan tujuan kunjungan \"{$Tujuans->nama_tujuan}\"."
+        );
+
         return back()->with('success', 'Tujuan berhasil dihapus');
     }
 
@@ -112,6 +128,11 @@ class TujuanController extends Controller
         $Tujuans->update([
             'status' => 'aktif'
         ]);
+
+        ActivityLog::catat(
+            'Pulihkan Tujuan',
+            "Memulihkan tujuan kunjungan \"{$Tujuans->nama_tujuan}\" dari arsip."
+        );
 
         return back()->with('success', 'Tujuan berhasil dipulihkan');
     }
