@@ -23,12 +23,18 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">340</h3>
-                <p class="text-xs font-medium mt-2 flex items-center text-emerald-600">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
-                    </svg>
-                    +12.5% <span class="text-gray-400 font-normal ml-1">vs bulan lalu</span>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $totalKunjungan }}</h3>
+                <p class="text-xs font-medium mt-2 flex items-center {{ $persenBulanan >= 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                    @if ($persenBulanan >= 0)
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
+                        </svg>
+                    @else
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                    {{ $persenBulanan >= 0 ? '+' : '' }}{{ $persenBulanan }}% <span class="text-gray-400 font-normal ml-1">vs bulan lalu</span>
                 </p>
             </div>
         </div>
@@ -44,12 +50,18 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">31</h3>
-                <p class="text-xs font-medium mt-2 flex items-center text-rose-500">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
-                    </svg>
-                    -3.2% <span class="text-gray-400 font-normal ml-1">vs kemarin</span>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $kunjunganHariIni }}</h3>
+                <p class="text-xs font-medium mt-2 flex items-center {{ $persenHarian >= 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                    @if ($persenHarian >= 0)
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
+                        </svg>
+                    @else
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                    {{ $persenHarian >= 0 ? '+' : '' }}{{ $persenHarian }}% <span class="text-gray-400 font-normal ml-1">vs kemarin</span>
                 </p>
             </div>
         </div>
@@ -65,7 +77,7 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">326</h3>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $totalSurvei }}</h3>
                 <p class="text-xs text-gray-400 font-normal mt-2">Sejak bulan ini</p>
             </div>
         </div>
@@ -75,20 +87,21 @@
     <!-- DISTRIBUSI PER SUB BAGIAN -->
     <div class="bg-white rounded-2xl shadow-sm p-5">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Distribusi Kunjungan per Sub Bagian</h3>
-        <div class="grid grid-cols-3 gap-3">
-            <div class="bg-[#38bdf8] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">Advokasi dan SDM</p>
-                <p class="text-2xl font-bold text-white mt-2">110</p>
+        @if ($distribusiSubBagian->isEmpty())
+            <p class="text-xs text-gray-400">Belum ada data sub bagian.</p>
+        @else
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                @php
+                    $warnaPalet = ['#173860', '#38bdf8', '#818cf8', '#f59e0b', '#10b981', '#ef4444', '#a855f7', '#0ea5e9'];
+                @endphp
+                @foreach ($distribusiSubBagian as $index => $sub)
+                    <div class="rounded-xl p-4 bg-[{{ $warnaPalet[$index % count($warnaPalet)] }}]">
+                        <p class="text-[11px] font-semibold text-white">{{ $sub->nama_sub_bagian }}</p>
+                        <p class="text-2xl font-bold text-white mt-2">{{ $sub->tamus_count }}</p>
+                    </div>
+                @endforeach
             </div>
-            <div class="bg-[#173860] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">LPSE</p>
-                <p class="text-2xl font-bold text-white mt-2">123</p>
-            </div>
-            <div class="bg-[#818cf8] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">POKJA</p>
-                <p class="text-2xl font-bold text-white mt-2">117</p>
-            </div>
-        </div>
+        @endif
     </div>
 
     <!-- CHARTS SECTION -->
@@ -101,9 +114,12 @@
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-gray-600 mt-4">
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#173860] inline-block mr-1.5"></span> LPSE</span>
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#38bdf8] inline-block mr-1.5"></span> Advokasi dan SDM</span>
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#818cf8] inline-block mr-1.5"></span> POKJA</span>
+                @foreach ($distribusiSubBagian as $index => $sub)
+                    <span class="flex items-center">
+                        <span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5 bg-[{{ $warnaPalet[$index % count($warnaPalet)] }}]"></span>
+                        {{ $sub->nama_sub_bagian }}
+                    </span>
+                @endforeach
             </div>
         </div>
 
@@ -111,9 +127,9 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-7">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-gray-900 text-base">Aktivitas Kunjungan</h3>
-                <select class="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 outline-none cursor-pointer">
-                    <option>12 - 17 Des</option>
-                </select>
+                <span class="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600">
+                    {{ $aktivitasMingguan->first()['label'] }} - {{ $aktivitasMingguan->last()['label'] }}
+                </span>
             </div>
             <div class="h-60">
                 <canvas id="activityChart"></canvas>
@@ -125,8 +141,8 @@
     <!-- LOG AKTIVITAS TERBARU (TABLE) -->
     <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="font-bold text-gray-900 text-base">Log Aktivitas Terbaru</h3>
-            <a href="#" class="text-xs font-semibold text-[#173860] hover:underline">Lihat Semua</a>
+            <h3 class="font-bold text-gray-900 text-base">Kunjungan Terbaru</h3>
+            <a href="{{ route('tamu.index') }}" class="text-xs font-semibold text-[#173860] hover:underline">Lihat Semua</a>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
@@ -139,68 +155,78 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Aditya Saputra</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Rapat Anggaran Q3</p>
-                            <p class="text-xs text-gray-400">Sub Bagian Keuangan</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold tracking-wider">CHECKED IN</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">10:24 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Rina Maharani</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Konsultasi IT</p>
-                            <p class="text-xs text-gray-400">Sub Bagian IT</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-[10px] font-bold tracking-wider">FINISHED</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">09:15 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Budi Pratama</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Pengiriman Dokumen</p>
-                            <p class="text-xs text-gray-400">Lobby Utama</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold tracking-wider">CHECKED IN</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">08:45 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
+                    @forelse ($kunjunganTerbaru as $tamu)
+                        @php
+                            $statusColor = match ($tamu->status_tindak_lanjut) {
+                                'selesai' => 'bg-emerald-100 text-emerald-700',
+                                'eskalasi' => 'bg-blue-100 text-blue-700',
+                                default => 'bg-gray-200 text-gray-700',
+                            };
+                            $statusLabel = match ($tamu->status_tindak_lanjut) {
+                                'selesai' => 'SELESAI',
+                                'eskalasi' => 'ESKALASI',
+                                default => 'BELUM ESKALASI',
+                            };
+                        @endphp
+                        <tr class="hover:bg-gray-50/50 transition">
+                            <td class="px-6 py-4 font-semibold text-gray-900">{{ $tamu->nama_lengkap }}</td>
+                            <td class="px-6 py-4">
+                                <p class="font-medium text-gray-800">{{ $tamu->tujuan->nama_tujuan ?? $tamu->jenis_permohonan ?? '-' }}</p>
+                                <p class="text-xs text-gray-400">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="px-3 py-1 {{ $statusColor }} rounded-full text-[10px] font-bold tracking-wider">{{ $statusLabel }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="font-medium text-gray-800">{{ $tamu->created_at->format('h:i A') }}</p>
+                                <p class="text-xs text-gray-400">{{ $tamu->created_at->isToday() ? 'Hari ini' : $tamu->created_at->translatedFormat('d M Y') }}</p>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-6 text-center text-gray-400 text-sm">Belum ada data kunjungan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+    @php
+
+        $warnaPaletChart = ['#173860', '#38bdf8', '#818cf8', '#f59e0b', '#10b981', '#ef4444', '#a855f7', '#0ea5e9'];
+        $jumlahWarnaDipakai = max($distribusiSubBagian->count(), 1);
+        $warnaChartDipakai = array_slice($warnaPaletChart, 0, $jumlahWarnaDipakai);
+
+        $dashboardDataArray = [
+            'subBagianLabels' => $distribusiSubBagian->pluck('nama_sub_bagian'),
+            'subBagianTotal' => $distribusiSubBagian->pluck('tamus_count'),
+            'subBagianWarna' => $warnaChartDipakai,
+            'aktivitasLabel' => $aktivitasMingguan->pluck('label'),
+            'aktivitasTotal' => $aktivitasMingguan->pluck('total'),
+        ];
+
+        $dashboardDataJson = json_encode($dashboardDataArray);
+    @endphp
+
+    <script id="dashboard-chart-data" type="application/json">{!! $dashboardDataJson !!}</script>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    // 1. DOUGHNUT CHART
+    // Ambil data yang sudah disiapkan server dari tag JSON di atas.
+    const dashboardData = JSON.parse(document.getElementById('dashboard-chart-data').textContent);
+
+    // 1. DOUGHNUT CHART - Distribusi Sub Bagian
     const ctxPie = document.getElementById('pieChart').getContext('2d');
     new Chart(ctxPie, {
         type: 'doughnut',
         data: {
-            labels: ['LPSE', 'Advokasi dan SDM', 'POKJA'],
+            labels: dashboardData.subBagianLabels,
             datasets: [{
-                data: [50, 30, 20],
-                backgroundColor: ['#173860', '#38bdf8', '#818cf8'],
+                data: dashboardData.subBagianTotal,
+                backgroundColor: dashboardData.subBagianWarna,
                 borderWidth: 0,
             }]
         },
@@ -214,14 +240,14 @@
         }
     });
 
-    // 2. LINE CHART ACTIVITY
+    // 2. LINE CHART - Aktivitas Kunjungan 7 hari terakhir
     const ctxLine = document.getElementById('activityChart').getContext('2d');
     new Chart(ctxLine, {
         type: 'line',
         data: {
-            labels: ['1', '2', '3', '4', '5'],
+            labels: dashboardData.aktivitasLabel,
             datasets: [{
-                data: [25, 75, 40, 20, 65],
+                data: dashboardData.aktivitasTotal,
                 borderColor: '#173860',
                 borderWidth: 1.5,
                 pointBackgroundColor: '#173860',
@@ -242,10 +268,9 @@
                     ticks: { font: { size: 10 } }
                 },
                 y: {
-                    min: 0,
-                    max: 100,
+                    beginAtZero: true,
                     ticks: {
-                        stepSize: 25,
+                        precision: 0,
                         font: { size: 10 }
                     },
                     grid: { color: '#f3f4f6' }

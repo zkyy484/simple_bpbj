@@ -19,4 +19,14 @@ class SubBagian extends Model
     {
         return 'id_sub_bagian';
     }
+
+    public function tamus()
+    {
+        return $this->hasMany(Tamu::class, 'id_sub_bagian', 'id_sub_bagian');
+    }
+
+    public function pegawais()
+    {
+        return $this->hasMany(User::class, 'id_sub_bagian', 'id_sub_bagian');
+    }
 }
