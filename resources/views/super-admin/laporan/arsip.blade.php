@@ -1,25 +1,25 @@
 @extends('super-admin.layouts.app')
 
-@section('title', 'Arsip Survei - Buku Tamu Digital')
+@section('title', 'Arsip Laporan Survei - Buku Tamu Digital')
 
 @section('content')
     <div x-data="{
         openRestore: false,
-    
+
         selectedItem: {
             id: '',
             nama: ''
         },
-    
+
         setRestoreData(item) {
             this.selectedItem = {
                 id: item.id,
                 nama: item.nama
             };
-    
+
             this.openRestore = true;
         }
-    
+
     }" class="relative">
 
         <!-- CONTENT MAIN -->
@@ -31,16 +31,16 @@
                 <div class="text-sm text-gray-500 mb-1">
                     <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
                     <span class="mx-1">/</span>
-                    <a href="{{ route('survei.index') }}" class="hover:text-gray-700">Survei</a>
+                    <a href="{{ route('laporan.survei.index') }}" class="hover:text-gray-700">Laporan Survei</a>
                     <span class="mx-1">/</span>
                     <span class="text-gray-700 font-medium">Arsip</span>
                 </div>
-                <h1 class="text-3xl font-bold text-gray-900">Arsip Data Survei</h1>
+                <h1 class="text-3xl font-bold text-gray-900">Arsip Laporan Survei Tamu</h1>
             </div>
 
             {{-- Search & Action Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('survei.arsip') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ Route::has('survei.arsip') ? route('survei.arsip') : route('laporan.survei.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Responden / Email / Instansi..."
@@ -52,7 +52,7 @@
                 </form>
 
                 <div class="flex gap-3 shrink-0">
-                    <a href="{{ route('survei.index') }}"
+                    <a href="{{ route('laporan.survei.index') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
                         <span>KEMBALI</span>
@@ -63,7 +63,7 @@
             {{-- Table Card --}}
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                    <h3 class="text-base font-bold text-gray-900">Daftar Arsip Survei</h3>
+                    <h3 class="text-base font-bold text-gray-900">Daftar Arsip Respon Survei</h3>
                     <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
                         Total : {{ $respons->total() ?? 0 }}
                     </span>
@@ -78,7 +78,8 @@
                                 <th class="px-6 py-3.5 text-center">EMAIL</th>
                                 <th class="px-6 py-3.5 text-center">INSTANSI</th>
                                 <th class="px-6 py-3.5 text-center">STATUS</th>
-                                <th class="px-6 py-3.5 text-center w-48">AKSI</th>
+                                <th class="px-6 py-3.5 text-center">POLA JAWABAN</th>
+                                <th class="px-6 py-3.5 text-center w-36">AKSI</th>
                             </tr>
                         </thead>
 
@@ -113,8 +114,32 @@
                                         @endif
                                     </td>
 
+                                    <td class="px-6 py-4 text-center">
+                                        @php
+                                            $warnaPola = [
+                                                'rata_kiri'   => 'bg-red-100 text-red-700',
+                                                'rata_kanan'  => 'bg-red-100 text-red-700',
+                                                'rata_tengah' => 'bg-orange-100 text-orange-700',
+                                                'menaik'      => 'bg-orange-100 text-orange-700',
+                                                'menurun'     => 'bg-orange-100 text-orange-700',
+                                                'zigzag'      => 'bg-purple-100 text-purple-700',
+                                                'normal'      => 'bg-gray-100 text-gray-600',
+                                            ][$respon->pola_survei ?? 'normal'];
+                                        @endphp
+                                        @if (!empty($respon->is_anomali))
+                                            <span class="{{ $warnaPola }} px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap">
+                                                {{ $respon->pola_survei_label ?? 'Anomali' }}
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-[11px] font-bold whitespace-nowrap">
+                                                <i data-lucide="check" class="w-3 h-3"></i>
+                                                <span>Valid</span>
+                                            </span>
+                                        @endif
+                                    </td>
+
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
-                                        <div class="flex justify-center items-center gap-2">
+                                        <div class="flex justify-center items-center">
                                             <!-- Tombol Pulihkan -->
                                             <button type="button"
                                                 @click="setRestoreData({
@@ -130,7 +155,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-gray-400">
+                                    <td colspan="7" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada arsip survei.
                                     </td>
                                 </tr>

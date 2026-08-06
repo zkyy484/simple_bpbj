@@ -1,6 +1,6 @@
 @extends('tamu.layouts.app')
 
-@section('title', 'Survei Kepuasan Pelayanan')
+@section('title', 'Buku Tamu Digital')
 
 @push('styles')
 <style>
@@ -184,9 +184,8 @@
         </h2>
 
         <p class="fade-up text-gray-600 leading-relaxed mb-8">
-            Survei kepuasan pelayanan berhasil dikirim.
-            Masukan Anda sangat berarti bagi kami untuk terus
-            meningkatkan kualitas pelayanan Bagian Pengadaan Barang dan Jasa.
+            Data kunjungan Anda telah berhasil dicatat ke dalam Buku Tamu Digital. 
+            Terima kasih telah melakukan registrasi kedatangan di Bagian Pengadaan Barang dan Jasa.
         </p>
 
         <div class="fade-up bg-gray-50 border rounded-lg p-4 text-left mb-8">
@@ -194,11 +193,11 @@
             <div class="flex justify-between border-b pb-2 mb-2">
 
                 <span class="text-gray-500">
-                    Status
+                    Status Registrasi
                 </span>
 
                 <span class="text-green-600 font-semibold">
-                    ✔ Berhasil
+                    ✔ Berhasil Dicatat
                 </span>
 
             </div>
@@ -206,7 +205,7 @@
             <div class="flex justify-between">
 
                 <span class="text-gray-500">
-                    Waktu
+                    Waktu Kedatangan
                 </span>
 
                 <span class="font-semibold">

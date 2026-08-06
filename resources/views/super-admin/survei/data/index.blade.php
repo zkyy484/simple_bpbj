@@ -4,28 +4,16 @@
 
 @section('content')
     <div x-data="{
-        openCreate: Boolean({{ $errors->any() && old('form_type') == 'create' ? 1 : 0 }}),
-        openEdit: Boolean({{ $errors->any() && old('form_type') == 'edit' ? 1 : 0 }}),
-        openDelete: false,
         openDetail: false,
         loadingDetail: false,
         detailContent: '',
-        selectedItem: {{ $errors->any() && old('form_type') == 'edit'
-            ? Js::from([
-                'id' => old('id_pertanyaan'),
-                'pertanyaan' => old('pertanyaan'),
-                'tipe_pertanyaan' => old('tipe_pertanyaan'),
-                'urutan' => old('urutan'),
-                'opsi' => old('opsi') ?? [],
-            ])
-            : '{}' }},
-    
+        
         async loadDetail(id) {
             this.openDetail = true;
             this.loadingDetail = true;
             this.detailContent = '';
             try {
-                const res = await fetch(`{{ route('survei.index') }}?id_respon=${id}`, {
+                const res = await fetch(`{{ route('index.survei') }}?id_respon=${id}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 if (!res.ok) throw new Error('Gagal memuat data');
@@ -40,7 +28,7 @@
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
-            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openCreate || openDetail || openDelete }">
+            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openDetail }">
 
             {{-- Breadcrumb & Title --}}
             <div>
@@ -52,43 +40,18 @@
                 <h1 class="text-3xl font-bold text-gray-900">Manajemen Data Survei</h1>
             </div>
 
-            {{-- Search & Action Bar --}}
+            {{-- Search Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('survei.index') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ route('index.survei') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Email / Instansi..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                        @if(request('anomali'))
-                            <input type="hidden" name="anomali" value="{{ request('anomali') }}">
-                        @endif
                         <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </form>
-
-                <div class="flex items-center gap-3 shrink-0 whitespace-nowrap">
-                    @if (request('anomali'))
-                        <a href="{{ route('survei.index', request()->except(['anomali', 'page'])) }}"
-                            class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2">
-                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-                            <span>ANOMALI SAJA</span>
-                        </a>
-                    @else
-                        <a href="{{ route('survei.index', array_merge(request()->except('page'), ['anomali' => 1])) }}"
-                            class="px-5 py-2.5 bg-gray-100 hover:bg-red-50 text-gray-800 hover:text-red-600 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2">
-                            <i data-lucide="alert-triangle" class="w-4 h-4 text-gray-600"></i>
-                            <span>FILTER ANOMALI</span>
-                        </a>
-                    @endif
-
-                    <a href="{{ route('survei.arsip') }}"
-                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2">
-                        <i data-lucide="archive" class="w-4 h-4 text-gray-600"></i>
-                        <span>ARSIP</span>
-                    </a>
-                </div>
             </div>
 
             {{-- Table Card --}}
@@ -96,9 +59,6 @@
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 class="text-base font-bold text-gray-900">
                         Daftar Respon Survei
-                        @if ($onlyAnomali ?? false)
-                            <span class="text-red-600 text-xs font-bold">(Anomali)</span>
-                        @endif
                     </h3>
                     <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
                         Total : {{ $respons->total() ?? 0 }}
@@ -115,7 +75,7 @@
                                 <th class="px-6 py-3.5 text-center">INSTANSI</th>
                                 <th class="px-6 py-3.5 text-center">STATUS</th>
                                 <th class="px-6 py-3.5 text-center">POLA JAWABAN</th>
-                                <th class="px-6 py-3.5 text-center w-48">AKSI</th>
+                                <th class="px-6 py-3.5 text-center w-36">AKSI</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -174,27 +134,13 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
-                                        <div class="flex justify-center items-center gap-2">
-                                            <!-- Tombol Detail -->
+                                        <div class="flex justify-center items-center">
+                                            <!-- Tombol Detail Sahaja -->
                                             <button type="button"
                                                 @click="loadDetail('{{ $respon->id_respon }}')"
                                                 class="px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                 <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                                 <span>Detail</span>
-                                            </button>
-
-                                            <!-- Tombol Hapus -->
-                                            <button type="button"
-                                                @click="
-                                                    selectedItem = {
-                                                        id:'{{ $respon->id_respon }}',
-                                                        nama:'{{ $respon->nama_lengkap }}'
-                                                    };
-                                                    openDelete = true;
-                                                "
-                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                                                <span>Hapus</span>
                                             </button>
                                         </div>
                                     </td>
@@ -263,8 +209,7 @@
             </div>
         </div>
 
-        {{-- INCLUDES MODAL --}}
-        @include('super-admin.survei.data.delete')
+        {{-- INCLUDES MODAL DETAIL --}}
         @include('super-admin.survei.data.detail')
     </div>
 @endsection

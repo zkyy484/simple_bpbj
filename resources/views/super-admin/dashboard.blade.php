@@ -23,12 +23,18 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">340</h3>
-                <p class="text-xs font-medium mt-2 flex items-center text-emerald-600">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
-                    </svg>
-                    +12.5% <span class="text-gray-400 font-normal ml-1">vs bulan lalu</span>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $totalKunjungan }}</h3>
+                <p class="text-xs font-medium mt-2 flex items-center {{ $persenBulan >= 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                    @if($persenBulan >= 0)
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
+                        </svg>
+                    @else
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                    {{ $persenBulan >= 0 ? '+' : '' }}{{ $persenBulan }}% <span class="text-gray-400 font-normal ml-1">vs bulan lalu</span>
                 </p>
             </div>
         </div>
@@ -44,12 +50,18 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">31</h3>
-                <p class="text-xs font-medium mt-2 flex items-center text-rose-500">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
-                    </svg>
-                    -3.2% <span class="text-gray-400 font-normal ml-1">vs kemarin</span>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $kunjunganHariIni }}</h3>
+                <p class="text-xs font-medium mt-2 flex items-center {{ $persenHari >= 0 ? 'text-emerald-600' : 'text-rose-500' }}">
+                    @if($persenHari >= 0)
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 7a1 1 0 01.707.293l4 4a1 1 0 01-1.414 1.414L13 10.414V17a1 1 0 11-2 0v-6.586l-2.293 2.293a1 1 0 01-1.414-1.414l4-4A1 1 0 0112 7z" clip-rule="evenodd"/>
+                        </svg>
+                    @else
+                        <svg class="w-3.5 h-3.5 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12 13a1 1 0 01-.707-.293l-4-4a1 1 0 111.414-1.414L11 9.586V3a1 1 0 112 0v6.586l2.293-2.293a1 1 0 111.414 1.414l-4 4A1 1 0 0112 13z" clip-rule="evenodd"/>
+                        </svg>
+                    @endif
+                    {{ $persenHari >= 0 ? '+' : '' }}{{ $persenHari }}% <span class="text-gray-400 font-normal ml-1">vs kemarin</span>
                 </p>
             </div>
         </div>
@@ -65,7 +77,7 @@
                 </span>
             </div>
             <div class="mt-4">
-                <h3 class="text-4xl font-bold text-gray-900">326</h3>
+                <h3 class="text-4xl font-bold text-gray-900">{{ $totalSurvei }}</h3>
                 <p class="text-xs text-gray-400 font-normal mt-2">Sejak bulan ini</p>
             </div>
         </div>
@@ -75,20 +87,18 @@
     <!-- DISTRIBUSI PER SUB BAGIAN -->
     <div class="bg-white rounded-2xl shadow-sm p-5">
         <h3 class="text-sm font-bold text-gray-900 mb-4">Distribusi Kunjungan per Sub Bagian</h3>
-        <div class="grid grid-cols-3 gap-3">
-            <div class="bg-[#38bdf8] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">Advokasi dan SDM</p>
-                <p class="text-2xl font-bold text-white mt-2">110</p>
+        @if($distribusiSubBagian->isEmpty())
+            <p class="text-sm text-gray-400">Belum ada data kunjungan.</p>
+        @else
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                @foreach($distribusiSubBagian as $i => $sb)
+                    <div class="rounded-xl p-4" style="background-color: {{ $warnaSubBagian[$i % count($warnaSubBagian)] }}">
+                        <p class="text-[11px] font-semibold text-white">{{ $sb->nama_sub_bagian }}</p>
+                        <p class="text-2xl font-bold text-white mt-2">{{ $sb->tamus_count }}</p>
+                    </div>
+                @endforeach
             </div>
-            <div class="bg-[#173860] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">LPSE</p>
-                <p class="text-2xl font-bold text-white mt-2">123</p>
-            </div>
-            <div class="bg-[#818cf8] rounded-xl p-4">
-                <p class="text-[11px] font-semibold text-white">POKJA</p>
-                <p class="text-2xl font-bold text-white mt-2">117</p>
-            </div>
-        </div>
+        @endif
     </div>
 
     <!-- CHARTS SECTION -->
@@ -101,9 +111,12 @@
                 <canvas id="pieChart"></canvas>
             </div>
             <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-gray-600 mt-4">
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#173860] inline-block mr-1.5"></span> LPSE</span>
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#38bdf8] inline-block mr-1.5"></span> Advokasi dan SDM</span>
-                <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#818cf8] inline-block mr-1.5"></span> POKJA</span>
+                @foreach($distribusiSubBagian as $i => $sb)
+                    <span class="flex items-center">
+                        <span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5" style="background-color: {{ $warnaSubBagian[$i % count($warnaSubBagian)] }}"></span>
+                        {{ $sb->nama_sub_bagian }}
+                    </span>
+                @endforeach
             </div>
         </div>
 
@@ -111,8 +124,12 @@
         <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-7">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="font-bold text-gray-900 text-base">Aktivitas Kunjungan</h3>
-                <select class="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 outline-none cursor-pointer">
-                    <option>12 - 17 Des</option>
+                <select id="filterMinggu" class="text-xs bg-gray-100 border border-gray-200 rounded-lg px-2.5 py-1.5 text-gray-600 outline-none cursor-pointer">
+                    @foreach($opsiMinggu as $opsi)
+                        <option value="{{ $opsi['value'] }}" {{ (int)$opsi['value'] === $minggu ? 'selected' : '' }}>
+                            {{ $opsi['label'] }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="h-60">
@@ -139,50 +156,37 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Aditya Saputra</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Rapat Anggaran Q3</p>
-                            <p class="text-xs text-gray-400">Sub Bagian Keuangan</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold tracking-wider">CHECKED IN</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">10:24 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Rina Maharani</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Konsultasi IT</p>
-                            <p class="text-xs text-gray-400">Sub Bagian IT</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-[10px] font-bold tracking-wider">FINISHED</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">09:15 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-6 py-4 font-semibold text-gray-900">Budi Pratama</td>
-                        <td class="px-6 py-4">
-                            <p class="font-medium text-gray-800">Pengiriman Dokumen</p>
-                            <p class="text-xs text-gray-400">Lobby Utama</p>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold tracking-wider">CHECKED IN</span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <p class="font-medium text-gray-800">08:45 AM</p>
-                            <p class="text-xs text-gray-400">Hari ini</p>
-                        </td>
-                    </tr>
+                    @forelse($recentTamu as $tamu)
+                        <tr class="hover:bg-gray-50/50 transition">
+                            <td class="px-6 py-4 font-semibold text-gray-900">{{ $tamu->nama_lengkap }}</td>
+                            <td class="px-6 py-4">
+                                <p class="font-medium text-gray-800">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</p>
+                                <p class="text-xs text-gray-400">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                @switch($tamu->status_tindak_lanjut)
+                                    @case('selesai')
+                                        <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-[10px] font-bold tracking-wider">FINISHED</span>
+                                        @break
+                                    @case('eskalasi')
+                                        <span class="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold tracking-wider">ESKALASI</span>
+                                        @break
+                                    @default
+                                        <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-bold tracking-wider">CHECKED IN</span>
+                                @endswitch
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <p class="font-medium text-gray-800">{{ $tamu->created_at->format('h:i A') }}</p>
+                                <p class="text-xs text-gray-400">
+                                    {{ $tamu->created_at->isToday() ? 'Hari ini' : ($tamu->created_at->isYesterday() ? 'Kemarin' : $tamu->created_at->format('d M Y')) }}
+                                </p>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-400">Belum ada aktivitas kunjungan.</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -194,13 +198,18 @@
 <script>
     // 1. DOUGHNUT CHART
     const ctxPie = document.getElementById('pieChart').getContext('2d');
+
+    const subBagianLabels = @json($distribusiSubBagian->pluck('nama_sub_bagian'));
+    const subBagianData   = @json($distribusiSubBagian->pluck('tamus_count'));
+    const subBagianColors = @json($warnaSubBagian).slice(0, Math.max(subBagianLabels.length, 1));
+
     new Chart(ctxPie, {
         type: 'doughnut',
         data: {
-            labels: ['LPSE', 'Advokasi dan SDM', 'POKJA'],
+            labels: subBagianLabels,
             datasets: [{
-                data: [50, 30, 20],
-                backgroundColor: ['#173860', '#38bdf8', '#818cf8'],
+                data: subBagianData,
+                backgroundColor: subBagianColors,
                 borderWidth: 0,
             }]
         },
@@ -214,14 +223,14 @@
         }
     });
 
-    // 2. LINE CHART ACTIVITY
+    // 2. LINE CHART ACTIVITY (Senin - Jumat, mengikuti filter minggu)
     const ctxLine = document.getElementById('activityChart').getContext('2d');
-    new Chart(ctxLine, {
+    const activityChart = new Chart(ctxLine, {
         type: 'line',
         data: {
-            labels: ['1', '2', '3', '4', '5'],
+            labels: @json($labelHari),
             datasets: [{
-                data: [25, 75, 40, 20, 65],
+                data: @json($dataAktivitas),
                 borderColor: '#173860',
                 borderWidth: 1.5,
                 pointBackgroundColor: '#173860',
@@ -242,16 +251,22 @@
                     ticks: { font: { size: 10 } }
                 },
                 y: {
-                    min: 0,
-                    max: 100,
+                    beginAtZero: true,
                     ticks: {
-                        stepSize: 25,
+                        precision: 0,
                         font: { size: 10 }
                     },
                     grid: { color: '#f3f4f6' }
                 }
             }
         }
+    });
+
+    // 3. FILTER MINGGU -> reload halaman dengan query string ?minggu=...
+    document.getElementById('filterMinggu').addEventListener('change', function () {
+        const url = new URL(window.location.href);
+        url.searchParams.set('minggu', this.value);
+        window.location.href = url.toString();
     });
 </script>
 @endpush

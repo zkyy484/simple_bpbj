@@ -71,7 +71,7 @@ class TamuController extends Controller
     {
         $tamu = Tamu::with('tujuan')->findOrFail($id);
 
-        return view('tamu.thanks-survei', compact('tamu'));
+        return view('tamu.tamu-success', compact('tamu'));
     }
 
 

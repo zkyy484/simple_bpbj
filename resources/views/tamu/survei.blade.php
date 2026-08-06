@@ -6,7 +6,8 @@
          x-data="{ 
             step: 1, 
             totalSteps: 3, 
-            waktuMulai: Math.floor(Date.now() / 1000) 
+            waktuMulai: Math.floor(Date.now() / 1000),
+            isSubmitting: false 
          }">
         
         <div class="bg-white rounded-2xl shadow-sm p-6 md:p-8">
@@ -43,7 +44,8 @@
                 </div>
             @endif
 
-            <form action="{{ route('survei.store') }}" method="POST">
+            {{-- Form dengan penangan Submit Alpine.js --}}
+            <form action="{{ route('survei.store') }}" method="POST" @submit="isSubmitting = true">
                 @csrf
                 <input type="hidden" name="waktu_mulai" x-bind:value="waktuMulai">
 
@@ -170,7 +172,8 @@
                     <button type="button" 
                             x-show="step > 1" 
                             @click="step--" 
-                            class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition">
+                            :disabled="isSubmitting"
+                            class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition disabled:opacity-50">
                         &larr; Kembali
                     </button>
 
@@ -183,10 +186,20 @@
                         Lanjut &rarr;
                     </button>
 
+                    {{-- Tombol Submit dengan Fitur Anti Double-Submit & Loading --}}
                     <button type="submit" 
                             x-show="step === totalSteps" 
-                            class="px-6 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold text-sm transition">
-                        Kirim Survei
+                            :disabled="isSubmitting"
+                            :class="{ 'opacity-75 cursor-not-allowed': isSubmitting }"
+                            class="px-6 py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white font-semibold text-sm transition inline-flex items-center gap-2">
+                        
+                        {{-- Icon Spinner saat loading --}}
+                        <svg x-show="isSubmitting" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" style="display: none;">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+
+                        <span x-text="isSubmitting ? 'Mengirim Survei...' : 'Kirim Survei'"></span>
                     </button>
                 </div>
             </form>

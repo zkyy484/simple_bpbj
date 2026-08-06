@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use App\Models\ActivityLog;
 use App\Models\SubBagian;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -102,7 +103,7 @@ class AkunController extends Controller
             'role.in' => 'Role yang dipilih tidak valid.',
         ]);
 
-        User::create([
+        $user = User::create([
             'nama_lengkap' => $validated['nama_lengkap'],
             'nip' => $validated['nip'],
             'email' => $validated['email'],
@@ -114,6 +115,11 @@ class AkunController extends Controller
             'role' => $validated['role'],
             'status' => 'aktif',
         ]);
+
+        ActivityLog::catat(
+            'Tambah Akun',
+            "Menambahkan akun {$this->roleLabel($user->role)} atas nama {$user->nama_lengkap} (NIP {$user->nip})."
+        );
 
         return redirect()
             ->route('index.akun')
@@ -151,6 +157,11 @@ class AkunController extends Controller
             'role' => $validated['role'],
         ]);
 
+        ActivityLog::catat(
+            'Ubah Akun',
+            "Memperbarui data akun atas nama {$user->nama_lengkap} (NIP {$user->nip})."
+        );
+
         return redirect()
             ->route('index.akun')
             ->with('success', 'Data akun berhasil diperbarui.');
@@ -166,6 +177,11 @@ class AkunController extends Controller
         $user = User::findOrFail($request->id_user);
         $user->status = 'nonaktif';
         $user->save();
+
+        ActivityLog::catat(
+            'Arsipkan Akun',
+            "Mengarsipkan akun atas nama {$user->nama_lengkap} (NIP {$user->nip})."
+        );
 
         return redirect()
             ->route('index.akun')
@@ -183,8 +199,26 @@ class AkunController extends Controller
         $user->status = 'aktif';
         $user->save();
 
+        ActivityLog::catat(
+            'Pulihkan Akun',
+            "Memulihkan akun atas nama {$user->nama_lengkap} (NIP {$user->nip}) dari arsip."
+        );
+
         return redirect()
             ->route('akun.arsip')
             ->with('success', 'Akun berhasil dipulihkan.');
+    }
+
+    /**
+     * Label role yang enak dibaca untuk teks log aktivitas.
+     */
+    private function roleLabel(?string $role): string
+    {
+        return match ($role) {
+            'super_admin' => 'Super Admin',
+            'admin' => 'Admin',
+            'pegawai' => 'Pegawai',
+            default => 'pengguna',
+        };
     }
 }

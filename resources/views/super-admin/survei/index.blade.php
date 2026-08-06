@@ -34,7 +34,7 @@
 
         {{-- Search & Action Bar --}}
         <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-            <form action="{{ route('survei.index') }}" method="GET" class="flex-1 w-full max-w-lg">
+            <form action="{{ route('index.survei') }}" method="GET" class="flex-1 w-full max-w-lg">
                 <div class="relative flex items-center">
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Cari Pertanyaan Survei..."
