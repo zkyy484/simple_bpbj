@@ -5,9 +5,20 @@
 @section('content')
     <div x-data="{
         openCreate: Boolean({{ $errors->any() && old('form_type') == 'create' ? 1 : 0 }}),
-        openEdit: false,
+        openEdit: Boolean({{ $errors->any() && old('form_type') == 'edit' ? 1 : 0 }}),
         openDelete: false,
-        selectedUser: {}
+        selectedUser: {{ $errors->any() && old('form_type') == 'edit'
+            ? Js::from([
+                'id' => old('id_user'),
+                'nama_lengkap' => old('nama_lengkap'),
+                'nip' => old('nip'),
+                'email' => old('email'),
+                'no_telepon' => old('no_telepon'),
+                'id_sub_bagian' => old('id_sub_bagian'),
+                'alamat' => old('alamat'),
+                'role' => old('role'),
+            ])
+            : '{}' }}
     }" class="relative">
 
         {{-- CONTENT MAIN --}}
@@ -27,9 +38,11 @@
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-4">
                 <form action="{{ route('index.akun') }}" method="GET" class="flex-1 w-full max-w-md">
                     <div class="relative flex items-center">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari akun berdasarkan nama atau email..."
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="Cari akun berdasarkan nama atau email..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-gray-400">
-                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                        <button type="submit"
+                            class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -63,7 +76,8 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-3.5 text-center w-16">No</th>
                                 <th class="px-6 py-3.5">Nama</th>
@@ -85,7 +99,8 @@
                                         {{ $account->email }}
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <span class="px-3 py-1 bg-[#173860] text-white rounded-full text-[11px] font-bold whitespace-nowrap">
+                                        <span
+                                            class="px-3 py-1 bg-[#173860] text-white rounded-full text-[11px] font-bold whitespace-nowrap">
                                             {{ strtoupper($account->role) }}
                                         </span>
                                     </td>
@@ -131,13 +146,16 @@
 
                 <!-- Pagination -->
                 @if ($accounts->hasPages())
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $accounts->firstItem() }} to {{ $accounts->lastItem() }} of {{ $accounts->total() }} entries
+                            Showing {{ $accounts->firstItem() }} to {{ $accounts->lastItem() }} of
+                            {{ $accounts->total() }} entries
                         </p>
                         <div class="flex items-center gap-1.5">
                             @if ($accounts->onFirstPage())
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                 </span>
                             @else
@@ -149,7 +167,8 @@
 
                             @foreach ($accounts->getUrlRange(1, $accounts->lastPage()) as $page => $url)
                                 @if ($page == $accounts->currentPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    <span
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
                                         {{ $page }}
                                     </span>
                                 @else
@@ -166,7 +185,8 @@
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </a>
                             @else
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </span>
                             @endif
@@ -175,7 +195,8 @@
                 @else
                     <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $accounts->count() ? 1 : 0 }} to {{ $accounts->count() }} of {{ $accounts->total() }} entries
+                            Showing {{ $accounts->count() ? 1 : 0 }} to {{ $accounts->count() }} of
+                            {{ $accounts->total() }} entries
                         </p>
                     </div>
                 @endif
@@ -192,6 +213,8 @@
 @push('scripts')
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
-    lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
 </script>
 @endpush

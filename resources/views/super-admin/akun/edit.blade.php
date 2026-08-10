@@ -32,6 +32,7 @@
         <form action="{{ route('akun.update') }}" method="POST">
             @csrf
             @method('PUT')
+            <input type="hidden" name="form_type" value="edit">
             <input type="hidden" name="id_user" x-model="selectedUser.id">
 
             <div class="p-6 space-y-4">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Exports\SurveiTamuExport;
 use App\Http\Controllers\Controller;
 use App\Models\Pertanyaan;
+use App\Models\ActivityLog;
 use App\Models\Respon;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
@@ -53,6 +54,11 @@ class LaporanController extends Controller
             'status' => $request->status,
         ])->setPaper('a4', 'landscape');
 
+        ActivityLog::catat(
+            'Export Laporan Buku Tamu',
+            "Mengekspor laporan buku tamu periode {$periode} ke PDF."
+        );
+
         return $pdf->download('laporan-buku-tamu-' . now()->format('Ymd-His') . '.pdf');
     }
 
@@ -100,9 +106,15 @@ class LaporanController extends Controller
             'pelakuUsaha' => $request->pelaku_usaha,
         ])->setPaper('a4', 'landscape');
 
+        ActivityLog::catat(
+            'Export Laporan Pengunjung',
+            "Mengekspor laporan pengunjung periode {$periode} ke PDF."
+        );
+
         return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
     }
 
+    // LAPORAN SURVEI
     /**
      * Query dasar untuk Laporan Survei Tamu.
      * Hanya respon yang sudah di-approve (cek = 'approve') yang boleh muncul
@@ -133,7 +145,6 @@ class LaporanController extends Controller
         return Respon::query()
             ->with(['jawaban.pertanyaan.opsi', 'jawaban.opsi'])
             ->where('status', 'aktif')
-            ->where('cek', 'approve')
             ->when($tanggalAwal, fn($q) => $q->whereDate('tanggal_respon', '>=', $tanggalAwal))
             ->when($tanggalAkhir, fn($q) => $q->whereDate('tanggal_respon', '<=', $tanggalAkhir))
             ->latest('tanggal_respon');
@@ -370,7 +381,6 @@ class LaporanController extends Controller
 
 
 
-
     // EXPORT PDF
     /**
      * Ambil teks opsi jawaban untuk pertanyaan tipe pilihan_ganda,
@@ -390,23 +400,29 @@ class LaporanController extends Controller
 
     public function exportSurveiTamuPdf(Request $request)
     {
-        $deteksi = $request->deteksi; // 'normal', 'anomali', atau null
+        $deteksi = $request->deteksi;
 
-        $respons = $this->filteredQuerySurveiTamu($request)->get()
+        $respons = $this->filteredQuerySurveiTamu($request)
+            ->get()
             ->map(function ($respon) {
                 $hasil = $this->analisaPolaSurvei($respon);
+
                 $respon->is_anomali = $hasil['anomali'];
                 $respon->pola_survei = $hasil['pola'];
+
                 return $respon;
             });
 
         if (in_array($deteksi, ['normal', 'anomali'])) {
-            $respons = $respons
-                ->filter(fn($respon) => $deteksi === 'anomali' ? $respon->is_anomali : !$respon->is_anomali)
-                ->values();
+            $respons = $respons->filter(function ($respon) use ($deteksi) {
+                return $deteksi === 'anomali'
+                    ? $respon->is_anomali
+                    : !$respon->is_anomali;
+            })->values();
         }
 
-        $data = $respons->values()->map(function ($respon, $index) {
+        $data = $respons->map(function ($respon, $index) {
+
             $tanggal = $respon->tanggal_respon ?? $respon->created_at;
 
             return [
@@ -425,15 +441,27 @@ class LaporanController extends Controller
         $tanggalAwal = $request->tanggal_awal;
         $tanggalAkhir = $request->tanggal_akhir;
 
-        $pdf = Pdf::loadView('super-admin.laporan.survei-pdf', [
-            'data' => $data,
-            'tanggalAwal' => $tanggalAwal,
-            'tanggalAkhir' => $tanggalAkhir,
-            'deteksi' => $deteksi,
-        ])->setPaper('a4', 'landscape');
+        $periode = trim(
+            ($tanggalAwal ?? '-') . ' s/d ' . ($tanggalAkhir ?? '-')
+        );
 
-        $fileName = 'laporan-survei-tamu-' . now()->format('Y-m-d_His') . '.pdf';
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+            'super-admin.laporan.survei-pdf',
+            [
+                'data' => $data,
+                'tanggalAwal' => $tanggalAwal,
+                'tanggalAkhir' => $tanggalAkhir,
+                'deteksi' => $deteksi,
+            ]
+        )->setPaper('a4', 'portrait');
 
-        return $pdf->stream($fileName); // ganti ->download($fileName) kalau mau langsung unduh, bukan preview di tab baru
+        ActivityLog::catat(
+            'Export Laporan Survei Tamu',
+            "Mengekspor laporan survei tamu periode {$periode} ke PDF."
+        );
+
+        return $pdf->download(
+            'laporan-survei-tamu-' . now()->format('Ymd-His') . '.pdf'
+        );
     }
 }

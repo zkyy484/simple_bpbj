@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
 use App\Models\Jawaban;
 use App\Models\Opsi;
 use App\Models\Pertanyaan;
@@ -52,6 +53,11 @@ class TamuController extends Controller
         $validated['status_aktif'] = 'aktif';
 
         $tamu = Tamu::create($validated);
+
+        ActivityLog::catat(
+            'Isi Buku Tamu',
+            "Tamu atas nama {$tamu->nama_lengkap} mengisi buku tamu (Tiket {$tamu->kode_tiket})."
+        );
 
         return redirect()->route('thanks.page', $tamu->id_tamu);
     }
@@ -183,6 +189,11 @@ class TamuController extends Controller
 
                 // Hitung skor rata-rata rating, standar deviasi, dan deteksi pola jawaban
                 $this->hitungSkorDanPola($respon, $urutanOpsiRating);
+
+                ActivityLog::catat(
+                    'Isi Survei',
+                    "Tamu atas nama {$respon->nama_lengkap} mengisi survei kepuasan."
+                );
             });
 
             // PERBAIKAN UTAMA: nama route disamakan dengan yang terdaftar di web.php

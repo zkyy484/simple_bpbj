@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Respon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -250,21 +251,28 @@ class SurveiController extends Controller
     }
 
     // Mengubah status pengecekan respon (kolom "cek") menjadi approve
-    public function approve(Request $request)
-    {
-        $request->validate([
-            'id_respon' => 'required|exists:respons,id_respon',
-        ]);
+    // public function approve(Request $request)
+    // {
+    //     $request->validate([
+    //         'id_respon' => 'required|exists:respons,id_respon',
+    //     ]);
 
-        Respon::where('id_respon', $request->id_respon)
-            ->update([
-                'cek' => 'approve',
-            ]);
+    //     $respon = Respon::findOrFail($request->id_respon);
 
-        return redirect()
-            ->back()
-            ->with('success', 'Status survei berhasil diubah menjadi approve.');
-    }
+    //     Respon::where('id_respon', $request->id_respon)
+    //         ->update([
+    //             'cek' => 'approve',
+    //         ]);
+
+    //     ActivityLog::catat(
+    //         'Approve Survei',
+    //         "Menyetujui (approve) respon survei atas nama {$respon->nama_lengkap}."
+    //     );
+
+    //     return redirect()
+    //         ->back()
+    //         ->with('success', 'Status survei berhasil diubah menjadi approve.');
+    // }
 
     // Memindahkan data survei ke arsip (soft delete via status)
     public function destroy(Request $request)
@@ -273,10 +281,17 @@ class SurveiController extends Controller
             'id_respon' => 'required|exists:respons,id_respon',
         ]);
 
+        $respon = Respon::findOrFail($request->id_respon);
+
         Respon::where('id_respon', $request->id_respon)
             ->update([
                 'status' => 'nonaktif',
             ]);
+
+        ActivityLog::catat(
+            'Arsipkan Survei',
+            "Mengarsipkan respon survei atas nama {$respon->nama_lengkap}."
+        );
 
         return redirect()
             ->route('admin.survei.index')
@@ -295,6 +310,11 @@ class SurveiController extends Controller
         $respon->update([
             'status' => 'aktif',
         ]);
+
+        ActivityLog::catat(
+            'Pulihkan Survei',
+            "Memulihkan respon survei atas nama {$respon->nama_lengkap} dari arsip."
+        );
 
         return redirect()
             ->route('admin.survei.arsip')

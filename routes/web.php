@@ -97,7 +97,7 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     // MANAJEMEN DATA TAMU
     Route::get('/tamu', [PegawaiTamuController::class, 'index'])->name('tamu.index');
     Route::put('/tamu/{id}/tindak-lanjut', [PegawaiTamuController::class, 'updateTindakLanjut'])->name('tamu.tindak-lanjut.update');
-    Route::post('/tamu/{id}/kirim-email', [PegawaiTamuController::class, 'kirimEmail'])->name('tamu.kirim-email');
+    Route::put('/tamu/{id}/kirim-email', [PegawaiTamuController::class, 'kirimEmail'])->name('tamu.kirim-email');
 
     // PROFILE
     Route::get('/profile', [PegawaiProfileController::class, 'index'])->name('profile');
@@ -151,7 +151,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/survei/arsip', [AdminSurveiController::class, 'arsip'])->name('admin.survei.arsip');
     Route::delete('/admin/survei/delete', [AdminSurveiController::class, 'destroy'])->name('admin.survei.destroy');
     Route::put('/admin/survei/pulihkan', [AdminSurveiController::class, 'pulihkan'])->name('admin.survei.pulihkan');
-    Route::post('admin/survei/approve', [SurveiController::class, 'approve'])->name('admin.survei.approve');
+    // Route::post('admin/survei/approve', [SurveiController::class, 'approve'])->name('admin.survei.approve');
 });
 
 

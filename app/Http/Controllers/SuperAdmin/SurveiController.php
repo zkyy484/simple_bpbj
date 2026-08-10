@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Respon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -208,10 +209,16 @@ class SurveiController extends Controller
             'id_respon' => 'required|exists:respons,id_respon',
         ]);
 
-        Respon::where('id_respon', $request->id_respon)
-            ->update([
-                'cek' => 'approve',
-            ]);
+        $respon = Respon::findOrFail($request->id_respon);
+
+        $respon->update([
+            'cek' => 'approve',
+        ]);
+
+        ActivityLog::catat(
+            'Approve Survei',
+            "Menyetujui (approve) data respon survei atas nama {$respon->nama_lengkap}."
+        );
 
         return redirect()
             ->back()
@@ -224,10 +231,16 @@ class SurveiController extends Controller
             'id_respon' => 'required|exists:respons,id_respon',
         ]);
 
-        Respon::where('id_respon', $request->id_respon)
-            ->update([
-                'status' => 'nonaktif',
-            ]);
+        $respon = Respon::findOrFail($request->id_respon);
+
+        $respon->update([
+            'status' => 'nonaktif',
+        ]);
+
+        ActivityLog::catat(
+            'Arsipkan Survei',
+            "Mengarsipkan data respon survei atas nama {$respon->nama_lengkap}."
+        );
 
         return redirect()
             ->route('laporan.survei.index')
@@ -245,6 +258,11 @@ class SurveiController extends Controller
         $respon->update([
             'status' => 'aktif',
         ]);
+
+        ActivityLog::catat(
+            'Pulihkan Survei',
+            "Memulihkan data respon survei atas nama {$respon->nama_lengkap} dari arsip."
+        );
 
         return redirect()
             ->route('laporan.survei.arsip')

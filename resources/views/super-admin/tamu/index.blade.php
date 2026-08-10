@@ -89,7 +89,6 @@
                                 <th class="px-6 py-3.5">Tujuan</th>
                                 <th class="px-6 py-3.5">Pegawai</th>
                                 <th class="px-6 py-3.5">Status</th>
-                                <th class="px-6 py-3.5 text-center">Cek</th>
                                 <th class="px-6 py-3.5 text-center">Approval</th>
                                 <th class="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
@@ -117,10 +116,6 @@
                                         <span class="px-3 py-1 {{ $badge['class'] }} rounded-full text-[11px] font-bold whitespace-nowrap">
                                             {{ $badge['label'] }}
                                         </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860] cursor-not-allowed" disabled
-                                            @checked($tamu->status !== 'menunggu')>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <!-- Tombol Pemicu Modal Approval -->
@@ -177,7 +172,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                                    <td colspan="7" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data tamu yang mengisi Buku Tamu Digital.
                                     </td>
                                 </tr>

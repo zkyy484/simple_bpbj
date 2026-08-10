@@ -91,21 +91,6 @@
                         </td>
                     </tr>
 
-                    <!-- Tombol -->
-                    <tr>
-                        <td style="padding:32px 40px 8px 40px; text-align:center;">
-                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
-                                <tr>
-                                    <td style="border-radius:8px; background-color:#173860;">
-                                        <a href="{{ route('tracking.tamu', $tamu->kode_tiket) }}"
-                                            style="display:inline-block; padding:13px 32px; color:#ffffff; font-size:13.5px; font-weight:700; text-decoration:none; letter-spacing:0.3px; border-radius:8px;">
-                                            Lihat Status Tiket
-                                        </a>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
 
                     <!-- Catatan kode manual -->
                     <tr>
