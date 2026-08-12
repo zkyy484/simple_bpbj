@@ -20,16 +20,11 @@ use App\Http\Controllers\Admin\AkunController as AdminAkunController;
 use App\Http\Controllers\Admin\SurveiController as AdminSurveiController;
 use App\Http\Controllers\SuperAdmin\LogAktivitasController;
 use Illuminate\Validation\Rule;
-
+use App\Http\Controllers\SuperAdmin\JenisPermohonanController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-
-
-Route::get('/sur-page', [TamuController::class, 'SurveiPage'])->name('sur.page');
-Route::get('/sur-thanks', [TamuController::class, 'ThankSurvei'])->name('thanksur.page');
-
 
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super-admin/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
@@ -52,6 +47,11 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
 
     // TUJUAN
     Route::get('/super/tujuan', [TujuanController::class, 'index'])->name('tujuan.index');
+    Route::get('/super/tujuan/arsip', [TujuanController::class, 'arsip'])->name('tujuan.arsip');
+    Route::post('/super/tujuan/add', [TujuanController::class, 'store'])->name('tujuan.add');
+    Route::put('/super/tujuan/update', [TujuanController::class, 'update'])->name('tujuan.update');
+    Route::delete('/super/tujuan/delete', [TujuanController::class, 'softdelete'])->name('tujuan.delete');
+    Route::put('/super/tujuan/pulihkan', [TujuanController::class, 'pulihkan'])->name('tujuan.pulihkan');
 
     // AKUN (Manajemen Akun Pegawai/Admin)
     Route::get('/super/akun', [SuperAkunController::class, 'index'])->name('index.akun');
@@ -63,11 +63,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     // ARSIP AKUN
     Route::get('/super/akun/arsip', [SuperAkunController::class, 'arsip'])->name('akun.arsip');
     Route::put('/super/akun/pulihkan', [SuperAkunController::class, 'pulihkan'])->name('akun.pulihkan');
-    Route::get('/super/tujuan/arsip', [TujuanController::class, 'arsip'])->name('tujuan.arsip');
-    Route::post('/super/tujuan/add', [TujuanController::class, 'store'])->name('tujuan.add');
-    Route::put('/super/tujuan/update', [TujuanController::class, 'update'])->name('tujuan.update');
-    Route::delete('/super/tujuan/delete', [TujuanController::class, 'softdelete'])->name('tujuan.delete');
-    Route::put('/super/tujuan/pulihkan', [TujuanController::class, 'pulihkan'])->name('tujuan.pulihkan');
+
 
     // TAMU
     Route::get('/super/tamu', [SuperAdminTamuController::class, 'index'])->name('tamu.index');
@@ -86,17 +82,19 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::put('/super/pertanyaan/pulihkan', [PertanyaanController::class, 'pulihkan'])->name('pertanyaan.pulihkan');
 
     // SURVEI TAMU
-    Route::get('/super/survei', [SurveiController::class, 'index'])->name('survei.index');
+    Route::get('/super/survei', [SurveiController::class, 'index'])->name('index.survei');
     Route::get('/super/survei/arsip', [SurveiController::class, 'arsip'])->name('survei.arsip');
     Route::delete('/super/survei/delete', [SurveiController::class, 'destroy'])->name('survei.destroy');
     Route::put('/super/survei/pulihkan', [SurveiController::class, 'pulihkan'])->name('survei.pulihkan');
 
+    // LOG AKTIFITAS
     Route::get('/super/log-aktivitas', [LogAktivitasController::class, 'index'])->name('log-aktivitas.index');
 });
 
 Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')->group(function () {
     Route::get('/dashboard', [PegawaiDashboardController::class, 'index'])->name('dashboard');
 
+    // MANAJEMEN DATA TAMU
     Route::get('/tamu', [PegawaiTamuController::class, 'index'])->name('tamu.index');
     Route::put('/tamu/{id}/tindak-lanjut', [PegawaiTamuController::class, 'updateTindakLanjut'])->name('tamu.tindak-lanjut.update');
     Route::post('/tamu/{id}/kirim-email', [PegawaiTamuController::class, 'kirimEmail'])->name('tamu.kirim-email');
@@ -116,8 +114,15 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super/laporan/pengunjung', [SuperAdminLaporanController::class, 'pengunjung'])->name('laporan.pengunjung.index');
     Route::get('/super/laporan/pengunjung/export', [SuperAdminLaporanController::class, 'exportPengunjungPdf'])->name('laporan.pengunjung.export');
 
+    // LAPORAN SURVEI TAMU
     Route::get('/super/laporan/survei', [SuperAdminLaporanController::class, 'surveiTamu'])->name('laporan.survei.index');
-    Route::get('/super/laporan/survei/export', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])->name('laporan.survei.export');
+    Route::get('/super/laporan/survei/arsip', [SuperAdminLaporanController::class, 'arsip'])->name('laporan.survei.arsip');
+
+    // EXPORT PDF AND EXCEL
+    Route::get('laporan/survei/export', [SuperAdminLaporanController::class, 'exportSurveiTamuExcel'])
+        ->name('laporan.survei.export');
+    Route::get('laporan/survei/export-pdf', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])
+        ->name('laporan.survei.export.pdf');
 });
 
 
@@ -140,6 +145,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/profile', [AdminDashboardController::class, 'profile'])->name('admin.profile');
     Route::put('/admin/profile/update', [AdminDashboardController::class, 'update'])->name('admin.profile.update');
     Route::put('/admin/update/password', [AdminDashboardController::class, 'UpdatePassword'])->name('admin.update.password');
+
+    // SURVEI TAMU
+    Route::get('/admin/survei', [AdminSurveiController::class, 'index'])->name('admin.survei.index');
+    Route::get('/admin/survei/arsip', [AdminSurveiController::class, 'arsip'])->name('admin.survei.arsip');
+    Route::delete('/admin/survei/delete', [AdminSurveiController::class, 'destroy'])->name('admin.survei.destroy');
+    Route::put('/admin/survei/pulihkan', [AdminSurveiController::class, 'pulihkan'])->name('admin.survei.pulihkan');
+    Route::post('admin/survei/approve', [SurveiController::class, 'approve'])->name('admin.survei.approve');
 });
 
 
@@ -156,9 +168,10 @@ Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name
 require __DIR__ . '/auth.php';
 
 
-
-Route::get('/admin/survei', [AdminSurveiController::class, 'index'])->name('admin.survei.index');
-Route::get('/admin/survei/arsip', [AdminSurveiController::class, 'arsip'])->name('admin.survei.arsip');
-Route::delete('/admin/survei/delete', [AdminSurveiController::class, 'destroy'])->name('admin.survei.destroy');
-Route::put('/admin/survei/pulihkan', [AdminSurveiController::class, 'pulihkan'])->name('admin.survei.pulihkan');
-Route::post('admin/survei/approve', [SurveiController::class, 'approve'])->name('admin.survei.approve');
+// JENIS PERMOHONAN
+Route::get('/super/jenis-permohonan', [JenisPermohonanController::class, 'index'])->name('index.jenis');
+Route::get('/super/jenis-permohonan/arsip', [JenisPermohonanController::class, 'arsip'])->name('arsip.jenis');
+Route::post('/super/jenis-permohonan/add', [JenisPermohonanController::class, 'store'])->name('jenis.store');
+Route::put('/super/jenis-permohonan/update', [JenisPermohonanController::class, 'update'])->name('jenis.update');
+Route::delete('/super/jenis-permohonan/delete', [JenisPermohonanController::class, 'softdelete'])->name('jenis.delete');
+Route::put('/super/jenis-permohonan/pulihkan', [JenisPermohonanController::class, 'pulihkan'])->name('jenis.pulihkan');

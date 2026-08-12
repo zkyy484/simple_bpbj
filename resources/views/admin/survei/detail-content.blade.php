@@ -4,13 +4,7 @@
         <div>
             <h4 class="text-base font-bold text-gray-900">{{ $respon->nama_lengkap }}</h4>
             <p class="text-xs text-gray-500">{{ $respon->email ?? 'Tidak ada email' }}</p>
-        </div>
-        <div class="flex gap-2">
-            <span class="px-2.5 py-1 rounded-full text-xs font-semibold uppercase tracking-wider
-                {{ $respon->cek === 'approve' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200' }}">
-                {{ $respon->cek }}
-            </span>
-        </div>
+        </div>        
     </div>
 
     <!-- Grid Informasi Tambahan & Rata-Rata Rating -->

@@ -1,9 +1,8 @@
 @extends('super-admin.layouts.app')
 
-@section('title', 'Arsip Tujuan')
+@section('title', 'Arsip Tujuan - Buku Tamu Digital')
 
 @section('content')
-
     <div x-data="{
         openRestore: false,
         selectedSub: {
@@ -22,91 +21,82 @@
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
-            :class="{
-                'blur-sm pointer-events-none select-none scale-[0.99]': openRestore
-            }">
+            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openRestore }">
 
-            {{-- Header --}}
+            {{-- Breadcrumb & Title --}}
             <div>
-                <nav class="text-xs text-gray-500 mb-1">
-                    <span>Dashboard</span>
-                    <span>/</span>
-                    <span>Tujuan</span>
-                    <span>/</span>
-                    <span class="font-semibold text-gray-700">Arsip</span>
-                </nav>
-                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Arsip Data Tujuan</h2>
+                <div class="text-sm text-gray-500 mb-1">
+                    <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                    <span class="mx-1">/</span>
+                    <a href="{{ route('tujuan.index') }}" class="hover:text-gray-700">Tujuan</a>
+                    <span class="mx-1">/</span>
+                    <span class="text-gray-700 font-medium">Arsip</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Arsip Data Tujuan</h1>
             </div>
 
-            {{-- Search & Button --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col lg:flex-row justify-between items-center gap-4">
-                <form action="{{ route('tujuan.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
-                    <div class="flex">
+            {{-- Search & Action Bar --}}
+            <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
+                <form action="{{ route('tujuan.arsip') }}" method="GET" class="flex-1 w-full max-w-lg">
+                    <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Tujuan..."
-                            class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="bg-[#173860] hover:bg-[#102a48] text-white px-4 rounded-r-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                            <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </form>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 shrink-0">
                     <a href="{{ route('tujuan.index') }}"
-                        class="bg-[#080d1a] hover:bg-[#173860] text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                        </svg>
-                        Kembali
+                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
+                        <span>KEMBALI</span>
                     </a>
                 </div>
             </div>
 
-            {{-- Card Table --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-6 py-5 border-b flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Daftar Arsip Tujuan</h3>
-                    <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
+            {{-- Table Card --}}
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-base font-bold text-gray-900">Daftar Arsip Tujuan</h3>
+                    <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
                         Total : {{ $Tujuans->total() ?? 0 }}
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
-                                <th scope="col" class="px-8 py-4 text-center w-24">No</th>
-                                <th scope="col" class="px-8 py-4 text-left">Nama Tujuan</th>
-                                <th scope="col" class="px-8 py-4 text-center w-56">Aksi</th>
+                                <th class="px-6 py-3.5 text-center w-16">No</th>
+                                <th class="px-6 py-3.5">Nama Tujuan</th>
+                                <th class="px-6 py-3.5 text-center w-48">Aksi</th>
                             </tr>
                         </thead>
 
-                        <tbody class="divide-y divide-gray-100 bg-white">
+                        <tbody class="divide-y divide-gray-100">
                             @forelse($Tujuans as $index => $Tujuan)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-8 py-4 text-center text-sm text-gray-600">
+                                <tr class="hover:bg-gray-50/50 transition align-top">
+                                    <td class="px-6 py-4 text-center font-semibold text-gray-500">
                                         {{ $Tujuans->firstItem() + $index }}
                                     </td>
 
-                                    <td class="px-8 py-4 text-left text-sm font-semibold text-gray-900">
+                                    <td class="px-6 py-4 font-semibold text-gray-900">
                                         {{ $Tujuan->nama_tujuan }}
                                     </td>
 
-                                    <td class="px-8 py-4 text-center">
+                                    <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <div class="flex justify-center items-center gap-2">
+                                            <!-- Tombol Pulihkan -->
                                             <button type="button"
                                                 @click="setRestoreData({
                                                     id_tujuan: {{ $Tujuan->id_tujuan }},
                                                     nama: @js($Tujuan->nama_tujuan)
                                                 })"
-                                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
-                                                <!-- Icon Refresh/Restore -->
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                </svg>
+                                                class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                                                 <span>Pulihkan</span>
                                             </button>
                                         </div>
@@ -114,7 +104,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                    <td colspan="3" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data Arsip Tujuan.
                                     </td>
                                 </tr>
@@ -123,13 +113,56 @@
                     </table>
                 </div>
 
-                <div
-                    class="px-6 py-4 border-t border-gray-200 bg-white 
-                    [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
-                    [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
-                    [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
-                    {{ $Tujuans->links() }}
-                </div>
+                <!-- Pagination -->
+                @if ($Tujuans->hasPages())
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $Tujuans->firstItem() }} to {{ $Tujuans->lastItem() }} of {{ $Tujuans->total() }} entries
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            @if ($Tujuans->onFirstPage())
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </span>
+                            @else
+                                <a href="{{ $Tujuans->previousPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </a>
+                            @endif
+
+                            @foreach ($Tujuans->getUrlRange(1, $Tujuans->lastPage()) as $page => $url)
+                                @if ($page == $Tujuans->currentPage())
+                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                        {{ $page }}
+                                    </span>
+                                @else
+                                    <a href="{{ $url }}"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            @endforeach
+
+                            @if ($Tujuans->hasMorePages())
+                                <a href="{{ $Tujuans->nextPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </a>
+                            @else
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $Tujuans->count() ? 1 : 0 }} to {{ $Tujuans->count() }} of {{ $Tujuans->total() }} entries
+                        </p>
+                    </div>
+                @endif
             </div>
 
         </div>
@@ -138,5 +171,11 @@
         @include('super-admin.tujuan.pulihkan')
 
     </div>
-
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+@endpush

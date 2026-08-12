@@ -21,7 +21,7 @@ class PertanyaanController extends Controller
             ->where('status', 'aktif')
             ->when($request->search, fn($q) => $q->where('pertanyaan', 'like', '%' . $request->search . '%'))
             ->orderBy('urutan')
-            ->paginate(10);
+            ->paginate(5);
 
         return view('super-admin.survei.index', compact('pertanyaans', 'admins'));
     }
@@ -53,7 +53,7 @@ class PertanyaanController extends Controller
             'tipe_pertanyaan' => 'required|in:rating,pilihan_ganda,textarea',
             'urutan' => 'required|integer',
             'opsi' => 'required_if:tipe_pertanyaan,rating,pilihan_ganda|array|min:1',
-            'opsi.*.opsi' => 'required_with:opsi|string|max:50',
+            'opsi.*.opsi' => 'required_with:opsi|string|max:100',
             'opsi.*.nilai' => 'nullable|integer',
         ], [], [], );
 
@@ -94,7 +94,7 @@ class PertanyaanController extends Controller
             'urutan' => 'required|integer',
             'opsi' => 'required_if:tipe_pertanyaan,rating,pilihan_ganda|array',
             'opsi.*.id_opsi' => 'nullable|exists:opsis,id_opsi',
-            'opsi.*.opsi' => 'required_with:opsi|string|max:50',
+            'opsi.*.opsi' => 'required_with:opsi|string|max:100',
         ];
 
         // Nilai HANYA relevan untuk rating, pilihan_ganda murni kualitatif

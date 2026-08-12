@@ -29,7 +29,12 @@ class TamuController extends Controller
             })
             ->latest('id_tamu')
             ->paginate(10)
-            ->withQueryString();
+            ->appends($request->except('ajax'));
+
+        
+        if ($request->ajax()) {
+            return view('admin.tamu.partials.tabel-tamu', compact('tamus'));
+        }
 
         return view('admin.tamu.index', compact('tamus', 'search', 'admins'));
     }

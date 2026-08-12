@@ -33,103 +33,94 @@
             this.approveUrl = '{{ url('/super/tamu') }}/' + tamu.id + '/approval';
             this.openApprove = true;
         }
-    }" class="relative">
+    }" class="relative" :data-modal-open="openDetail || openDelete || openApprove">
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
             :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openDetail || openDelete || openApprove }">
 
-            {{-- Header --}}
+            {{-- Breadcrumb & Title --}}
             <div>
-                <nav class="text-xs text-gray-500 mb-1">
-                    <span>Dashboard</span>
-                    <span>/</span>
-                    <span class="font-semibold text-gray-700">Tamu</span>
-                </nav>
-                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Manajemen Tamu</h2>
+                <div class="text-sm text-gray-500 mb-1">
+                    <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                    <span class="mx-1">/</span>
+                    <span class="text-gray-700 font-medium">Tamu</span>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">Manajemen Tamu</h1>
             </div>
 
-            {{-- Search & Button --}}
-            <div class="bg-white rounded-xl shadow-sm p-4 flex flex-col lg:flex-row justify-between items-center gap-4">
+            {{-- Search & Action Bar --}}
+            <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
                 <form action="{{ route('tamu.index') }}" method="GET" class="flex-1 w-full max-w-lg">
-                    <div class="flex">
+                    <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Kode Tiket / Sub Bagian / Tujuan..."
-                            class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="bg-[#173860] hover:bg-[#102a48] text-white px-4 rounded-r-lg transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                            <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
                 </form>
 
-                <div class="flex gap-3">
+                <div class="flex gap-3 shrink-0">
                     <a href="{{ route('tamu.arsip') }}"
-                        class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M5 8h14M5 8a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 01-2 2M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                        </svg>
-                        <span>Arsip</span>
+                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
+                        <i data-lucide="archive" class="w-4 h-4 text-gray-600"></i>
+                        <span>ARSIP TAMU</span>
                     </a>
                 </div>
             </div>
 
-            {{-- Card Table --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-6 py-5 border-b flex items-center justify-between">
-                    <h3 class="text-lg font-bold text-gray-900">Daftar Tamu</h3>
-                    <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
+            {{-- Table Card (auto-refresh via AJAX) --}}
+            <div id="tabel-tamu-wrapper">
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <h3 class="text-base font-bold text-gray-900">Daftar Buku Tamu</h3>
+                    <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
                         Total : {{ $tamus->total() ?? 0 }}
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
-                                <th scope="col" class="px-6 py-4 text-left">Nama</th>
-                                <th scope="col" class="px-6 py-4 text-left">Sub Bagian</th>
-                                <th scope="col" class="px-6 py-4 text-left">Tujuan</th>
-                                <th scope="col" class="px-6 py-4 text-left">Pegawai</th>
-                                <th scope="col" class="px-6 py-4 text-left">Status</th>
-                                <th scope="col" class="px-6 py-4 text-center w-20">Cek</th>
-                                <th scope="col" class="px-6 py-4 text-center w-36">Approval</th>
-                                <th scope="col" class="px-6 py-4 text-center w-48">Aksi</th>
+                                <th class="px-6 py-3.5">Nama & Tiket</th>
+                                <th class="px-6 py-3.5">Sub Bagian</th>
+                                <th class="px-6 py-3.5">Tujuan</th>
+                                <th class="px-6 py-3.5">Pegawai</th>
+                                <th class="px-6 py-3.5">Status</th>
+                                <th class="px-6 py-3.5 text-center">Cek</th>
+                                <th class="px-6 py-3.5 text-center">Approval</th>
+                                <th class="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
                         </thead>
 
-                        <tbody class="divide-y divide-gray-100 bg-white">
+                        <tbody class="divide-y divide-gray-100">
                             @forelse ($tamus as $tamu)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">
+                                @php
+                                    $statusMap = [
+                                        'belum_eskalasi' => ['label' => 'Belum Eskalasi', 'class' => 'bg-gray-300 text-gray-700'],
+                                        'eskalasi' => ['label' => 'Eskalasi', 'class' => 'bg-lime-400 text-lime-900'],
+                                        'selesai' => ['label' => 'Selesai', 'class' => 'bg-emerald-500 text-white'],
+                                    ];
+                                    $badge = $statusMap[$tamu->status_tindak_lanjut] ?? ['label' => '-', 'class' => 'bg-gray-200 text-gray-600'];
+                                @endphp
+                                <tr class="hover:bg-gray-50/50 transition align-top">
+                                    <td class="px-6 py-4 font-semibold text-gray-900">
                                         {{ $tamu->nama_lengkap }}
-                                        <div class="text-xs font-normal text-gray-400">{{ $tamu->kode_tiket }}</div>
+                                        <div class="text-xs font-normal text-gray-400 mt-0.5">{{ $tamu->kode_tiket }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-sm">
-                                        @php
-                                            $statusColor = match ($tamu->status_tindak_lanjut) {
-                                                'selesai' => 'bg-green-100 text-green-700 border border-green-200',
-                                                'eskalasi' => 'bg-blue-100 text-blue-700 border border-blue-200',
-                                                default => 'bg-gray-100 text-gray-600 border border-gray-200',
-                                            };
-                                            $statusLabel = match ($tamu->status_tindak_lanjut) {
-                                                'selesai' => 'Selesai',
-                                                'eskalasi' => 'Eskalasi',
-                                                default => 'Belum Eskalasi',
-                                            };
-                                        @endphp
-                                        <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full {{ $statusColor }}">
-                                            {{ $statusLabel }}
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-3 py-1 {{ $badge['class'] }} rounded-full text-[11px] font-bold whitespace-nowrap">
+                                            {{ $badge['label'] }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860]" disabled
+                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860] cursor-not-allowed" disabled
                                             @checked($tamu->status !== 'menunggu')>
                                     </td>
                                     <td class="px-6 py-4 text-center">
@@ -140,9 +131,15 @@
                                                 nama_lengkap: @js($tamu->nama_lengkap),
                                                 approval: @js($tamu->approval)
                                             })"
-                                            class="px-3 py-1.5 text-xs font-semibold rounded-lg text-white transition w-28 shadow-sm
+                                            class="px-3 py-1.5 text-xs font-bold rounded-lg text-white transition inline-flex items-center justify-center gap-1.5 shadow-sm
                                             {{ $tamu->approval === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-500 hover:bg-amber-600' }}">
-                                            {{ $tamu->approval === 'approve' ? 'Approved' : 'Menunggu' }}
+                                            @if($tamu->approval === 'approve')
+                                                <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                                                <span>Approved</span>
+                                            @else
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                                <span>Menunggu</span>
+                                            @endif
                                         </button>
                                     </td>
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
@@ -157,29 +154,23 @@
                                                     no_telp: @js($tamu->nomor_telepon ?? '-'),
                                                     sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
                                                     tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                                                    pegawai: @js($tamu->pegawai->name ?? '-'),
+                                                    pegawai: @js($tamu->pegawai->nama_lengkap ?? '-'),
                                                     permasalahan: @js($tamu->permasalahan ?? '-'),
                                                     solusi: @js($tamu->solusi ?? ''),
                                                     status_tindak_lanjut: @js($tamu->status_tindak_lanjut),
                                                     status: @js($tamu->status),
                                                     approval: @js($tamu->approval)
                                                 })"
-                                                class="px-3 py-1.5 bg-[#173860] hover:bg-[#102a48] rounded-lg text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
+                                                class="px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                                 <span>Detail</span>
                                             </button>
 
                                             <!-- Tombol Hapus -->
                                             <button type="button"
                                                 @click="setDelete({ id: {{ $tamu->id_tamu }}, nama_lengkap: @js($tamu->nama_lengkap) })"
-                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-semibold transition flex items-center gap-1 shadow-sm">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
+                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                 <span>Hapus</span>
                                             </button>
                                         </div>
@@ -187,7 +178,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                    <td colspan="8" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data tamu yang mengisi Buku Tamu Digital.
                                     </td>
                                 </tr>
@@ -196,12 +187,57 @@
                     </table>
                 </div>
 
-                <div class="px-6 py-4 border-t border-gray-200 bg-white 
-                    [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
-                    [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
-                    [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
-                    {{ $tamus->links() }}
-                </div>
+                <!-- Pagination -->
+                @if ($tamus->hasPages())
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }} entries
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                            @if ($tamus->onFirstPage())
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </span>
+                            @else
+                                <a href="{{ $tamus->previousPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                                </a>
+                            @endif
+
+                            @foreach ($tamus->getUrlRange(1, $tamus->lastPage()) as $page => $url)
+                                @if ($page == $tamus->currentPage())
+                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                        {{ $page }}
+                                    </span>
+                                @else
+                                    <a href="{{ $url }}"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
+                                        {{ $page }}
+                                    </a>
+                                @endif
+                            @endforeach
+
+                            @if ($tamus->hasMorePages())
+                                <a href="{{ $tamus->nextPageUrl() }}"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </a>
+                            @else
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <div class="px-6 py-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">
+                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }} entries
+                        </p>
+                    </div>
+                @endif
+            </div>
             </div>
 
         </div>
@@ -213,3 +249,90 @@
 
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+
+    // ==========================================================
+    // AUTO REFRESH (AJAX, tanpa view/partial baru) - "DAFTAR BUKU TAMU"
+    // Fetch halaman ini sendiri, lalu ambil #tabel-tamu-wrapper dari
+    // hasil HTML-nya via DOMParser, dan timpa wrapper yang ada di layar.
+    // ==========================================================
+    (function () {
+        const wrapper = document.getElementById('tabel-tamu-wrapper');
+        if (!wrapper) return;
+
+        const REFRESH_INTERVAL = 1000; // 1 detik
+
+        let isRefreshing = false;
+        let timerId = null;
+
+        const alpineRoot = wrapper.closest('[x-data]');
+        function isModalOpen() {
+            return !!alpineRoot && alpineRoot.dataset.modalOpen === 'true';
+        }
+
+        function buildRefreshUrl() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('ajax', '1'); // tidak wajib dipakai server, hanya penanda
+            return url.toString();
+        }
+
+        function refreshTable() {
+            if (isRefreshing || isModalOpen() || document.hidden) return;
+            isRefreshing = true;
+
+            fetch(buildRefreshUrl(), {
+                method: 'GET',
+                headers: { 'Accept': 'text/html' },
+                credentials: 'same-origin',
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Gagal memuat data tamu.');
+                    return res.text();
+                })
+                .then((html) => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newWrapper = doc.getElementById('tabel-tamu-wrapper');
+                    if (!newWrapper) return;
+
+                    wrapper.innerHTML = newWrapper.innerHTML;
+
+                    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                        window.Alpine.initTree(wrapper);
+                    }
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                })
+                .catch(() => {
+                    // Diamkan saja saat auto-refresh gagal; coba lagi di interval berikutnya.
+                })
+                .finally(() => {
+                    isRefreshing = false;
+                });
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            timerId = setInterval(refreshTable, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshTable();
+        });
+
+        startAutoRefresh();
+    })();
+</script>
+@endpush
