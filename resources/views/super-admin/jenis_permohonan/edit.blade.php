@@ -57,7 +57,7 @@
                         placeholder="Masukkan Nama Jenis Permohonan"
                         class="w-full rounded-xl border px-4 py-3 outline-none transition
                                focus:ring-2 focus:ring-amber-500 focus:border-amber-500
-                               @error('nama_jenis_permohonan') border-red-400 @else border-gray-300 @enderror">
+                               @error('nama_jenis_permohonan'),">
 
                     @error('nama_jenis_permohonan')
                         <p class="flex items-center gap-1 text-red-500 text-sm mt-2">

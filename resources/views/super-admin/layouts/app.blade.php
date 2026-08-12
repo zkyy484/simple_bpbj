@@ -22,32 +22,39 @@
         }
     </style>
     <script>
-        async loadDetail(id) {
-            this.openDetail = true;
-            this.loadingDetail = true;
-            this.detailContent = '';
-            try {
-                const res = await fetch(`{{ route('index.survei') }}?id_respon=${id}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'text/html'
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('detailSurvei', () => ({
+            openDetail: false,
+            loadingDetail: false,
+            detailContent: '',
+            async loadDetail(id) {
+                this.openDetail = true;
+                this.loadingDetail = true;
+                this.detailContent = '';
+                try {
+                    const res = await fetch(`{{ route('index.survei') }}?id_respon=${id}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'text/html'
+                        }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error(`HTTP Error Status: ${res.status}`);
                     }
-                });
 
-                if (!res.ok) {
-                    throw new Error(`HTTP Error Status: ${res.status}`);
+                    this.detailContent = await res.text();
+                } catch (e) {
+                    console.error('Error fetching detail:', e); // Buka Inspect -> Console untuk melihat error detail
+                    this.detailContent =
+                        `<p class="text-red-600 text-sm text-center py-10">Gagal memuat detail survei. (${e.message})</p>`;
+                } finally {
+                    this.loadingDetail = false;
                 }
-
-                this.detailContent = await res.text();
-            } catch (e) {
-                console.error('Error fetching detail:', e); // Buka Inspect -> Console untuk melihat error detail
-                this.detailContent =
-                    `<p class="text-red-600 text-sm text-center py-10">Gagal memuat detail survei. (${e.message})</p>`;
-            } finally {
-                this.loadingDetail = false;
             }
-        }
-    </script>
+        }));
+    });
+</script>
 
 </head>
 

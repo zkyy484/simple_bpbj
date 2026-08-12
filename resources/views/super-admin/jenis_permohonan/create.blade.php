@@ -49,7 +49,7 @@
 
                     <input type="text" name="nama_jenis_permohonan" value="{{ old('nama_jenis_permohonan') }}"
                         placeholder="Masukkan nama jenis permohonan"
-                        class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nama_jenis_permohonan') border-red-400 @else border-gray-300 @enderror">
+                        class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] @error('nama_jenis_permohonan'),">
 
                     @error('nama_jenis_permohonan')
                         <p class="mt-2 text-sm text-red-500">
