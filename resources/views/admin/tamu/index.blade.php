@@ -8,26 +8,36 @@
         openDelete: false,
         openApprove: false,
         selected: {
-            id: '', kode_tiket: '', nama_lengkap: '', email: '', no_telp: '',
-            sub_bagian: '', tujuan: '', pegawai: '', permasalahan: '', solusi: '',
-            status_tindak_lanjut: '', status: '', approval: ''
+            id: '',
+            kode_tiket: '',
+            nama_lengkap: '',
+            email: '',
+            no_telp: '',
+            sub_bagian: '',
+            tujuan: '',
+            pegawai: '',
+            permasalahan: '',
+            solusi: '',
+            status_tindak_lanjut: '',
+            status: '',
+            approval: ''
         },
         updateUrl: '',
         deleteUrl: '',
         approveUrl: '',
-
+    
         setDetail(tamu) {
             this.selected = tamu;
             this.updateUrl = '{{ url('/admin/tamu') }}/' + tamu.id;
             this.openDetail = true;
         },
-
+    
         setDelete(tamu) {
             this.selected = tamu;
             this.deleteUrl = '{{ url('/admin/tamu') }}/' + tamu.id;
             this.openDelete = true;
         },
-
+    
         setApprove(tamu) {
             this.selected = tamu;
             this.approveUrl = '{{ url('/admin/tamu') }}/' + tamu.id + '/approval';
@@ -56,7 +66,8 @@
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Kode Tiket / Sub Bagian / Tujuan..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                        <button type="submit"
+                            class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -74,7 +85,8 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-3.5">NAMA</th>
                                 <th class="px-6 py-3.5">SUB BAGIAN</th>
@@ -95,7 +107,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center">
                                         @php
                                             $statusColor = match ($tamu->status_tindak_lanjut) {
@@ -109,22 +121,32 @@
                                                 default => 'Belum Eskalasi',
                                             };
                                         @endphp
-                                        <span class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
+                                        <span
+                                            class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
                                             {{ $statusLabel }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <!-- Tombol Pemicu Modal Approval -->
-                                        <button type="button"
-                                            @click="setApprove({ 
-                                                id: {{ $tamu->id_tamu }}, 
-                                                nama_lengkap: @js($tamu->nama_lengkap),
-                                                approval: @js($tamu->approval)
-                                            })"
-                                            class="px-3 py-1.5 text-xs font-bold rounded-lg text-white transition w-28 shadow-sm
-                                            {{ $tamu->approval === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-500 hover:bg-amber-600' }}">
-                                            {{ $tamu->approval === 'approve' ? 'Approved' : 'Menunggu' }}
-                                        </button>
+                                        @if ($tamu->approval === 'approve')
+                                            {{-- Status Approved (Disabled / Tidak Dapat Diklik) --}}
+                                            <button type="button" disabled
+                                                class="px-3 py-1.5 text-xs font-bold rounded-lg text-white bg-emerald-600 opacity-80 cursor-not-allowed w-28 shadow-sm flex items-center justify-center gap-1.5 mx-auto">
+                                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                                <span>Approved</span>
+                                            </button>
+                                        @else
+                                            {{-- Status Menunggu (Dapat Diklik untuk Membuka Modal Approval) --}}
+                                            <button type="button"
+                                                @click="setApprove({ 
+                id: {{ $tamu->id_tamu }}, 
+                nama_lengkap: @js($tamu->nama_lengkap),
+                approval: @js($tamu->approval)
+            })"
+                                                class="px-3 py-1.5 text-xs font-bold rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition w-28 shadow-sm flex items-center justify-center gap-1.5 mx-auto">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                                <span>Menunggu</span>
+                                            </button>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <div class="flex justify-center items-center gap-2">
@@ -165,13 +187,16 @@
 
                 <!-- Pagination -->
                 @if ($tamus->hasPages())
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                         <div class="flex items-center gap-1.5">
                             @if ($tamus->onFirstPage())
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                 </span>
                             @else
@@ -183,7 +208,8 @@
 
                             @foreach ($tamus->getUrlRange(1, $tamus->lastPage()) as $page => $url)
                                 @if ($page == $tamus->currentPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    <span
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
                                         {{ $page }}
                                     </span>
                                 @else
@@ -200,7 +226,8 @@
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </a>
                             @else
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </span>
                             @endif
@@ -209,7 +236,8 @@
                 @else
                     <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                     </div>
                 @endif
@@ -225,8 +253,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 @endpush

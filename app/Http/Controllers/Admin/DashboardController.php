@@ -15,67 +15,86 @@ use Illuminate\Validation\Rule;
 
 class DashboardController extends Controller
 {
-    public function index() {
-        $admins = Auth::user();
+    public function index(Request $request)
+    {
+        $admins = auth()->guard('web')->user();
 
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        // ============================================================
+        // KPI 1: Total Kunjungan Tamu (all time) + growth vs bulan lalu
+        // ============================================================
+        $totalKunjungan = Tamu::count();
 
-        // ===== KPI 1: Total Kunjungan Tamu (aktif) + perbandingan bulan ini vs bulan lalu =====
-        $totalKunjungan = Tamu::where('status_aktif', 'aktif')->count();
+        $awalBulanIni = now()->startOfMonth();
+        $awalBulanLalu = now()->subMonthNoOverflow()->startOfMonth();
+        $akhirBulanLalu = now()->subMonthNoOverflow()->endOfMonth();
 
-        $kunjunganBulanIni = Tamu::where('status_aktif', 'aktif')
-            ->whereMonth('created_at', $today->month)
-            ->whereYear('created_at', $today->year)
-            ->count();
+        $kunjunganBulanIni = Tamu::whereBetween('created_at', [$awalBulanIni, now()])->count();
+        $kunjunganBulanLalu = Tamu::whereBetween('created_at', [$awalBulanLalu, $akhirBulanLalu])->count();
 
-        $kunjunganBulanLalu = Tamu::where('status_aktif', 'aktif')
-            ->whereMonth('created_at', $today->copy()->subMonth()->month)
-            ->whereYear('created_at', $today->copy()->subMonth()->year)
-            ->count();
+        $persenBulan = $kunjunganBulanLalu > 0
+            ? round((($kunjunganBulanIni - $kunjunganBulanLalu) / $kunjunganBulanLalu) * 100, 1)
+            : ($kunjunganBulanIni > 0 ? 100 : 0);
 
-        $persenBulanan = $this->hitungPersentase($kunjunganBulanIni, $kunjunganBulanLalu);
+        // ============================================================
+        // KPI 2: Kunjungan Hari Ini + growth vs kemarin
+        // ============================================================
+        $kunjunganHariIni = Tamu::whereDate('created_at', today())->count();
+        $kunjunganKemarin = Tamu::whereDate('created_at', today()->subDay())->count();
 
-        // ===== KPI 2: Kunjungan Hari Ini vs Kemarin =====
-        $kunjunganHariIni = Tamu::where('status_aktif', 'aktif')
-            ->whereDate('created_at', $today)
-            ->count();
+        $persenHari = $kunjunganKemarin > 0
+            ? round((($kunjunganHariIni - $kunjunganKemarin) / $kunjunganKemarin) * 100, 1)
+            : ($kunjunganHariIni > 0 ? 100 : 0);
 
-        $kunjunganKemarin = Tamu::where('status_aktif', 'aktif')
-            ->whereDate('created_at', $yesterday)
-            ->count();
+        // ============================================================
+        // KPI 3: Total Survei Masuk (bulan berjalan, sesuai label di UI)
+        // ============================================================
+        $totalSurvei = Respon::whereBetween('created_at', [$awalBulanIni, now()])->count();
 
-        $persenHarian = $this->hitungPersentase($kunjunganHariIni, $kunjunganKemarin);
-
-        // ===== KPI 3: Total Survei Masuk bulan ini =====
-        $totalSurvei = Respon::whereMonth('tanggal_respon', $today->month)
-            ->whereYear('tanggal_respon', $today->year)
-            ->count();
-
-        // ===== Distribusi Kunjungan per Sub Bagian =====
-        $distribusiSubBagian = SubBagian::withCount(['tamus' => function ($q) {
-                $q->where('status_aktif', 'aktif');
-            }])
+        // ============================================================
+        // Distribusi Kunjungan per Sub Bagian (dinamis, bukan hardcode)
+        // ============================================================
+        $distribusiSubBagian = SubBagian::withCount('tamus')
             ->orderByDesc('tamus_count')
             ->get();
 
-        $totalDistribusi = max($distribusiSubBagian->sum('tamus_count'), 1);
+        $totalDistribusi = $distribusiSubBagian->sum('tamus_count');
 
-        // ===== Aktivitas Kunjungan 7 hari terakhir (untuk line chart) =====
-        $aktivitasMingguan = collect(range(6, 0))->map(function ($i) use ($today) {
-            $tanggal = $today->copy()->subDays($i);
+        // Palet warna dipakai bergantian untuk kartu, legend, & doughnut chart
+        $warnaSubBagian = ['#173860', '#38bdf8', '#818cf8', '#0ea5e9', '#6366f1', '#60a5fa'];
 
-            return [
-                'label' => $tanggal->translatedFormat('d M'),
-                'total' => Tamu::where('status_aktif', 'aktif')
-                    ->whereDate('created_at', $tanggal)
-                    ->count(),
+        // ============================================================
+        // Filter Mingguan (Senin - Jumat) untuk Aktivitas Kunjungan
+        // ?minggu=0  -> minggu ini (default)
+        // ?minggu=-1 -> minggu lalu, dst
+        // ============================================================
+        $minggu = (int) $request->get('minggu', 0);
+
+        $awalMinggu = now()->startOfWeek(Carbon::MONDAY)->addWeeks($minggu);
+        $akhirMinggu = (clone $awalMinggu)->addDays(4)->endOfDay(); // sampai Jumat
+
+        $labelHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $dataAktivitas = [];
+
+        foreach (range(0, 4) as $i) {
+            $tanggal = (clone $awalMinggu)->addDays($i);
+            $dataAktivitas[] = Tamu::whereDate('created_at', $tanggal)->count();
+        }
+
+        // Opsi dropdown: 8 minggu terakhir (termasuk minggu ini)
+        $opsiMinggu = [];
+        foreach (range(0, -7) as $w) {
+            $s = now()->startOfWeek(Carbon::MONDAY)->addWeeks($w);
+            $e = (clone $s)->addDays(4);
+            $opsiMinggu[] = [
+                'value' => $w,
+                'label' => $s->translatedFormat('d M') . ' - ' . $e->translatedFormat('d M Y'),
             ];
-        });
+        }
 
-        // ===== Log Aktivitas / Kunjungan Terbaru =====
-        $kunjunganTerbaru = Tamu::with(['subBagian', 'tujuan'])
-            ->where('status_aktif', 'aktif')
+        // ============================================================
+        // Log Aktivitas Terbaru (diambil dari data tamu terbaru)
+        // ============================================================
+        $recentTamu = Tamu::with(['tujuan', 'subBagian'])
             ->latest('created_at')
             ->take(5)
             ->get();
@@ -83,105 +102,20 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact(
             'admins',
             'totalKunjungan',
-            'persenBulanan',
+            'persenBulan',
             'kunjunganHariIni',
-            'persenHarian',
+            'persenHari',
             'totalSurvei',
             'distribusiSubBagian',
             'totalDistribusi',
-            'aktivitasMingguan',
-            'kunjunganTerbaru'
+            'warnaSubBagian',
+            'labelHari',
+            'dataAktivitas',
+            'opsiMinggu',
+            'minggu',
+            'awalMinggu',
+            'akhirMinggu',
+            'recentTamu'
         ));
     }
-
-    /**
-     * Menghitung persentase perubahan dari nilai lama ke nilai baru.
-     */
-    private function hitungPersentase(int $baru, int $lama): float
-    {
-        if ($lama <= 0) {
-            return $baru > 0 ? 100.0 : 0.0;
-        }
-
-        return round((($baru - $lama) / $lama) * 100, 1);
-    }
-
-    public function profile() {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        return view('admin.profile', compact('user'));
-    }
-
-    public function update(Request $request)
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $validated = $request->validate([
-            'nama_lengkap' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'email', 'max:50', Rule::unique('users', 'email')->ignore($user->id_user, 'id_user')],
-            'username' => ['required', 'string', 'max:50', Rule::unique('users', 'username')->ignore($user->id_user, 'id_user')],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
-            'nip' => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($user->id_user, 'id_user')],
-            'alamat' => ['nullable', 'string'],
-        ], [
-            'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
-            'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
-            'username.unique' => 'Username sudah digunakan oleh pengguna lain.',
-        ]);
-
-        $user->nama_lengkap = $validated['nama_lengkap'];
-        $user->email = $validated['email'];
-        $user->username = $validated['username'];
-        $user->no_telepon = $validated['no_telepon'] ?? null;
-        $user->nip = $validated['nip'];
-        $user->alamat = $validated['alamat'] ?? null;
-        $user->save();
-
-        ActivityLog::catat('Ubah Profil', 'Memperbarui informasi profil.');
-
-        return redirect()
-            ->route('admin.profile')
-            ->with('success', 'Informasi profil berhasil disimpan.');
-    }
-
-    public function UpdatePassword(Request $request)
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $request->validate([
-            'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ], [
-            'current_password.required' => 'Masukkan password saat ini.',
-            'password.required' => 'Password baru wajib diisi.',
-            'password.min' => 'Password baru minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password baru tidak cocok.',
-        ]);
-
-        if (!Hash::check($request->current_password, $user->password)) {
-            ActivityLog::catat('Gagal Ubah Password', 'Percobaan ubah password gagal: password saat ini tidak sesuai.');
-
-            return back()
-                ->withErrors(['current_password' => 'Password saat ini tidak sesuai.'])
-                ->with('error', 'Password saat ini tidak sesuai!')
-                ->withInput()
-                ->withFragment('password-section');
-        }
-
-        $user->password = Hash::make($request->password);
-        $user->save();
-
-        // Catatan: deskripsi log SENGAJA tidak menyertakan password lama/baru
-        // dalam bentuk apapun (termasuk hash-nya) demi keamanan.
-        ActivityLog::catat('Ubah Password', 'Berhasil memperbarui password akun.');
-
-        return redirect()
-            ->route('admin.profile')
-            ->with('success', 'Password berhasil diperbarui.')
-            ->withFragment('password-section');
-    }
-
 }

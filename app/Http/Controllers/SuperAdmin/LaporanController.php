@@ -141,10 +141,18 @@ class LaporanController extends Controller
     {
         $tanggalAwal = $request->tanggal_awal;
         $tanggalAkhir = $request->tanggal_akhir;
+        $search = $request->search;
 
         return Respon::query()
             ->with(['jawaban.pertanyaan.opsi', 'jawaban.opsi'])
             ->where('status', 'aktif')
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('nama_lengkap', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('instansi', 'like', "%{$search}%");
+                });
+            })
             ->when($tanggalAwal, fn($q) => $q->whereDate('tanggal_respon', '>=', $tanggalAwal))
             ->when($tanggalAkhir, fn($q) => $q->whereDate('tanggal_respon', '<=', $tanggalAkhir))
             ->latest('tanggal_respon');

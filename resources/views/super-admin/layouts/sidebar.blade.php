@@ -66,6 +66,14 @@ $iconClass = fn (string $pattern) => request()->routeIs($pattern)
                     Tujuan
                 </a>
 
+                <a href="{{ route('jadwal_dinas.index') }}"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('jadwal_dinas.index*') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('jadwal_dinas.index*') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H9l-2-2H3z" />
+                    </svg>
+                    Jadwal Dinas
+                </a>
+
                 {{-- Sebelumnya: <a href="#" ...> --}}
                 <a href="{{ route('log-aktivitas.index') }}"
                     class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('log-aktivitas.*') }}">
@@ -82,11 +90,11 @@ $iconClass = fn (string $pattern) => request()->routeIs($pattern)
                 </p>
 
                 {{-- Dropdown Survei --}}
-                <div x-data="{ open: {{ request()->routeIs('index.*') || request()->routeIs('index.*') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('super.index.*') || request()->routeIs('super.index.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open"
-                        class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('index.*') }}">
+                        class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('super.index.*') }}">
                         <span class="flex items-center gap-3">
-                            <svg class="w-5 h-5 {{ $iconClass('index.*') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 {{ $iconClass('super.index.*') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             Survei
@@ -97,8 +105,8 @@ $iconClass = fn (string $pattern) => request()->routeIs($pattern)
                         </svg>
                     </button>
                     <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
-                        <a href="{{ route('index.pertanyaan') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('index.pertanyaan') }}">Pertanyaan</a>
-                        <a href="{{ route('index.survei') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('index.survei') }}">Survei Tamu</a>
+                        <a href="{{ route('super.index.pertanyaan') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.index.pertanyaan') }}">Pertanyaan</a>
+                        <a href="{{ route('super.index.survei') }}" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.index.survei') }}">Survei Tamu</a>
                     </div>
                 </div>
 

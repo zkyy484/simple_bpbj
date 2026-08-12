@@ -27,11 +27,6 @@ return new class extends Migration {
                 'nonaktif'
             ])->default('aktif');
 
-            $table->enum('cek', [
-                'menunggu',
-                'approve'
-            ])->default('menunggu');
-
             $table->integer('durasi_pengisian')->nullable();
 
             $table->dateTime('tanggal_respon');

@@ -6,6 +6,7 @@
     <div x-data="{
         openTindakLanjut: false,
         openDetail: false,
+        openKonfirmasiTerima: false,
         selected: {
             id: '',
             kode_tiket: '',
@@ -22,6 +23,11 @@
         updateUrl: '',
         emailUrl: '',
     
+        setTerima(tamu) {
+            this.selected = tamu;
+            this.openKonfirmasiTerima = true;
+        },
+    
         setTindakLanjut(tamu) {
             this.selected = tamu;
             this.updateUrl = '{{ url('/pegawai/tamu') }}/' + tamu.id + '/tindak-lanjut';
@@ -37,7 +43,10 @@
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
-            :class="{ 'blur-sm pointer-events-none select-none scale-[0.99]': openTindakLanjut || openDetail }">
+            :class="{
+                'blur-sm pointer-events-none select-none scale-[0.99]': openTindakLanjut || openDetail ||
+                    openKonfirmasiTerima
+            }">
 
             {{-- Breadcrumb & Title --}}
             <div>
@@ -53,10 +62,10 @@
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
                 <form action="{{ route('pegawai.tamu.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari Tamu..."
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari Tamu..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                        <button type="submit"
+                            class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -74,7 +83,8 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-3.5">KODE TIKET</th>
                                 <th class="px-6 py-3.5">NAMA</th>
@@ -107,50 +117,66 @@
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center">
-                                        <span class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
+                                        <span
+                                            class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
                                             {{ $statusLabel }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
-                                        <div class="flex justify-center items-center gap-2">
-                                            @php
-                                                $isPenanggungJawab = $tamu->id_user == auth()->user()->id_user;
-                                            @endphp
+                                        @php
+                                            $isPenanggungJawab = $tamu->id_user == auth()->user()->id_user;
+                                            $sudahDiambil = !is_null($tamu->id_user);
+                                        @endphp
 
-                                            @if (is_null($tamu->id_user) || $isPenanggungJawab)
+                                        <div class="flex justify-center items-center gap-2">
+                                            @if (!$sudahDiambil)
+                                                {{-- Tombol Terima Tamu (Memicu Modal Konfirmasi) --}}
+                                                <button type="button"
+                                                    @click="setTerima({
+                id: {{ $tamu->id_tamu }},
+                kode_tiket: @js($tamu->kode_tiket),
+                nama_lengkap: @js($tamu->nama_lengkap)
+            })"
+                                                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                    <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+                                                    <span>Terima Tamu</span>
+                                                </button>
+                                            @elseif ($isPenanggungJawab)
+                                                {{-- Tombol Tindak Lanjut (Muncul jika pegawai yang login adalah penanggung jawabnya) --}}
                                                 <button type="button"
                                                     @click="setTindakLanjut({
-                                                        id: {{ $tamu->id_tamu }},
-                                                        kode_tiket: @js($tamu->kode_tiket),
-                                                        nama_lengkap: @js($tamu->nama_lengkap),
-                                                        email: @js($tamu->email ?? '-'),
-                                                        no_telp: @js($tamu->nomor_telepon ?? '-'),
-                                                        sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
-                                                        tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                                                        permasalahan: @js($tamu->permasalahan ?? '-'),
-                                                        solusi: @js($tamu->solusi ?? ''),
-                                                        status_tindak_lanjut: @js($tamu->status_tindak_lanjut ?? 'belum_eskalasi'),
-                                                        pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? auth()->user()->nama_lengkap ?? '-')
-                                                    })"
+                id: {{ $tamu->id_tamu }},
+                kode_tiket: @js($tamu->kode_tiket),
+                nama_lengkap: @js($tamu->nama_lengkap),
+                email: @js($tamu->email ?? '-'),
+                no_telp: @js($tamu->nomor_telepon ?? '-'),
+                sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
+                tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
+                permasalahan: @js($tamu->permasalahan ?? '-'),
+                solusi: @js($tamu->solusi ?? ''),
+                status_tindak_lanjut: @js($tamu->status_tindak_lanjut ?? 'belum_eskalasi'),
+                pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? (auth()->user()->nama_lengkap ?? '-'))
+            })"
                                                     class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                                     <span>Tindak Lanjuti</span>
                                                 </button>
                                             @else
+                                                {{-- Tombol Detail (Muncul jika sudah diambil pegawai lain) --}}
                                                 <button type="button"
                                                     @click="setDetail({
-                                                        id: {{ $tamu->id_tamu }},
-                                                        kode_tiket: @js($tamu->kode_tiket),
-                                                        nama_lengkap: @js($tamu->nama_lengkap),
-                                                        email: @js($tamu->email ?? '-'),
-                                                        no_telp: @js($tamu->nomor_telepon ?? '-'),
-                                                        sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
-                                                        tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                                                        permasalahan: @js($tamu->permasalahan ?? '-'),
-                                                        solusi: @js($tamu->solusi ?? '-'),
-                                                        status_tindak_lanjut: @js($statusLabel),
-                                                        pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? '-')
-                                                    })"
+                id: {{ $tamu->id_tamu }},
+                kode_tiket: @js($tamu->kode_tiket),
+                nama_lengkap: @js($tamu->nama_lengkap),
+                email: @js($tamu->email ?? '-'),
+                no_telp: @js($tamu->nomor_telepon ?? '-'),
+                sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
+                tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
+                permasalahan: @js($tamu->permasalahan ?? '-'),
+                solusi: @js($tamu->solusi ?? '-'),
+                status_tindak_lanjut: @js($statusLabel),
+                pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? '-')
+            })"
                                                     class="px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                                     <span>Detail</span>
@@ -172,13 +198,16 @@
 
                 <!-- Pagination -->
                 @if ($tamus->hasPages())
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                         <div class="flex items-center gap-1.5">
                             @if ($tamus->onFirstPage())
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                 </span>
                             @else
@@ -190,7 +219,8 @@
 
                             @foreach ($tamus->getUrlRange(1, $tamus->lastPage()) as $page => $url)
                                 @if ($page == $tamus->currentPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    <span
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
                                         {{ $page }}
                                     </span>
                                 @else
@@ -207,7 +237,8 @@
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </a>
                             @else
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </span>
                             @endif
@@ -216,7 +247,8 @@
                 @else
                     <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                     </div>
                 @endif
@@ -224,6 +256,7 @@
         </div>
 
         {{-- Partial Modals --}}
+        @include('pegawai.tamu.konfirmasi_terima')
         @include('pegawai.tamu.tindak_lanjut')
         @include('pegawai.tamu.detail')
 
@@ -240,7 +273,9 @@
                     showConfirmButton: false,
                     timer: 2000,
                     timerProgressBar: true,
-                    customClass: { popup: 'rounded-2xl' }
+                    customClass: {
+                        popup: 'rounded-2xl'
+                    }
                 });
             });
         </script>
@@ -264,8 +299,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 @endpush

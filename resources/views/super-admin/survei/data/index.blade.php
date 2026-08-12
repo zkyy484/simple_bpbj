@@ -13,7 +13,7 @@
             this.loadingDetail = true;
             this.detailContent = '';
             try {
-                const res = await fetch(`{{ route('index.survei') }}?id_respon=${id}`, {
+                const res = await fetch(`{{ route('super.index.survei') }}?id_respon=${id}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 if (!res.ok) throw new Error('Gagal memuat data');
@@ -42,7 +42,7 @@
 
             {{-- Search Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('index.survei') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ route('super.index.survei') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Email / Instansi..."

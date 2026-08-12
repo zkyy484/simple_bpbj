@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\ApprovalTamuMail;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Mail;
 
 class TamuController extends Controller
 {
@@ -23,8 +25,8 @@ class TamuController extends Controller
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
                         ->orWhere('kode_tiket', 'like', "%{$search}%")
-                        ->orWhereHas('subBagian', fn ($sub) => $sub->where('nama_sub_bagian', 'like', "%{$search}%"))
-                        ->orWhereHas('tujuan', fn ($tj) => $tj->where('nama_tujuan', 'like', "%{$search}%"));
+                        ->orWhereHas('subBagian', fn($sub) => $sub->where('nama_sub_bagian', 'like', "%{$search}%"))
+                        ->orWhereHas('tujuan', fn($tj) => $tj->where('nama_tujuan', 'like', "%{$search}%"));
                 });
             })
             ->latest('id_tamu')
@@ -77,12 +79,24 @@ class TamuController extends Controller
 
         $tamu->update($data);
 
+        // Kirim email jika status disetujui dan email tamu tersedia
+        if ($approvalBaru === 'approve' && !empty($tamu->email)) {
+            $tamu->load(['subBagian', 'tujuan']);
+
+            try {
+                Mail::to($tamu->email)->send(new ApprovalTamuMail($tamu));
+            } catch (\Exception $e) {
+                // Tetap catat log jika gagal kirim email agar proses approval tidak terhenti
+                logger('Gagal mengirim email approval: ' . $e->getMessage());
+            }
+        }
+
         ActivityLog::catat(
             $approvalBaru === 'approve' ? 'Approve Tamu' : 'Batalkan Approval Tamu',
             "Mengubah status approval tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket}) menjadi {$approvalBaru}."
         );
 
-        return back()->with('success', 'Status approval berhasil diperbarui.');
+        return back()->with('success', 'Status approval berhasil diperbarui dan email telah dikirim.');
     }
 
 }

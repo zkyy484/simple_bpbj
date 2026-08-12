@@ -47,43 +47,37 @@
                 <form action="{{ route('laporan.survei.index') }}" method="GET"
                     class="flex flex-col lg:flex-row items-end justify-between gap-4">
 
-                    {{-- Input Filter Tanggal & Dropdown Deteksi --}}
+                    {{-- Input Filter Tanggal & Dropdown Deteksi (Auto Submit on Change) --}}
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 w-full">
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">Mulai Tanggal</label>
                             <input type="date" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
-                                class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                                onchange="this.form.submit()"
+                                class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">Sampai Tanggal</label>
                             <input type="date" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
-                                class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                                onchange="this.form.submit()"
+                                class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">Status Deteksi</label>
-                            <select name="deteksi"
+                            <select name="deteksi" onchange="this.form.submit()"
                                 class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
                                 <option value="" {{ request('deteksi') == '' ? 'selected' : '' }}>Semua Data</option>
-                                <option value="normal" {{ request('deteksi') == 'normal' ? 'selected' : '' }}>Normal
-                                </option>
-                                <option value="anomali" {{ request('deteksi') == 'anomali' ? 'selected' : '' }}>Anomali
-                                </option>
+                                <option value="normal" {{ request('deteksi') == 'normal' ? 'selected' : '' }}>Normal / Valid</option>
+                                <option value="anomali" {{ request('deteksi') == 'anomali' ? 'selected' : '' }}>Anomali</option>
                             </select>
                         </div>
                     </div>
 
-                    {{-- Action Buttons --}}
+                    {{-- Action Buttons (Reset, Arsip, Export PDF & Excel) --}}
                     <div class="flex items-center gap-2 shrink-0 w-full lg:w-auto justify-end flex-wrap">
-                        <button type="submit"
-                            class="px-5 py-2.5 bg-[#173860] hover:bg-[#12294a] text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5">
-                            <i data-lucide="filter" class="w-3.5 h-3.5"></i>
-                            <span>Filter</span>
-                        </button>
-
                         @if (request()->hasAny(['tanggal_awal', 'tanggal_akhir', 'deteksi']))
                             <a href="{{ route('laporan.survei.index') }}"
                                 class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition">
-                                Reset
+                                Reset Filter
                             </a>
                         @endif
 

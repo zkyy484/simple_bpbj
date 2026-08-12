@@ -12,68 +12,86 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pegawai = Auth::user();
+        $pegawai = auth()->guard('web')->user();
 
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        // ============================================================
+        // KPI 1: Total Kunjungan Tamu (all time) + growth vs bulan lalu
+        // ============================================================
+        $totalKunjungan = Tamu::count();
 
-        // Pegawai hanya melihat data tamu yang sudah di-approve dan berada
-        // di sub bagiannya sendiri, mengikuti scoping yang sama dengan
-        // Pegawai\TamuController.
-        $baseQuery = fn () => Tamu::where('status_aktif', 'aktif')
-            ->where('approval', 'approve')
-            ->where('id_sub_bagian', $pegawai->id_sub_bagian);
+        $awalBulanIni = now()->startOfMonth();
+        $awalBulanLalu = now()->subMonthNoOverflow()->startOfMonth();
+        $akhirBulanLalu = now()->subMonthNoOverflow()->endOfMonth();
 
-        // ===== KPI 1: Total Kunjungan Tamu (aktif) + perbandingan bulan ini vs bulan lalu =====
-        $totalKunjungan = $baseQuery()->count();
+        $kunjunganBulanIni = Tamu::whereBetween('created_at', [$awalBulanIni, now()])->count();
+        $kunjunganBulanLalu = Tamu::whereBetween('created_at', [$awalBulanLalu, $akhirBulanLalu])->count();
 
-        $kunjunganBulanIni = $baseQuery()
-            ->whereMonth('created_at', $today->month)
-            ->whereYear('created_at', $today->year)
-            ->count();
+        $persenBulan = $kunjunganBulanLalu > 0
+            ? round((($kunjunganBulanIni - $kunjunganBulanLalu) / $kunjunganBulanLalu) * 100, 1)
+            : ($kunjunganBulanIni > 0 ? 100 : 0);
 
-        $kunjunganBulanLalu = $baseQuery()
-            ->whereMonth('created_at', $today->copy()->subMonth()->month)
-            ->whereYear('created_at', $today->copy()->subMonth()->year)
-            ->count();
+        // ============================================================
+        // KPI 2: Kunjungan Hari Ini + growth vs kemarin
+        // ============================================================
+        $kunjunganHariIni = Tamu::whereDate('created_at', today())->count();
+        $kunjunganKemarin = Tamu::whereDate('created_at', today()->subDay())->count();
 
-        $persenBulanan = $this->hitungPersentase($kunjunganBulanIni, $kunjunganBulanLalu);
+        $persenHari = $kunjunganKemarin > 0
+            ? round((($kunjunganHariIni - $kunjunganKemarin) / $kunjunganKemarin) * 100, 1)
+            : ($kunjunganHariIni > 0 ? 100 : 0);
 
-        // ===== KPI 2: Kunjungan Hari Ini vs Kemarin =====
-        $kunjunganHariIni = $baseQuery()->whereDate('created_at', $today)->count();
-        $kunjunganKemarin = $baseQuery()->whereDate('created_at', $yesterday)->count();
+        // ============================================================
+        // KPI 3: Total Survei Masuk (bulan berjalan, sesuai label di UI)
+        // ============================================================
+        $totalSurvei = Respon::whereBetween('created_at', [$awalBulanIni, now()])->count();
 
-        $persenHarian = $this->hitungPersentase($kunjunganHariIni, $kunjunganKemarin);
-
-        // ===== KPI 3: Total Survei Masuk bulan ini (skala organisasi) =====
-        $totalSurvei = Respon::whereMonth('tanggal_respon', $today->month)
-            ->whereYear('tanggal_respon', $today->year)
-            ->count();
-
-        // ===== Distribusi Kunjungan per Sub Bagian (khusus sub bagian pegawai) =====
-        $distribusiSubBagian = SubBagian::withCount(['tamus' => function ($q) {
-                $q->where('status_aktif', 'aktif')->where('approval', 'approve');
-            }])
+        // ============================================================
+        // Distribusi Kunjungan per Sub Bagian (dinamis, bukan hardcode)
+        // ============================================================
+        $distribusiSubBagian = SubBagian::withCount('tamus')
             ->orderByDesc('tamus_count')
             ->get();
 
-        $totalDistribusi = max($distribusiSubBagian->sum('tamus_count'), 1);
+        $totalDistribusi = $distribusiSubBagian->sum('tamus_count');
 
-        // ===== Aktivitas Kunjungan 7 hari terakhir (untuk line chart) =====
-        $aktivitasMingguan = collect(range(6, 0))->map(function ($i) use ($today, $baseQuery) {
-            $tanggal = $today->copy()->subDays($i);
+        // Palet warna dipakai bergantian untuk kartu, legend, & doughnut chart
+        $warnaSubBagian = ['#173860', '#38bdf8', '#818cf8', '#0ea5e9', '#6366f1', '#60a5fa'];
 
-            return [
-                'label' => $tanggal->translatedFormat('d M'),
-                'total' => $baseQuery()->whereDate('created_at', $tanggal)->count(),
+        // ============================================================
+        // Filter Mingguan (Senin - Jumat) untuk Aktivitas Kunjungan
+        // ?minggu=0  -> minggu ini (default)
+        // ?minggu=-1 -> minggu lalu, dst
+        // ============================================================
+        $minggu = (int) $request->get('minggu', 0);
+
+        $awalMinggu = now()->startOfWeek(Carbon::MONDAY)->addWeeks($minggu);
+        $akhirMinggu = (clone $awalMinggu)->addDays(4)->endOfDay(); // sampai Jumat
+
+        $labelHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $dataAktivitas = [];
+
+        foreach (range(0, 4) as $i) {
+            $tanggal = (clone $awalMinggu)->addDays($i);
+            $dataAktivitas[] = Tamu::whereDate('created_at', $tanggal)->count();
+        }
+
+        // Opsi dropdown: 8 minggu terakhir (termasuk minggu ini)
+        $opsiMinggu = [];
+        foreach (range(0, -7) as $w) {
+            $s = now()->startOfWeek(Carbon::MONDAY)->addWeeks($w);
+            $e = (clone $s)->addDays(4);
+            $opsiMinggu[] = [
+                'value' => $w,
+                'label' => $s->translatedFormat('d M') . ' - ' . $e->translatedFormat('d M Y'),
             ];
-        });
+        }
 
-        // ===== Log Kunjungan Terbaru di sub bagian pegawai =====
-        $kunjunganTerbaru = $baseQuery()
-            ->with(['subBagian', 'tujuan'])
+        // ============================================================
+        // Log Aktivitas Terbaru (diambil dari data tamu terbaru)
+        // ============================================================
+        $recentTamu = Tamu::with(['tujuan', 'subBagian'])
             ->latest('created_at')
             ->take(5)
             ->get();
@@ -81,26 +99,20 @@ class DashboardController extends Controller
         return view('pegawai.dashboard', compact(
             'pegawai',
             'totalKunjungan',
-            'persenBulanan',
+            'persenBulan',
             'kunjunganHariIni',
-            'persenHarian',
+            'persenHari',
             'totalSurvei',
             'distribusiSubBagian',
             'totalDistribusi',
-            'aktivitasMingguan',
-            'kunjunganTerbaru'
+            'warnaSubBagian',
+            'labelHari',
+            'dataAktivitas',
+            'opsiMinggu',
+            'minggu',
+            'awalMinggu',
+            'akhirMinggu',
+            'recentTamu'
         ));
-    }
-
-    /**
-     * Menghitung persentase perubahan dari nilai lama ke nilai baru.
-     */
-    private function hitungPersentase(int $baru, int $lama): float
-    {
-        if ($lama <= 0) {
-            return $baru > 0 ? 100.0 : 0.0;
-        }
-
-        return round((($baru - $lama) / $lama) * 100, 1);
     }
 }

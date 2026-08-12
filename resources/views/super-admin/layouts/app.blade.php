@@ -27,7 +27,7 @@
             this.loadingDetail = true;
             this.detailContent = '';
             try {
-                const res = await fetch(`{{ route('index.survei') }}?id_respon=${id}`, {
+                const res = await fetch(`{{ route('super.index.survei') }}?id_respon=${id}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'

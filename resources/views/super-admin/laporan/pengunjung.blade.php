@@ -21,27 +21,32 @@
         class="bg-white rounded-2xl shadow-sm p-6">
         <div class="flex flex-col lg:flex-row lg:items-end gap-5">
 
+            {{-- Input Tanggal Awal (Auto Submit) --}}
             <div class="flex-1 min-w-[160px]">
                 <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
                     Tanggal Awal
                 </label>
                 <input type="date" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
-                    class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
+                    onchange="this.form.submit()"
+                    class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
             </div>
 
+            {{-- Input Tanggal Akhir (Auto Submit) --}}
             <div class="flex-1 min-w-[160px]">
                 <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
                     Tanggal Akhir
                 </label>
                 <input type="date" name="tanggal_akhir" value="{{ request('tanggal_akhir') }}"
-                    class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
+                    onchange="this.form.submit()"
+                    class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
             </div>
 
+            {{-- Dropdown Pelaku Usaha (Auto Submit) --}}
             <div class="flex-1 min-w-[160px]">
                 <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
                     Pelaku Usaha
                 </label>
-                <select name="pelaku_usaha"
+                <select name="pelaku_usaha" onchange="this.form.submit()"
                     class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
                     <option value="">Semua Pelaku Usaha</option>
                     <option value="Pelaku Usaha" @selected(request('pelaku_usaha') === 'Pelaku Usaha')>Pelaku Usaha</option>
@@ -49,14 +54,18 @@
                 </select>
             </div>
 
-            <div class="flex gap-3 shrink-0">
+            {{-- Action Buttons (Export PDF & Reset Filter) --}}
+            <div class="flex gap-3 shrink-0 items-center">
+                @if (request()->hasAny(['tanggal_awal', 'tanggal_akhir', 'pelaku_usaha']))
+                    <a href="{{ route('laporan.pengunjung.index') }}"
+                        class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold tracking-wide rounded-lg transition whitespace-nowrap">
+                        RESET FILTER
+                    </a>
+                @endif
+
                 <button type="submit" formaction="{{ route('laporan.pengunjung.export') }}"
-                    class="px-5 py-2.5 bg-red-600 text-white text-xs font-bold tracking-wide rounded-lg hover:bg-red-700 transition flex items-center gap-2 whitespace-nowrap">
+                    class="px-5 py-2.5 bg-red-600 text-white text-xs font-bold tracking-wide rounded-lg hover:bg-red-700 transition flex items-center gap-2 whitespace-nowrap shadow-sm">
                     <i data-lucide="file-down" class="w-4 h-4"></i> EXPORT DOKUMEN PDF
-                </button>
-                <button type="submit"
-                    class="px-6 py-2.5 bg-[#173860] text-white text-xs font-bold tracking-wide rounded-lg hover:bg-[#12294a] transition whitespace-nowrap">
-                    FILTER
                 </button>
             </div>
         </div>

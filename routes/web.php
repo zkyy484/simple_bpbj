@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SuperAdmin\JadwalDinasController;
 use App\Http\Controllers\SuperAdmin\PertanyaanController;
 use App\Http\Controllers\SuperAdmin\SurveiController;
 use Illuminate\Support\Facades\Route;
@@ -74,7 +75,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::put('/super/tamu/{tamu}/pulihkan', [SuperAdminTamuController::class, 'pulihkan'])->name('tamu.pulihkan');
 
     // SURVEI PERTANYAAN
-    Route::get('/pertanyaan', [PertanyaanController::class, 'index'])->name('index.pertanyaan');
+    Route::get('/pertanyaan', [PertanyaanController::class, 'index'])->name('super.index.pertanyaan');
     Route::post('/pertanyaan', [PertanyaanController::class, 'store'])->name('pertanyaan.store');
     Route::put('/pertanyaan/{id}', [PertanyaanController::class, 'update'])->name('pertanyaan.update');
     Route::delete('/pertanyaan/delete', [PertanyaanController::class, 'destroy'])->name('pertanyaan.destroy');
@@ -82,7 +83,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::put('/super/pertanyaan/pulihkan', [PertanyaanController::class, 'pulihkan'])->name('pertanyaan.pulihkan');
 
     // SURVEI TAMU
-    Route::get('/super/survei', [SurveiController::class, 'index'])->name('index.survei');
+    Route::get('/super/survei', [SurveiController::class, 'index'])->name('super.index.survei');
     Route::get('/super/survei/arsip', [SurveiController::class, 'arsip'])->name('survei.arsip');
     Route::delete('/super/survei/delete', [SurveiController::class, 'destroy'])->name('survei.destroy');
     Route::put('/super/survei/pulihkan', [SurveiController::class, 'pulihkan'])->name('survei.pulihkan');
@@ -98,6 +99,7 @@ Route::middleware(['auth', 'role:pegawai'])->prefix('pegawai')->name('pegawai.')
     Route::get('/tamu', [PegawaiTamuController::class, 'index'])->name('tamu.index');
     Route::put('/tamu/{id}/tindak-lanjut', [PegawaiTamuController::class, 'updateTindakLanjut'])->name('tamu.tindak-lanjut.update');
     Route::put('/tamu/{id}/kirim-email', [PegawaiTamuController::class, 'kirimEmail'])->name('tamu.kirim-email');
+    Route::put('/tamu/{id}/terima', [PegawaiTamuController::class, 'terimaTamu'])->name('tamu.terima');
 
     // PROFILE
     Route::get('/profile', [PegawaiProfileController::class, 'index'])->name('profile');
@@ -123,6 +125,12 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
         ->name('laporan.survei.export');
     Route::get('laporan/survei/export-pdf', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])
         ->name('laporan.survei.export.pdf');
+
+    // JADWAL DINAS
+    Route::get('/super/jadwal-dinas', [JadwalDinasController::class, 'index'])->name('jadwal_dinas.index');
+    Route::post('/super/jadwal-dinas/add', [JadwalDinasController::class, 'store'])->name('jadwal_dinas.store');
+    Route::put('/super/jadwal-dinas/update/{id}', [JadwalDinasController::class, 'update'])->name('jadwal_dinas.update');
+
 });
 
 
@@ -164,6 +172,9 @@ Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])-
 Route::get('/survei', [TamuController::class, 'create'])->name('survei.create');
 Route::post('/survei/tamu', [TamuController::class, 'storeSurvei'])->name('survei.store');
 Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name('survei.thanks');
+
+// DSIPLAY
+Route::get('/', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
 
 require __DIR__ . '/auth.php';
 

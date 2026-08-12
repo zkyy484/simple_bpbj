@@ -1,0 +1,231 @@
+<!-- MODAL: TAMBAH JADWAL DINAS -->
+<div x-show="openCreate" x-cloak class="fixed inset-0 z-[999] flex items-center justify-center p-4">
+
+    <!-- Overlay -->
+    <div x-show="openCreate" x-transition.opacity @click="if (!loading) openCreate = false"
+        class="absolute inset-0 bg-black/50 backdrop-blur-sm">
+    </div>
+
+    <!-- Modal Card -->
+    <div x-show="openCreate" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 scale-100"
+        x-transition:leave-end="opacity-0 scale-90" @click.outside="if (!loading) openCreate = false"
+        class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden max-h-[90vh] overflow-y-auto">
+
+        <!-- Header Modal Sticky -->
+        <div class="bg-white px-6 py-5 flex items-center justify-between border-b border-gray-200 sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#173860]/10 flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-[#173860]" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900 leading-tight">
+                        Tambah Jadwal Dinas
+                    </h2>
+                </div>
+            </div>
+
+            <!-- Tombol Close -->
+            <button type="button" @click="openCreate = false" :disabled="loading" aria-label="Tutup modal"
+                class="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body Form -->
+        <form action="{{ route('jadwal_dinas.store') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
+            @csrf
+            <input type="hidden" name="form_type" value="create">
+
+            {{-- Ringkasan Error Validation --}}
+            @if ($errors->any() && old('form_type') == 'create')
+                <div class="mx-6 mt-6 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm space-y-1">
+                    <p class="font-semibold">Data belum tersimpan, mohon periksa kembali:</p>
+                    @foreach ($errors->all() as $error)
+                        <p>&bull; {{ $error }}</p>
+                    @endforeach
+                </div>
+            @endif
+
+            <div class="p-6 space-y-6">
+
+                <!-- SECTION 1: INFORMASI SURAT MASUK -->
+                <div class="space-y-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Informasi Surat Masuk</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Nomor Agenda -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Nomor Agenda
+                            </label>
+                            @php $borderAgenda = $errors->has('nomor_agenda') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="text" name="nomor_agenda" value="{{ old('nomor_agenda') }}"
+                                placeholder="Contoh: AGD/2026/08"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderAgenda }}">
+                            @error('nomor_agenda')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Surat Dari -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Surat Dari <span class="text-red-500">*</span>
+                            </label>
+                            @php $borderDari = $errors->has('surat_dari') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="text" name="surat_dari" value="{{ old('surat_dari') }}"
+                                placeholder="Contoh: Dinas Provinsi"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderDari }}">
+                            @error('surat_dari')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Nomor Surat -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Nomor Surat <span class="text-red-500">*</span>
+                            </label>
+                            @php $borderNomor = $errors->has('nomor_surat') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="text" name="nomor_surat" value="{{ old('nomor_surat') }}"
+                                placeholder="Contoh: 005/123/PBJ/2026"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderNomor }}">
+                            @error('nomor_surat')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Tanggal Surat -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Tanggal Surat <span class="text-red-500">*</span>
+                            </label>
+                            @php $borderTglSurat = $errors->has('tanggal_surat') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="date" name="tanggal_surat" value="{{ old('tanggal_surat') }}"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderTglSurat }}">
+                            @error('tanggal_surat')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <!-- Perihal -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            Perihal <span class="text-red-500">*</span>
+                        </label>
+                        @php $borderPerihal = $errors->has('perihal') ? 'border-red-400' : 'border-gray-300'; @endphp
+                        <textarea name="perihal" rows="2" placeholder="Isi perihal undangan atau kegiatan..."
+                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] resize-none {{ $borderPerihal }}">{{ old('perihal') }}</textarea>
+                        @error('perihal')
+                            <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- SECTION 2: DETAIL PELAKSANAAN & DELEGASI -->
+                <div class="pt-4 border-t border-gray-200 space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-[#173860]"></div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-[#173860]">Pelaksanaan & Penugasan</h3>
+                    </div>
+
+                    <div class="bg-gray-50/70 p-4 rounded-xl border border-gray-200/80 space-y-4">
+                        <!-- Tanggal Kegiatan -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Tanggal Pelaksanaan Kegiatan <span class="text-red-500">*</span>
+                            </label>
+                            @php $borderTglKegiatan = $errors->has('tanggal_kegiatan') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="date" name="tanggal_kegiatan" value="{{ old('tanggal_kegiatan') }}"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderTglKegiatan }}">
+                            @error('tanggal_kegiatan')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                            <p class="mt-1.5 text-xs text-gray-500">
+                                Tanggal ini menjadi pacuan jadwal ditampilkan pada Layar Monitor TV (00.01 - 23.59).
+                            </p>
+                        </div>
+
+                        <!-- Pegawai yang Ditugaskan -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Pegawai Yang Ditugaskan (Opsional)
+                            </label>
+                            <div class="bg-white rounded-xl border border-gray-300 p-3 max-h-40 overflow-y-auto space-y-2">
+                                @forelse($users as $user)
+                                    <label class="flex items-center gap-3 text-sm text-gray-700 hover:bg-gray-50 p-1.5 rounded-lg cursor-pointer transition">
+                                        <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
+                                            {{ is_array(old('pegawai_ids')) && in_array($user->id_user, old('pegawai_ids')) ? 'checked' : '' }}
+                                            class="w-4 h-4 rounded border-gray-300 text-[#173860] focus:ring-[#173860]">
+                                        <span class="font-medium">{{ $user->nama_lengkap }}</span>
+                                    </label>
+                                @empty
+                                    <p class="text-xs text-gray-400 italic p-1">Belum ada data pegawai.</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <!-- Keterangan -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Keterangan Tambahan
+                            </label>
+                            <textarea name="keterangan" rows="2" placeholder="Catatan tambahan lokasi atau ruangan (opsional)"
+                                class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white resize-none">{{ old('keterangan') }}</textarea>
+                        </div>
+
+                        <!-- Catatan Kecil Informasi -->
+                        <div class="flex items-start gap-2 pt-1 text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 shrink-0 text-[#173860]"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-xs leading-relaxed">
+                                Pegawai yang ditugaskan dapat dikosongi terlebih dahulu dan diisi kemudian saat penunjukan delegasi selesai.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Sticky -->
+            <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3 sticky bottom-0 z-10">
+                <button type="button" @click="openCreate = false" :disabled="loading"
+                    class="px-5 py-2.5 rounded-xl border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    Batal
+                </button>
+                
+                <button type="submit" :disabled="loading"
+                    class="px-6 py-2.5 rounded-xl bg-[#173860] hover:bg-[#102a48] text-white font-semibold transition flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
+                    <!-- Icon Spinner Loading (Muncul saat submit) -->
+                    <svg x-show="loading" x-cloak class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+
+                    <!-- Icon Check (Muncul saat normal) -->
+                    <svg x-show="!loading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+
+                    <!-- Text Tombol -->
+                    <span x-text="loading ? 'Menyimpan...' : 'Simpan Data'"></span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

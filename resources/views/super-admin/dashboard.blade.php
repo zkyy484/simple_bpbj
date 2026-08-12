@@ -105,7 +105,8 @@
             @if ($distribusiSubBagian->isEmpty())
                 <p class="text-sm text-gray-400">Belum ada data kunjungan.</p>
             @else
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <!-- Mengubah grid menjadi 4 kolom di layar laptop/desktop (lg:grid-cols-4) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     @foreach ($distribusiSubBagian as $i => $sb)
                         <div class="rounded-xl p-4"
                             style="background-color: {{ $warnaSubBagian[$i % count($warnaSubBagian)] }}">
@@ -219,106 +220,106 @@
                                     </p>
                                 </td>
                             </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-400">Belum ada aktivitas
-                                        kunjungan.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-400">Belum ada aktivitas
+                                    kunjungan.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
-    @endsection
+    </div>
+@endsection
 
-    @push('scripts')
-        <script>
-            // 1. DOUGHNUT CHART
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
+@push('scripts')
+    <script>
+        // 1. DOUGHNUT CHART
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
 
-            const subBagianLabels = @json($distribusiSubBagian->pluck('nama_sub_bagian'));
-            const subBagianData = @json($distribusiSubBagian->pluck('tamus_count'));
-            const subBagianColors = @json($warnaSubBagian).slice(0, Math.max(subBagianLabels.length, 1));
+        const subBagianLabels = @json($distribusiSubBagian->pluck('nama_sub_bagian'));
+        const subBagianData = @json($distribusiSubBagian->pluck('tamus_count'));
+        const subBagianColors = @json($warnaSubBagian).slice(0, Math.max(subBagianLabels.length, 1));
 
-            new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: subBagianLabels,
-                    datasets: [{
-                        data: subBagianData,
-                        backgroundColor: subBagianColors,
-                        borderWidth: 0,
-                    }]
+        new Chart(ctxPie, {
+            type: 'doughnut',
+            data: {
+                labels: subBagianLabels,
+                datasets: [{
+                    data: subBagianData,
+                    backgroundColor: subBagianColors,
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        display: false
+                    }
                 },
-                options: {
-                    cutout: '70%',
-                    plugins: {
-                        legend: {
+                responsive: true,
+                maintainAspectRatio: true,
+            }
+        });
+
+        // 2. LINE CHART ACTIVITY (Senin - Jumat, mengikuti filter minggu)
+        const ctxLine = document.getElementById('activityChart').getContext('2d');
+        const activityChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: @json($labelHari),
+                datasets: [{
+                    data: @json($dataAktivitas),
+                    borderColor: '#173860',
+                    borderWidth: 1.5,
+                    pointBackgroundColor: '#173860',
+                    pointRadius: 2,
+                    tension: 0.3,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
                             display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
                         }
                     },
-                    responsive: true,
-                    maintainAspectRatio: true,
-                }
-            });
-
-            // 2. LINE CHART ACTIVITY (Senin - Jumat, mengikuti filter minggu)
-            const ctxLine = document.getElementById('activityChart').getContext('2d');
-            const activityChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: @json($labelHari),
-                    datasets: [{
-                        data: @json($dataAktivitas),
-                        borderColor: '#173860',
-                        borderWidth: 1.5,
-                        pointBackgroundColor: '#173860',
-                        pointRadius: 2,
-                        tension: 0.3,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: {
-                                display: false
-                            },
-                            ticks: {
-                                font: {
-                                    size: 10
-                                }
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0,
+                            font: {
+                                size: 10
                             }
                         },
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0,
-                                font: {
-                                    size: 10
-                                }
-                            },
-                            grid: {
-                                color: '#f3f4f6'
-                            }
+                        grid: {
+                            color: '#f3f4f6'
                         }
                     }
                 }
-            });
+            }
+        });
 
-            // 3. FILTER MINGGU -> reload halaman dengan query string ?minggu=...
-            document.getElementById('filterMinggu').addEventListener('change', function() {
-                const url = new URL(window.location.href);
-                url.searchParams.set('minggu', this.value);
-                window.location.href = url.toString();
-            });
-        </script>
-    @endpush
+        // 3. FILTER MINGGU -> reload halaman dengan query string ?minggu=...
+        document.getElementById('filterMinggu').addEventListener('change', function() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('minggu', this.value);
+            window.location.href = url.toString();
+        });
+    </script>
+@endpush
