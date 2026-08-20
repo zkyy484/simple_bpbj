@@ -1,6 +1,6 @@
 @extends('super-admin.layouts.app')
 
-@section('title', 'Log Aktivitas')
+@section('title', 'Log Aktivitas - Buku Tamu Digital')
 
 @section('content')
     @php
@@ -14,67 +14,62 @@
 
     <div class="space-y-6">
 
-        {{-- Header --}}
-        <div>
-            <nav class="text-xs text-gray-500 mb-1">
-                <span>Dashboard</span> <span>/</span> <span class="font-semibold text-gray-700">Log Aktivitas</span>
-            </nav>
-            <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Log Aktivitas</h2>
-            <p class="text-sm text-gray-500 mt-1">Riwayat aktivitas seluruh pengguna (Super Admin, Admin, dan Pegawai) di dalam sistem.</p>
+        <!-- Breadcrumb & Title (Jarak Diperdekat) -->
+        <div class="space-y-1">
+            <div class="text-sm text-gray-500">
+                <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
+                <span class="mx-1">/</span>
+                <span class="text-gray-700 font-medium">Log Aktivitas</span>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900">Log Aktivitas</h1>
         </div>
 
         {{-- Ringkasan Aktivitas Hari Ini --}}
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Super Admin</p>
                     <p class="text-2xl font-bold text-gray-900 mt-1">{{ $ringkasanHariIni['super_admin'] ?? 0 }}</p>
                     <p class="text-xs text-gray-400 mt-0.5">aktivitas hari ini</p>
                 </div>
                 <span class="w-11 h-11 rounded-full bg-[#173860]/10 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-[#173860]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <i data-lucide="shield-check" class="w-5 h-5 text-[#173860]"></i>
                 </span>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Admin</p>
                     <p class="text-2xl font-bold text-gray-900 mt-1">{{ $ringkasanHariIni['admin'] ?? 0 }}</p>
                     <p class="text-xs text-gray-400 mt-0.5">aktivitas hari ini</p>
                 </div>
                 <span class="w-11 h-11 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <i data-lucide="user-check" class="w-5 h-5 text-emerald-600"></i>
                 </span>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Pegawai</p>
                     <p class="text-2xl font-bold text-gray-900 mt-1">{{ $ringkasanHariIni['pegawai'] ?? 0 }}</p>
                     <p class="text-xs text-gray-400 mt-0.5">aktivitas hari ini</p>
                 </div>
                 <span class="w-11 h-11 rounded-full bg-amber-100 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                    <i data-lucide="users" class="w-5 h-5 text-amber-600"></i>
                 </span>
             </div>
         </div>
 
-        {{-- Filter --}}
-        <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-            <form action="{{ route('log-aktivitas.index') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-5 gap-3">
-                <div class="lg:col-span-2">
+        {{-- Filter Card --}}
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+            <form action="{{ route('super.log-aktivitas.index') }}" method="GET" class="grid grid-cols-1 lg:grid-cols-5 gap-3">
+                <div class="lg:col-span-2 relative flex items-center">
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama, aktivitas, atau deskripsi..."
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
+                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-gray-400">
                 </div>
 
                 <div>
-                    <select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
+                    <select name="role" class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
                         <option value="">Semua Role</option>
                         <option value="super_admin" @selected($role === 'super_admin')>Super Admin</option>
                         <option value="admin" @selected($role === 'admin')>Admin</option>
@@ -84,81 +79,80 @@
 
                 <div>
                     <input type="date" name="tanggal_mulai" value="{{ $tanggalMulai }}"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
+                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
 
                 <div class="flex gap-2">
                     <input type="date" name="tanggal_selesai" value="{{ $tanggalSelesai }}"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
+                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
                     <button type="submit"
-                        class="shrink-0 bg-[#173860] hover:bg-[#102a48] text-white px-4 rounded-lg">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        class="shrink-0 bg-[#173860] hover:bg-[#12294a] text-white px-4 rounded-lg transition flex items-center justify-center">
+                        <i data-lucide="search" class="w-4 h-4"></i>
                     </button>
                 </div>
             </form>
 
             @if ($search || $role || $tanggalMulai || $tanggalSelesai)
                 <div class="mt-3">
-                    <a href="{{ route('log-aktivitas.index') }}" class="text-xs text-gray-500 hover:text-gray-800 underline">
-                        Reset filter
+                    <a href="{{ route('super.log-aktivitas.index') }}" class="text-xs text-gray-500 hover:text-gray-800 underline flex items-center gap-1">
+                        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Reset filter
                     </a>
                 </div>
             @endif
         </div>
 
-        {{-- Tabel Log --}}
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-6 py-5 border-b flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-900">Riwayat Aktivitas</h3>
+        {{-- Tabel Log Card --}}
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-base font-bold text-gray-900">Riwayat Aktivitas</h3>
                 <span class="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-semibold">
                     Total : {{ $logs->total() ?? 0 }}
                 </span>
             </div>
+
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100 text-gray-700 text-sm font-semibold">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                         <tr>
-                            <th scope="col" class="px-6 py-4 text-center w-16">No</th>
-                            <th scope="col" class="px-6 py-4 text-left w-40">Tanggal</th>
-                            <th scope="col" class="px-6 py-4 text-left w-24">Jam</th>
-                            <th scope="col" class="px-6 py-4 text-center">Role</th>
-                            <th scope="col" class="px-6 py-4 text-left">Nama Pengguna</th>
-                            <th scope="col" class="px-6 py-4 text-left">Aktivitas</th>
-                            <th scope="col" class="px-6 py-4 text-left">Deskripsi</th>
+                            <th scope="col" class="px-6 py-3.5 text-center w-16">No</th>
+                            <th scope="col" class="px-6 py-3.5 w-36">Tanggal</th>
+                            <th scope="col" class="px-6 py-3.5 w-28">Jam</th>
+                            <th scope="col" class="px-6 py-3.5 text-center">Role</th>
+                            <th scope="col" class="px-6 py-3.5">Nama Pengguna</th>
+                            <th scope="col" class="px-6 py-3.5">Aktivitas</th>
+                            <th scope="col" class="px-6 py-3.5">Deskripsi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 bg-white">
+                    <tbody class="divide-y divide-gray-100">
                         @forelse ($logs as $index => $log)
-                            <tr class="hover:bg-gray-50 transition-colors align-top">
-                                <td class="px-6 py-4 text-center text-sm text-gray-600">
+                            <tr class="hover:bg-gray-50/50 transition align-top">
+                                <td class="px-6 py-4 text-center font-semibold text-gray-900">
                                     {{ $logs->firstItem() + $index }}
                                 </td>
-                                <td class="px-6 py-4 text-left text-sm text-gray-700 whitespace-nowrap">
+                                <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
                                     {{ $log->created_at->translatedFormat('d M Y') }}
                                 </td>
-                                <td class="px-6 py-4 text-left text-sm text-gray-700 whitespace-nowrap">
+                                <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
                                     {{ $log->created_at->format('H:i') }} WITA
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="px-3 py-1 text-xs font-bold rounded-full {{ $roleBadge($log->role) }}">
-                                        {{ \App\Models\ActivityLog::roleLabel($log->role) }}
+                                <td class="px-6 py-4 text-center whitespace-nowrap">
+                                    <span class="px-3 py-1 rounded-full text-[11px] font-bold {{ $roleBadge($log->role) }}">
+                                        {{ strtoupper(\App\Models\ActivityLog::roleLabel($log->role)) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-left text-sm font-semibold text-gray-900 whitespace-nowrap">
+                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                     {{ $log->nama_user }}
                                 </td>
-                                <td class="px-6 py-4 text-left text-sm text-gray-800 whitespace-nowrap">
+                                <td class="px-6 py-4 font-medium text-gray-800 whitespace-nowrap">
                                     {{ $log->aktivitas }}
                                 </td>
-                                <td class="px-6 py-4 text-left text-sm text-gray-600 max-w-md">
+                                <td class="px-6 py-4 text-gray-600 max-w-md">
                                     {{ $log->deskripsi ?? '-' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-8 py-12 text-center text-gray-500 text-sm">
+                                <td colspan="7" class="px-6 py-10 text-center text-gray-400">
                                     Belum ada aktivitas yang tercatat.
                                 </td>
                             </tr>
@@ -166,13 +160,63 @@
                     </tbody>
                 </table>
             </div>
-            <div
-                class="px-6 py-4 border-t border-gray-200 bg-white
-                [&_a]:!bg-white [&_a]:!text-black [&_a]:!border [&_a]:!border-gray-400 hover:[&_a]:!bg-gray-100
-                [&_span[aria-current='page']>span]:!bg-gray-800 [&_span[aria-current='page']>span]:!text-white [&_span[aria-current='page']>span]:!border [&_span[aria-current='page']>span]:!border-gray-800
-                [&_span[aria-disabled='true']>span]:!bg-white [&_span[aria-disabled='true']>span]:!text-gray-400 [&_span[aria-disabled='true']>span]:!border [&_span[aria-disabled='true']>span]:!border-gray-300">
-                {{ $logs->appends(request()->query())->links() }}
-            </div>
+
+            <!-- Pagination -->
+            @if ($logs->hasPages())
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <p class="text-xs text-gray-500">
+                        Showing {{ $logs->firstItem() }} to {{ $logs->lastItem() }} of {{ $logs->total() }} entries
+                    </p>
+                    <div class="flex items-center gap-1.5">
+                        @if ($logs->onFirstPage())
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </span>
+                        @else
+                            <a href="{{ $logs->previousPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </a>
+                        @endif
+
+                        @foreach ($logs->getUrlRange(1, $logs->lastPage()) as $page => $url)
+                            @if ($page == $logs->currentPage())
+                                <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    {{ $page }}
+                                </span>
+                            @else
+                                <a href="{{ $url }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
+                                    {{ $page }}
+                                </a>
+                            @endif
+                        @endforeach
+
+                        @if ($logs->hasMorePages())
+                            <a href="{{ $logs->nextPageUrl() }}" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </a>
+                        @else
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </span>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <div class="px-6 py-4 border-t border-gray-100">
+                    <p class="text-xs text-gray-500">
+                        Showing {{ $logs->count() ? 1 : 0 }} to {{ $logs->count() }} of {{ $logs->total() }} entries
+                    </p>
+                </div>
+            @endif
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
+</script>
+@endpush

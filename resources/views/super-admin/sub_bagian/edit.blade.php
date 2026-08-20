@@ -40,7 +40,7 @@
         </div>
 
         <!-- Body Form -->
-        <form action="{{ route('sub.update') }}" method="POST">
+        <form action="{{ route('super.sub.update') }}" method="POST">
             @csrf
             @method('PUT')
 

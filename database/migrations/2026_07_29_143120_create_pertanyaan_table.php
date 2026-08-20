@@ -21,9 +21,6 @@ return new class extends Migration
                 'pilihan_ganda',
                 'textarea'
             ]);
-
-            $table->integer('urutan');
-
             $table->enum('status', [
                 'aktif',
                 'nonaktif'

@@ -79,7 +79,6 @@ class TamuController extends Controller
         $tamu->update([
             'solusi' => $validated['solusi'] ?? $tamu->solusi,
             'status_tindak_lanjut' => $validated['status_tindak_lanjut'],
-            'status' => $validated['status'] ?? $tamu->status,
             'id_user' => $validated['id_user'] ?? $tamu->id_user,
         ]);
 

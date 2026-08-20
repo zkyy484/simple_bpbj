@@ -49,32 +49,14 @@
                     </svg>
                     Tamu
                 </a>
-            </div>
 
-            <div class="space-y-1">
-                <p class="px-3 mb-1 text-[11px] font-semibold tracking-wide text-gray-400 uppercase">
-                    Survei &amp; Laporan
-                </p>
-
-                {{-- Dropdown Survei --}}
-                <div x-data="{ open: {{ request()->routeIs('survei.*') ? 'true' : 'false' }} }">
-                    <button @click="open = !open"
-                            class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('survei.*') }}">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-5 h-5 {{ $iconClass('survei.*') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Survei
-                        </span>
-                        <svg class="w-4 h-4 transition-transform shrink-0" :class="open ? 'rotate-180' : ''"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </button>
-                    <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
-                        <a href="#" class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('survei.tamu.*') }}">Survei Tamu</a>
-                    </div>
-                </div>
+                <a href="{{ route('admin.survei.index') }}"
+                   class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('admin.survei.index') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('admin.survei.index') }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-4.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    Survei Tamu
+                </a>
             </div>
         </nav>
     </div>

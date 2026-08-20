@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <form action="{{ route('akun.delete') }}" method="POST">
+        <form action="{{ route('super.akun.delete') }}" method="POST">
             @csrf
             @method('DELETE')
             <input type="hidden" name="id_user" x-model="selectedUser.id">

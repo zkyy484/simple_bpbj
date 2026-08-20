@@ -29,7 +29,7 @@
             <div class="text-sm text-gray-500">
                 <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
                 <span class="mx-1">/</span>
-                <a href="{{ route('index.akun') }}" class="hover:text-gray-700">Manajemen Akun</a>
+                <a href="{{ route('super.akun.index') }}" class="hover:text-gray-700">Manajemen Akun</a>
                 <span class="mx-1">/</span>
                 <span class="text-gray-700 font-medium">Arsip</span>
             </div>
@@ -38,7 +38,7 @@
 
             <!-- Search & Action Card -->
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-4">
-                <form action="{{ route('akun.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
+                <form action="{{ route('super.akun.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari akun terarsip..."
@@ -50,7 +50,7 @@
                 </form>
 
                 <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
-                    <a href="{{ route('index.akun') }}"
+                    <a href="{{ route('super.akun.index') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
                         <span>KEMBALI</span>

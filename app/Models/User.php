@@ -74,4 +74,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Tamu::class, 'id_user', 'id_user');
     }
+
+    public function jadwalDinas()
+{
+    return $this->belongsToMany(JadwalDinas::class, 'jadwal_dinas_user', 'id_user', 'id_jadwal_dinas');
+}
 }

@@ -251,28 +251,28 @@ class SurveiController extends Controller
     }
 
     // Mengubah status pengecekan respon (kolom "cek") menjadi approve
-    public function approve(Request $request)
-    {
-        $request->validate([
-            'id_respon' => 'required|exists:respons,id_respon',
-        ]);
+    // public function approve(Request $request)
+    // {
+    //     $request->validate([
+    //         'id_respon' => 'required|exists:respons,id_respon',
+    //     ]);
 
-        $respon = Respon::findOrFail($request->id_respon);
+    //     $respon = Respon::findOrFail($request->id_respon);
 
-        Respon::where('id_respon', $request->id_respon)
-            ->update([
-                'cek' => 'approve',
-            ]);
+    //     Respon::where('id_respon', $request->id_respon)
+    //         ->update([
+    //             'cek' => 'approve',
+    //         ]);
 
-        ActivityLog::catat(
-            'Approve Survei',
-            "Menyetujui (approve) respon survei atas nama {$respon->nama_lengkap}."
-        );
+    //     ActivityLog::catat(
+    //         'Approve Survei',
+    //         "Menyetujui (approve) respon survei atas nama {$respon->nama_lengkap}."
+    //     );
 
-        return redirect()
-            ->back()
-            ->with('success', 'Status survei berhasil diubah menjadi approve.');
-    }
+    //     return redirect()
+    //         ->back()
+    //         ->with('success', 'Status survei berhasil diubah menjadi approve.');
+    // }
 
     // Memindahkan data survei ke arsip (soft delete via status)
     public function destroy(Request $request)

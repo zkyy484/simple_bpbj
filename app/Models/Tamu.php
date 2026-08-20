@@ -23,9 +23,9 @@ class Tamu extends Model
         'id_user',
         'solusi',
         'status_tindak_lanjut',
-        'status',
         'approval',
         'paraf',
+        'foto',
         'status_aktif',
     ];
 
@@ -43,4 +43,6 @@ class Tamu extends Model
     {
         return $this->belongsTo(Tujuan::class, 'id_tujuan', 'id_tujuan');
     }
+
+    
 }

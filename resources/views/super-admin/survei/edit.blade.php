@@ -45,7 +45,7 @@
             </button>
         </div>
 
-        <form :action="`{{ url('/pertanyaan') }}/${selectedItem.id}`" method="POST">
+        <form :action="`{{ url('/super/pertanyaan') }}/${selectedItem.id}`" method="POST">
             @csrf
             @method('PUT')
             <input type="hidden" name="form_type" value="edit">
@@ -60,34 +60,26 @@
                         class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]"></textarea>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe Pertanyaan</label>
-                        <select name="tipe_pertanyaan" x-model="tipe" @change="onTipeChange()"
-                            :disabled="selectedItem.locked"
-                            :class="selectedItem.locked ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'bg-white'"
-                            class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
-                            <option value="rating">Rating</option>
-                            <option value="pilihan_ganda">Pilihan Ganda</option>
-                            <option value="textarea">Textarea</option>
-                        </select>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe Pertanyaan</label>
+                    <select name="tipe_pertanyaan" x-model="tipe" @change="onTipeChange()"
+                        :disabled="selectedItem.locked"
+                        :class="selectedItem.locked ? 'bg-gray-100 cursor-not-allowed text-gray-500' : 'bg-white'"
+                        class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
+                        <option value="rating">Rating</option>
+                        <option value="pilihan_ganda">Pilihan Ganda</option>
+                        <option value="textarea">Textarea</option>
+                    </select>
 
-                        <p x-show="selectedItem.locked" x-cloak
-                            class="mt-2 text-xs text-amber-600 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Tipe tidak bisa diubah karena pertanyaan ini sudah memiliki respon dari pengguna.
-                        </p>
+                    <p x-show="selectedItem.locked" x-cloak
+                        class="mt-2 text-xs text-amber-600 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Tipe tidak bisa diubah karena pertanyaan ini sudah memiliki respon dari pengguna.
+                    </p>
 
-                        <input type="hidden" name="tipe_pertanyaan" x-model="tipe" x-show="selectedItem.locked">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Urutan</label>
-                        <input type="number" name="urutan" x-model="selectedItem.urutan"
-                            class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
-                    </div>
+                    <input type="hidden" name="tipe_pertanyaan" x-model="tipe" x-show="selectedItem.locked">
                 </div>
 
                 <div x-show="tipe === 'rating' || tipe === 'pilihan_ganda'"

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Buku Tamu Digital - Kota Denpasar')</title>
-        <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}">
 
 
     <!-- Google Fonts Poppins -->
@@ -16,6 +16,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body class="font-['Poppins'] bg-[#cddcfd] text-gray-800 min-h-screen flex flex-col antialiased">

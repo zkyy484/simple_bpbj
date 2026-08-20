@@ -8,32 +8,42 @@
         openDelete: false,
         openApprove: false,
         selected: {
-            id: '', kode_tiket: '', nama_lengkap: '', email: '', no_telp: '',
-            sub_bagian: '', tujuan: '', pegawai: '', permasalahan: '', solusi: '',
-            status_tindak_lanjut: '', status: '', approval: ''
+            id: '',
+            kode_tiket: '',
+            nama_lengkap: '',
+            email: '',
+            no_telp: '',
+            sub_bagian: '',
+            tujuan: '',
+            pegawai: '',
+            permasalahan: '',
+            solusi: '',
+            status_tindak_lanjut: '',
+            status: '',
+            approval: ''
         },
         updateUrl: '',
         deleteUrl: '',
         approveUrl: '',
-
+    
         setDetail(tamu) {
             this.selected = tamu;
             this.updateUrl = '{{ url('/admin/tamu') }}/' + tamu.id;
             this.openDetail = true;
         },
-
+    
         setDelete(tamu) {
             this.selected = tamu;
             this.deleteUrl = '{{ url('/admin/tamu') }}/' + tamu.id;
             this.openDelete = true;
         },
-
+    
         setApprove(tamu) {
             this.selected = tamu;
             this.approveUrl = '{{ url('/admin/tamu') }}/' + tamu.id + '/approval';
             this.openApprove = true;
         }
-    }" class="relative">
+    }" class="relative" :data-modal-open="openDetail || openDelete || openApprove">
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
@@ -56,7 +66,8 @@
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Kode Tiket / Sub Bagian / Tujuan..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
+                        <button type="submit"
+                            class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -74,14 +85,14 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
                                 <th class="px-6 py-3.5">NAMA</th>
                                 <th class="px-6 py-3.5">SUB BAGIAN</th>
                                 <th class="px-6 py-3.5">TUJUAN</th>
                                 <th class="px-6 py-3.5">PEGAWAI</th>
                                 <th class="px-6 py-3.5 text-center">STATUS</th>
-                                <th class="px-6 py-3.5 text-center w-20">CEK</th>
                                 <th class="px-6 py-3.5 text-center w-36">APPROVAL</th>
                                 <th class="px-6 py-3.5 text-center w-48">AKSI</th>
                             </tr>
@@ -96,7 +107,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center">
                                         @php
                                             $statusColor = match ($tamu->status_tindak_lanjut) {
@@ -110,26 +121,32 @@
                                                 default => 'Belum Eskalasi',
                                             };
                                         @endphp
-                                        <span class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
+                                        <span
+                                            class="inline-block px-3 py-1 text-[11px] font-bold rounded-full whitespace-nowrap {{ $statusColor }}">
                                             {{ $statusLabel }}
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860]" disabled
-                                            @checked($tamu->status !== 'menunggu')>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <!-- Tombol Pemicu Modal Approval -->
-                                        <button type="button"
-                                            @click="setApprove({ 
-                                                id: {{ $tamu->id_tamu }}, 
-                                                nama_lengkap: @js($tamu->nama_lengkap),
-                                                approval: @js($tamu->approval)
-                                            })"
-                                            class="px-3 py-1.5 text-xs font-bold rounded-lg text-white transition w-28 shadow-sm
-                                            {{ $tamu->approval === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-500 hover:bg-amber-600' }}">
-                                            {{ $tamu->approval === 'approve' ? 'Approved' : 'Menunggu' }}
-                                        </button>
+                                        @if ($tamu->approval === 'approve')
+                                            {{-- Status Approved (Disabled / Tidak Dapat Diklik) --}}
+                                            <button type="button" disabled
+                                                class="px-3 py-1.5 text-xs font-bold rounded-lg text-white bg-emerald-600 opacity-80 cursor-not-allowed w-28 shadow-sm flex items-center justify-center gap-1.5 mx-auto">
+                                                <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                                                <span>Approved</span>
+                                            </button>
+                                        @else
+                                            {{-- Status Menunggu (Dapat Diklik untuk Membuka Modal Approval) --}}
+                                            <button type="button"
+                                                @click="setApprove({ 
+                id: {{ $tamu->id_tamu }}, 
+                nama_lengkap: @js($tamu->nama_lengkap),
+                approval: @js($tamu->approval)
+            })"
+                                                class="px-3 py-1.5 text-xs font-bold rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition w-28 shadow-sm flex items-center justify-center gap-1.5 mx-auto">
+                                                <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+                                                <span>Menunggu</span>
+                                            </button>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <div class="flex justify-center items-center gap-2">
@@ -159,7 +176,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                                    <td colspan="7" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data tamu yang mengisi Buku Tamu Digital.
                                     </td>
                                 </tr>
@@ -170,13 +187,16 @@
 
                 <!-- Pagination -->
                 @if ($tamus->hasPages())
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->firstItem() }} to {{ $tamus->lastItem() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                         <div class="flex items-center gap-1.5">
                             @if ($tamus->onFirstPage())
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                 </span>
                             @else
@@ -188,7 +208,8 @@
 
                             @foreach ($tamus->getUrlRange(1, $tamus->lastPage()) as $page => $url)
                                 @if ($page == $tamus->currentPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    <span
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
                                         {{ $page }}
                                     </span>
                                 @else
@@ -205,7 +226,8 @@
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </a>
                             @else
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </span>
                             @endif
@@ -214,7 +236,8 @@
                 @else
                     <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }} entries
+                            Showing {{ $tamus->count() ? 1 : 0 }} to {{ $tamus->count() }} of {{ $tamus->total() }}
+                            entries
                         </p>
                     </div>
                 @endif
@@ -233,5 +256,93 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
+
+    // ==========================================================
+    // AUTO REFRESH (AJAX) - KHUSUS KOMPONEN "DAFTAR TAMU"
+    // Pencarian TETAP normal (submit form / reload), TIDAK dibuat realtime.
+    // ==========================================================
+    (function () {
+        const wrapper = document.getElementById('tabel-tamu-wrapper');
+        if (!wrapper) return;
+
+        const REFRESH_INTERVAL = 1000; // 1 detik, ubah sesuai kebutuhan
+
+        let isRefreshing = false;  // mencegah request tumpuk
+        let timerId = null;
+
+        // Elemen x-data terdekat membawa atribut "data-modal-open" yang di-bind
+        // secara reaktif ke (openDetail || openDelete || openApprove), sehingga
+        // refresh otomatis bisa dijeda selama modal detail/approve sedang terbuka.
+        const alpineRoot = wrapper.closest('[x-data]');
+        function isModalOpen() {
+            return !!alpineRoot && alpineRoot.dataset.modalOpen === 'true';
+        }
+
+        function buildRefreshUrl() {
+            // Pertahankan query string aktif (search, page, dll) apa adanya.
+            // Tambahkan flag ajax=1 sebagai penanda ke server.
+            const url = new URL(window.location.href);
+            url.searchParams.set('ajax', '1');
+            return url.toString();
+        }
+
+        function refreshTable() {
+            if (isRefreshing || isModalOpen() || document.hidden) return;
+            isRefreshing = true;
+
+            fetch(buildRefreshUrl(), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html',
+                },
+                credentials: 'same-origin',
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Gagal memuat data tamu.');
+                    return res.text();
+                })
+                .then((html) => {
+                    wrapper.innerHTML = html;
+
+                    // Re-init directive Alpine pada HTML baru agar tombol
+                    // Detail/Approval tetap berfungsi.
+                    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                        window.Alpine.initTree(wrapper);
+                    }
+
+                    // Render ulang ikon Lucide untuk elemen yang baru disisipkan.
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                })
+                .catch(() => {
+                    // Diamkan saja saat auto-refresh gagal (mis. koneksi terputus),
+                    // agar tidak mengganggu admin yang sedang bekerja. Coba lagi di interval berikutnya.
+                })
+                .finally(() => {
+                    isRefreshing = false;
+                });
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            timerId = setInterval(refreshTable, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        // Jangan boros request saat tab tidak aktif; refresh sekali saat kembali aktif.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshTable();
+        });
+
+        startAutoRefresh();
+    })();
 </script>
 @endpush

@@ -51,7 +51,7 @@
         </div>
 
         <!-- Footer Form -->
-        <form action="{{ route('pertanyaan.destroy') }}" method="POST">
+        <form action="{{ route('super.pertanyaan.destroy') }}" method="POST">
             @csrf
             @method('DELETE')
 

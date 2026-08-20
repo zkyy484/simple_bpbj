@@ -51,7 +51,7 @@
 
             {{-- Search & Action Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('tujuan.index') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ route('super.tujuan.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Tujuan..."
@@ -64,7 +64,7 @@
 
                 <div class="flex gap-3 shrink-0">
                     <!-- Tombol Halaman Arsip -->
-                    <a href="{{ route('tujuan.arsip') }}"
+                    <a href="{{ route('super.tujuan.arsip') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="archive" class="w-4 h-4 text-gray-600"></i>
                         <span>ARSIP</span>

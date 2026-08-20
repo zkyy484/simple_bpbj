@@ -50,7 +50,7 @@
         </div>
 
         <!-- Footer Form -->
-        <form action="{{ route('tujuan.pulihkan') }}" method="POST">
+        <form action="{{ route('super.tujuan.pulihkan') }}" method="POST">
             @csrf
             @method('PUT')
 

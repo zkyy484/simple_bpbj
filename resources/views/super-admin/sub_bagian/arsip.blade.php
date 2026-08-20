@@ -29,7 +29,7 @@
             <div class="text-sm text-gray-500">
                 <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
                 <span class="mx-1">/</span>
-                <a href="{{ route('index.sub') }}" class="hover:text-gray-700">Sub Bagian</a>
+                <a href="{{ route('super.sub.index') }}" class="hover:text-gray-700">Sub Bagian</a>
                 <span class="mx-1">/</span>
                 <span class="text-gray-700 font-medium">Arsip</span>
             </div>
@@ -38,7 +38,7 @@
 
             <!-- Search & Action Card -->
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-4">
-                <form action="{{ route('arsip.sub') }}" method="GET" class="flex-1 w-full max-w-md">
+                <form action="{{ route('super.sub.arsip') }}" method="GET" class="flex-1 w-full max-w-md">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari arsip sub bagian..."
@@ -51,7 +51,7 @@
 
                 <div class="flex items-center gap-3 w-full lg:w-auto justify-end">
                     <!-- Tombol Kembali dengan Icon -->
-                    <a href="{{ route('index.sub') }}"
+                    <a href="{{ route('super.sub.index') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
                         <span>KEMBALI</span>

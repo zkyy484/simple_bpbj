@@ -33,7 +33,7 @@
             this.approveUrl = '{{ url('/super/tamu') }}/' + tamu.id + '/approval';
             this.openApprove = true;
         }
-    }" class="relative">
+    }" class="relative" :data-modal-open="openDetail || openDelete || openApprove">
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
@@ -51,7 +51,7 @@
 
             {{-- Search & Action Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('tamu.index') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ route('super.tamu.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Kode Tiket / Sub Bagian / Tujuan..."
@@ -63,7 +63,7 @@
                 </form>
 
                 <div class="flex gap-3 shrink-0">
-                    <a href="{{ route('tamu.arsip') }}"
+                    <a href="{{ route('super.tamu.arsip') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="archive" class="w-4 h-4 text-gray-600"></i>
                         <span>ARSIP TAMU</span>
@@ -71,7 +71,8 @@
                 </div>
             </div>
 
-            {{-- Table Card --}}
+            {{-- Table Card (auto-refresh via AJAX) --}}
+            <div id="tabel-tamu-wrapper">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                     <h3 class="text-base font-bold text-gray-900">Daftar Buku Tamu</h3>
@@ -89,7 +90,6 @@
                                 <th class="px-6 py-3.5">Tujuan</th>
                                 <th class="px-6 py-3.5">Pegawai</th>
                                 <th class="px-6 py-3.5">Status</th>
-                                <th class="px-6 py-3.5 text-center">Cek</th>
                                 <th class="px-6 py-3.5 text-center">Approval</th>
                                 <th class="px-6 py-3.5 text-center">Aksi</th>
                             </tr>
@@ -117,10 +117,6 @@
                                         <span class="px-3 py-1 {{ $badge['class'] }} rounded-full text-[11px] font-bold whitespace-nowrap">
                                             {{ $badge['label'] }}
                                         </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860] cursor-not-allowed" disabled
-                                            @checked($tamu->status !== 'menunggu')>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <!-- Tombol Pemicu Modal Approval -->
@@ -177,7 +173,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="px-6 py-10 text-center text-gray-400">
+                                    <td colspan="7" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada data tamu yang mengisi Buku Tamu Digital.
                                     </td>
                                 </tr>
@@ -237,6 +233,7 @@
                     </div>
                 @endif
             </div>
+            </div>
 
         </div>
 
@@ -252,5 +249,85 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
+
+    // ==========================================================
+    // AUTO REFRESH (AJAX, tanpa view/partial baru) - "DAFTAR BUKU TAMU"
+    // Fetch halaman ini sendiri, lalu ambil #tabel-tamu-wrapper dari
+    // hasil HTML-nya via DOMParser, dan timpa wrapper yang ada di layar.
+    // ==========================================================
+    (function () {
+        const wrapper = document.getElementById('tabel-tamu-wrapper');
+        if (!wrapper) return;
+
+        const REFRESH_INTERVAL = 1000; // 1 detik
+
+        let isRefreshing = false;
+        let timerId = null;
+
+        const alpineRoot = wrapper.closest('[x-data]');
+        function isModalOpen() {
+            return !!alpineRoot && alpineRoot.dataset.modalOpen === 'true';
+        }
+
+        function buildRefreshUrl() {
+            const url = new URL(window.location.href);
+            url.searchParams.set('ajax', '1'); // tidak wajib dipakai server, hanya penanda
+            return url.toString();
+        }
+
+        function refreshTable() {
+            if (isRefreshing || isModalOpen() || document.hidden) return;
+            isRefreshing = true;
+
+            fetch(buildRefreshUrl(), {
+                method: 'GET',
+                headers: { 'Accept': 'text/html' },
+                credentials: 'same-origin',
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Gagal memuat data tamu.');
+                    return res.text();
+                })
+                .then((html) => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newWrapper = doc.getElementById('tabel-tamu-wrapper');
+                    if (!newWrapper) return;
+
+                    wrapper.innerHTML = newWrapper.innerHTML;
+
+                    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                        window.Alpine.initTree(wrapper);
+                    }
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                })
+                .catch(() => {
+                    // Diamkan saja saat auto-refresh gagal; coba lagi di interval berikutnya.
+                })
+                .finally(() => {
+                    isRefreshing = false;
+                });
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            timerId = setInterval(refreshTable, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshTable();
+        });
+
+        startAutoRefresh();
+    })();
 </script>
 @endpush

@@ -38,15 +38,11 @@ class TamuController extends Controller
     {
         $tamu = Tamu::findOrFail($id);
 
-        // Jika belum ada yang menangani, pegawai yang login menjadi penanggung jawab
-        if (is_null($tamu->id_user)) {
-            $tamu->id_user = Auth::user()->id_user;
-        }
-        // Jika sudah ditangani pegawai lain
-        elseif ($tamu->id_user != Auth::user()->id_user) {
+        // Keamanan: Pastikan hanya penanggung jawab yang bisa mengubah
+        if ($tamu->id_user != Auth::user()->id_user) {
             return redirect()
                 ->route('pegawai.tamu.index')
-                ->with('error', 'Data sudah ditangani oleh pegawai lain.');
+                ->with('error', 'Anda bukan penanggung jawab tamu ini.');
         }
 
         $tamu->solusi = $request->solusi;
@@ -92,5 +88,37 @@ class TamuController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Email berhasil dikirim.');
+    }
+
+    // TERIMA TAMU
+    public function terimaTamu(int $id)
+    {
+        $tamu = Tamu::findOrFail($id);
+
+        // Cek apakah sudah ditangani pegawai lain
+        if (!is_null($tamu->id_user) && $tamu->id_user != Auth::user()->id_user) {
+            return redirect()
+                ->route('pegawai.tamu.index')
+                ->with('error', 'Tamu ini sudah diterima oleh pegawai lain.');
+        }
+
+        // Assign pegawai yang sedang login sebagai penanggung jawab
+        $tamu->id_user = Auth::user()->id_user;
+
+        // Jika status masih default, bisa diatur ke 'eskalasi' atau tetap sesuai kebutuhan
+        if (empty($tamu->status_tindak_lanjut) || $tamu->status_tindak_lanjut == 'belum_eskalasi') {
+            $tamu->status_tindak_lanjut = 'eskalasi';
+        }
+
+        $tamu->save();
+
+        ActivityLog::catat(
+            'Terima Tamu',
+            "Menerima tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+        );
+
+        return redirect()
+            ->route('pegawai.tamu.index')
+            ->with('success', 'Tamu berhasil diterima. Silakan lakukan tindak lanjut.');
     }
 }

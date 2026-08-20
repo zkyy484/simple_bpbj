@@ -51,7 +51,7 @@
 
         <!-- Footer -->
         <!-- Footer Form -->
-        <form action="{{ route('tujuan.delete') }}" method="POST">
+        <form action="{{ route('super.tujuan.delete') }}" method="POST">
             @csrf
             @method('DELETE')
 

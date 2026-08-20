@@ -2,78 +2,97 @@
 
 namespace App\Http\Controllers\SuperAdmin;
 
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Controller;
+use App\Models\Respon;
 use App\Models\SubBagian;
 use App\Models\Tamu;
-use App\Models\Respon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Auth::guard('web')->user();
+        $admins = auth()->guard('web')->user();
 
-        $today = Carbon::today();
-        $yesterday = Carbon::yesterday();
+        // ============================================================
+        // KPI 1: Total Kunjungan Tamu (all time) + growth vs bulan lalu
+        // ============================================================
+        $totalKunjungan = Tamu::count();
 
-        // ===== KPI 1: Total Kunjungan Tamu (aktif) + perbandingan bulan ini vs bulan lalu =====
-        $totalKunjungan = Tamu::where('status_aktif', 'aktif')->count();
+        $awalBulanIni = now()->startOfMonth();
+        $awalBulanLalu = now()->subMonthNoOverflow()->startOfMonth();
+        $akhirBulanLalu = now()->subMonthNoOverflow()->endOfMonth();
 
-        $kunjunganBulanIni = Tamu::where('status_aktif', 'aktif')
-            ->whereMonth('created_at', $today->month)
-            ->whereYear('created_at', $today->year)
-            ->count();
+        $kunjunganBulanIni = Tamu::whereBetween('created_at', [$awalBulanIni, now()])->count();
+        $kunjunganBulanLalu = Tamu::whereBetween('created_at', [$awalBulanLalu, $akhirBulanLalu])->count();
 
-        $kunjunganBulanLalu = Tamu::where('status_aktif', 'aktif')
-            ->whereMonth('created_at', $today->copy()->subMonth()->month)
-            ->whereYear('created_at', $today->copy()->subMonth()->year)
-            ->count();
+        $persenBulan = $kunjunganBulanLalu > 0
+            ? round((($kunjunganBulanIni - $kunjunganBulanLalu) / $kunjunganBulanLalu) * 100, 1)
+            : ($kunjunganBulanIni > 0 ? 100 : 0);
 
-        $persenBulanan = $this->hitungPersentase($kunjunganBulanIni, $kunjunganBulanLalu);
+        // ============================================================
+        // KPI 2: Kunjungan Hari Ini + growth vs kemarin
+        // ============================================================
+        $kunjunganHariIni = Tamu::whereDate('created_at', today())->count();
+        $kunjunganKemarin = Tamu::whereDate('created_at', today()->subDay())->count();
 
-        // ===== KPI 2: Kunjungan Hari Ini vs Kemarin =====
-        $kunjunganHariIni = Tamu::where('status_aktif', 'aktif')
-            ->whereDate('created_at', $today)
-            ->count();
+        $persenHari = $kunjunganKemarin > 0
+            ? round((($kunjunganHariIni - $kunjunganKemarin) / $kunjunganKemarin) * 100, 1)
+            : ($kunjunganHariIni > 0 ? 100 : 0);
 
-        $kunjunganKemarin = Tamu::where('status_aktif', 'aktif')
-            ->whereDate('created_at', $yesterday)
-            ->count();
+        // ============================================================
+        // KPI 3: Total Survei Masuk (bulan berjalan, sesuai label di UI)
+        // ============================================================
+        $totalSurvei = Respon::whereBetween('created_at', [$awalBulanIni, now()])->count();
 
-        $persenHarian = $this->hitungPersentase($kunjunganHariIni, $kunjunganKemarin);
-
-        // ===== KPI 3: Total Survei Masuk bulan ini =====
-        $totalSurvei = Respon::whereMonth('tanggal_respon', $today->month)
-            ->whereYear('tanggal_respon', $today->year)
-            ->count();
-
-        // ===== Distribusi Kunjungan per Sub Bagian =====
-        $distribusiSubBagian = SubBagian::withCount(['tamus' => function ($q) {
-                $q->where('status_aktif', 'aktif');
-            }])
+        // ============================================================
+        // Distribusi Kunjungan per Sub Bagian (dinamis, bukan hardcode)
+        // ============================================================
+        $distribusiSubBagian = SubBagian::withCount('tamus')
             ->orderByDesc('tamus_count')
             ->get();
 
-        $totalDistribusi = max($distribusiSubBagian->sum('tamus_count'), 1);
+        $totalDistribusi = $distribusiSubBagian->sum('tamus_count');
 
-        // ===== Aktivitas Kunjungan 7 hari terakhir (untuk line chart) =====
-        $aktivitasMingguan = collect(range(6, 0))->map(function ($i) use ($today) {
-            $tanggal = $today->copy()->subDays($i);
+        // Palet warna dipakai bergantian untuk kartu, legend, & doughnut chart
+        $warnaSubBagian = ['#173860', '#38bdf8', '#818cf8', '#0ea5e9', '#6366f1', '#60a5fa'];
 
-            return [
-                'label' => $tanggal->translatedFormat('d M'),
-                'total' => Tamu::where('status_aktif', 'aktif')
-                    ->whereDate('created_at', $tanggal)
-                    ->count(),
+        // ============================================================
+        // Filter Mingguan (Senin - Jumat) untuk Aktivitas Kunjungan
+        // ?minggu=0  -> minggu ini (default)
+        // ?minggu=-1 -> minggu lalu, dst
+        // ============================================================
+        $minggu = (int) $request->get('minggu', 0);
+
+        $awalMinggu = now()->startOfWeek(Carbon::MONDAY)->addWeeks($minggu);
+        $akhirMinggu = (clone $awalMinggu)->addDays(4)->endOfDay(); // sampai Jumat
+
+        $labelHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
+        $dataAktivitas = [];
+
+        foreach (range(0, 4) as $i) {
+            $tanggal = (clone $awalMinggu)->addDays($i);
+            $dataAktivitas[] = Tamu::whereDate('created_at', $tanggal)->count();
+        }
+
+        // Opsi dropdown: 8 minggu terakhir (termasuk minggu ini)
+        $opsiMinggu = [];
+        foreach (range(0, -7) as $w) {
+            $s = now()->startOfWeek(Carbon::MONDAY)->addWeeks($w);
+            $e = (clone $s)->addDays(4);
+            $opsiMinggu[] = [
+                'value' => $w,
+                'label' => $s->translatedFormat('d M') . ' - ' . $e->translatedFormat('d M Y'),
             ];
-        });
+        }
 
-        // ===== Log Aktivitas / Kunjungan Terbaru =====
-        $kunjunganTerbaru = Tamu::with(['subBagian', 'tujuan'])
-            ->where('status_aktif', 'aktif')
+        // ============================================================
+        // Log Aktivitas Terbaru (diambil dari data tamu terbaru)
+        // ============================================================
+        $recentTamu = Tamu::with(['tujuan', 'subBagian'])
             ->latest('created_at')
             ->take(5)
             ->get();
@@ -81,26 +100,23 @@ class DashboardController extends Controller
         return view('super-admin.dashboard', compact(
             'admins',
             'totalKunjungan',
-            'persenBulanan',
+            'persenBulan',
             'kunjunganHariIni',
-            'persenHarian',
+            'persenHari',
             'totalSurvei',
             'distribusiSubBagian',
             'totalDistribusi',
-            'aktivitasMingguan',
-            'kunjunganTerbaru'
+            'warnaSubBagian',
+            'labelHari',
+            'dataAktivitas',
+            'opsiMinggu',
+            'minggu',
+            'awalMinggu',
+            'akhirMinggu',
+            'recentTamu'
         ));
     }
 
-    /**
-     * Menghitung persentase perubahan dari nilai lama ke nilai baru.
-     */
-    private function hitungPersentase(int $baru, int $lama): float
-    {
-        if ($lama <= 0) {
-            return $baru > 0 ? 100.0 : 0.0;
-        }
-
-        return round((($baru - $lama) / $lama) * 100, 1);
-    }
 }
+
+
