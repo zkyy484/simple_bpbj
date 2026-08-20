@@ -90,7 +90,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('survei.pulihkan') }}" method="POST">
+        <form action="{{ route('super.survei.pulihkan') }}" method="POST">
 
             @csrf
             @method('PUT')

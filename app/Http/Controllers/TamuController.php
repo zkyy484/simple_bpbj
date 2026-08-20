@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
 use App\Models\Jawaban;
+use App\Models\JenisPermohonan;
 use App\Models\Opsi;
 use App\Models\Pertanyaan;
 use App\Models\Respon;
@@ -21,8 +22,11 @@ class TamuController extends Controller
     {
         $subBagians = SubBagian::orderBy('nama_sub_bagian')->get();
         $tujuans = Tujuan::orderBy('nama_tujuan')->get();
+        $jenisPermohonans = JenisPermohonan::where('status', 'aktif')
+            ->orderBy('nama_jenis_permohonan')
+            ->get();
 
-        return view('tamu.form', compact('subBagians', 'tujuans'));
+        return view('tamu.form', compact('subBagians', 'tujuans', 'jenisPermohonans'));
     }
 
     // Menyimpan data tamu dari form kunjungan
@@ -33,12 +37,13 @@ class TamuController extends Controller
             'nama_lengkap' => ['required', 'string', 'max:100'],
             'email' => ['nullable', 'email', 'max:100'],
             'nomor_telepon' => ['nullable', 'string', 'max:20'],
-            'jenis_permohonan' => ['nullable', 'string', 'max:50'],
+            'id_jenis_permohonan' => ['nullable', 'exists:jenis_permohonans,id_jenis_permohonan'],
             'nama_perusahaan' => ['nullable', 'string', 'max:100'],
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
             'id_tujuan' => ['required', 'exists:tujuans,id_tujuan'],
             'permasalahan' => ['nullable', 'string'],
             'paraf' => ['required', 'string'],
+            'foto' => ['required', 'string'],
         ]);
 
         $validated['kode_tiket'] = 'KNS-' . now()->format('Ymd') . str_pad(
@@ -75,7 +80,7 @@ class TamuController extends Controller
     // Menampilkan halaman terima kasih setelah data tersimpan (buku tamu)
     public function Thanks(int $id)
     {
-        $tamu = Tamu::with('tujuan')->findOrFail($id);
+        $tamu = Tamu::with(['tujuan'    ])->findOrFail($id);
 
         return view('tamu.tamu-success', compact('tamu'));
     }
@@ -87,7 +92,8 @@ class TamuController extends Controller
         $tamu = Tamu::with([
             'pegawai',
             'subBagian',
-            'tujuan'
+            'tujuan',
+            'jenisPermohonan'
         ])->where('kode_tiket', $kode_tiket)
             ->firstOrFail();
 

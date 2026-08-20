@@ -162,7 +162,7 @@
         <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                 <h3 class="font-bold text-gray-900 text-base">Log Aktivitas Terbaru</h3>
-                <a href="{{ route('tamu.index') }}" class="text-xs font-semibold text-[#173860] hover:underline">Lihat
+                <a href="{{ route('super.tamu.index') }}" class="text-xs font-semibold text-[#173860] hover:underline">Lihat
                     Semua</a>
             </div>
             <div class="overflow-x-auto">

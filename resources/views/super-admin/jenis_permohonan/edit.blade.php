@@ -24,7 +24,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Edit Tujuan
+                        Edit Jenis Permohonan
                     </h2>
                 </div>
             </div>
@@ -40,26 +40,24 @@
         </div>
 
         <!-- Body Form -->
-        <form action="{{ route('super.tujuan.update') }}" method="POST">
+        <form action="{{ route('super.jenis.update') }}" method="POST">
             @csrf
             @method('PUT')
 
-            <!-- Tambahkan input hidden ini -->
-            <input type="hidden" name="id_tujuan" x-model="selectedSub.id">
+            <!-- Input hidden ID -->
+            <input type="hidden" name="id_jenis_permohonan" x-model="selectedJenis.id">
 
             <div class="p-6 space-y-6">
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">
-                        Nama Tujuan <span class="text-red-500">*</span>
+                        Nama Jenis Permohonan <span class="text-red-500">*</span>
                     </label>
 
-                    <input type="text" name="nama_tujuan" x-model="selectedSub.nama"
-                        placeholder="Masukkan Nama Tujuan"
-                        class="w-full rounded-xl border px-4 py-3 outline-none transition
-                               focus:ring-2 focus:ring-amber-500 focus:border-amber-500
-                               @error('nama_sub_bagian') border-red-400 @else border-gray-300 @enderror">
+                    <input type="text" name="nama_jenis_permohonan" x-model="selectedJenis.nama"
+                        placeholder="Masukkan Nama Jenis Permohonan"
+                        class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-amber-500 focus:border-amber-500 @error('nama_jenis_permohonan') border-red-500 @enderror">
 
-                    @error('nama_tujuan')
+                    @error('nama_jenis_permohonan')
                         <p class="flex items-center gap-1 text-red-500 text-sm mt-2">
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor">
@@ -74,7 +72,6 @@
 
             <!-- Footer -->
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-
                 <button type="submit"
                     class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold transition flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"

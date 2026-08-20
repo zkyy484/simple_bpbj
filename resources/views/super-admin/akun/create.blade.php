@@ -39,7 +39,7 @@
         </div>
 
         <!-- Body -->
-        <form action="{{ route('akun.store') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
+        <form action="{{ route('super.akun.store') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             <input type="hidden" name="form_type" value="create">
 
@@ -205,7 +205,7 @@
                                 </option>
                                 <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai
                                 </option>
-                                <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                <option value="admin_fo" {{ old('role') == 'admin_fo' ? 'selected' : '' }}>Admin FO</option>
                             </select>
                             @error('role')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>

@@ -159,7 +159,6 @@
                                     <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->instansi ?? '-' }}
                                     </td>
-
                                     <td class="px-6 py-4 text-center">
                                         @php
                                             $warnaPola = [
@@ -202,9 +201,7 @@
                                                         id: '{{ $respon->id_respon }}',
                                                         nama: '{{ $respon->nama_lengkap }}'
                                                     };
-                                                    openDelete = true;
-                                                "
-                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                    openDelete = true;" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                 <span>Hapus</span>
                                             </button>

@@ -26,7 +26,10 @@ return new class extends Migration
 
             $table->string('nomor_telepon', 20)->nullable();
 
-            $table->string('jenis_permohonan', 50)->nullable();
+            $table->foreignId('id_jenis_permohonan')
+                  ->nullable()
+                  ->constrained('jenis_permohonans', 'id_jenis_permohonan')
+                  ->nullOnDelete();
 
             $table->string('nama_perusahaan', 100)->nullable();
 
@@ -63,6 +66,11 @@ return new class extends Migration
 
             // Paraf pegawai/admin yang melakukan approval terhadap tamu ini
             $table->longText('paraf')->nullable();
+
+            // Foto tamu yang diambil langsung dari kamera saat mengisi
+            // Buku Tamu Digital. Disimpan sebagai base64 data URL,
+            // konsisten dengan pola penyimpanan kolom `paraf`.
+            $table->longText('foto')->nullable();
 
             // Status aktif/non-aktif data tamu (pengganti soft delete)
             $table->enum('status_aktif', [

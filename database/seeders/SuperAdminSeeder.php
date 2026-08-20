@@ -19,7 +19,7 @@ class SuperAdminSeeder extends Seeder
             'nip' => 'admin123',
             'email' => 'superadmin@gmail.com',
             'username' => 'superadmin',
-            'password' => Hash::make('admin123'),
+            'password' => Hash::make('11111'),
             'no_telepon' => '081234567890',
             'alamat' => 'Denpasar',
             'id_sub_bagian' => null,

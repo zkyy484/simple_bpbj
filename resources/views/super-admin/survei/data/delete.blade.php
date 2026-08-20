@@ -97,7 +97,7 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('survei.destroy') }}" method="POST">
+        <form action="{{ route('super.survei.destroy') }}" method="POST">
 
             @csrf
             @method('DELETE')

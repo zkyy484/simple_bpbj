@@ -29,7 +29,7 @@
             </button>
         </div>
 
-        <form action="{{ route('akun.update') }}" method="POST">
+        <form action="{{ route('super.akun.update') }}" method="POST">
             @csrf
             @method('PUT')
             <input type="hidden" name="form_type" value="edit">
@@ -97,7 +97,7 @@
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Hak Akses (Role)</label>
                     <select name="role" x-model="selectedUser.role"
                         class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer">
-                        <option value="admin">Admin</option>
+                        <option value="admin_fo">Admin FO</option>
                         <option value="pegawai">Pegawai</option>
                     </select>
                 </div>

@@ -13,6 +13,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 class LaporanController extends Controller
 {
     protected function filteredQuery(Request $request)
@@ -48,7 +49,7 @@ class LaporanController extends Controller
             ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
         );
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('super-admin.laporan.buku-tamu-pdf', [
+        $pdf = Pdf::loadView('super-admin.laporan.buku-tamu-pdf', [
             'tamus' => $tamus,
             'periode' => $periode,
             'status' => $request->status,
@@ -100,7 +101,7 @@ class LaporanController extends Controller
             ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
         );
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
+        $pdf = Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
             'pengunjungs' => $pengunjungs,
             'periode' => $periode,
             'pelakuUsaha' => $request->pelaku_usaha,
@@ -117,10 +118,10 @@ class LaporanController extends Controller
     // LAPORAN SURVEI
     /**
      * Query dasar untuk Laporan Survei Tamu.
-     * Hanya respon yang sudah di-approve (cek = 'approve') yang boleh muncul
-     * di Laporan Survei, baik di halaman index maupun export PDF.
-     * Filter "Deteksi" yang tersisa untuk user adalah normal / anomali
-     * (dihitung dari pola jawaban, lihat isAnomaliSurvei()). Karena
+     * Semua respon dengan status 'aktif' (belum diarsipkan) langsung tampil
+     * di Laporan Survei begitu tamu submit, tanpa proses approve.
+     * Filter "Deteksi" yang tersedia untuk user adalah normal / anomali
+     * (dihitung dari pola jawaban, lihat analisaPolaSurvei()). Karena
      * normal/anomali tidak bisa difilter langsung lewat SQL, filter itu
      * ditangani terpisah di method surveiTamu() dan exportSurveiTamuPdf().
      */
@@ -394,7 +395,7 @@ class LaporanController extends Controller
      * Ambil teks opsi jawaban untuk pertanyaan tipe pilihan_ganda,
      * dicari berdasarkan teks pertanyaan.
      */
-    private function getJawabanPilihanGanda($respon, string $teksPertanyaan): string
+    private function getJawabanPilihanGanda(Respon $respon, string $teksPertanyaan): string
     {
         $jawaban = $respon->jawaban->first(function ($j) use ($teksPertanyaan) {
             $pertanyaan = $j->pertanyaan;

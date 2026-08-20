@@ -39,7 +39,7 @@
         </div>
 
         <!-- Body -->
-        <form action="{{ route('tujuan.add') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
+        <form action="{{ route('super.tujuan.add') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             <div class="p-6 space-y-6">
                 <div>

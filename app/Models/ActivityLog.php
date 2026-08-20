@@ -43,7 +43,7 @@ class ActivityLog extends Model
     {
         return match ($role) {
             'super_admin' => 'Super Admin',
-            'admin' => 'Admin',
+            'admin_fo' => 'Admin FO',
             'pegawai' => 'Pegawai',
             default => '-',
         };

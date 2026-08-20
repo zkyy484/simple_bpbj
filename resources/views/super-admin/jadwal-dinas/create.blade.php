@@ -41,7 +41,7 @@
         </div>
 
         <!-- Body Form -->
-        <form action="{{ route('jadwal_dinas.store') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
+        <form action="{{ route('super.jadwal_dinas.store') }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             <input type="hidden" name="form_type" value="create">
 

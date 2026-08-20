@@ -24,7 +24,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Pulihkan Tujuan
+                        Pulihkan Jenis Permohonan
                     </h2>
                 </div>
             </div>
@@ -42,23 +42,22 @@
         <!-- Body -->
         <div class="p-6 text-center space-y-3">
             <p class="text-gray-600 text-sm">
-                Apakah Anda yakin ingin memulihkan data Tujuan ini?
+                Apakah Anda yakin ingin memulihkan data Jenis Permohonan ini?
             </p>
             <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-700 font-semibold text-sm">
-                <span x-text="selectedSub.nama"></span>
+                <span x-text="selectedJenis.nama"></span>
             </div>
         </div>
 
         <!-- Footer Form -->
-        <form action="{{ route('super.tujuan.pulihkan') }}" method="POST">
+        <form action="{{ route('super.jenis.pulihkan') }}" method="POST">
             @csrf
             @method('PUT')
 
-            <!-- Input Hidden ID -->
-            <input type="hidden" name="id_tujuan" x-model="selectedSub.id">
+            <!-- Input Hidden untuk mengirimkan ID Jenis Permohonan ke Controller -->
+            <input type="hidden" name="id_jenis_permohonan" x-model="selectedJenis.id">
 
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
-
                 <button type="submit"
                     class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold transition flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24"

@@ -20,7 +20,7 @@
             </button>
         </div>
 
-        <form action="{{ route('pertanyaan.store') }}" method="POST" @submit="loading = true">
+        <form action="{{ route('super.pertanyaan.store') }}" method="POST" @submit="loading = true">
             @csrf
             <input type="hidden" name="form_type" value="create">
 
@@ -32,24 +32,16 @@
                     @error('pertanyaan')<p class="mt-2 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe Pertanyaan <span class="text-red-500">*</span></label>
-                        <select name="tipe_pertanyaan" x-model="tipe" @change="onTipeChange()"
-                            class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860] @error('tipe_pertanyaan') border-red-400 @else border-gray-300 @enderror">
-                            <option value="" disabled>-- Pilih Tipe --</option>
-                            <option value="rating">Rating</option>
-                            <option value="pilihan_ganda">Pilihan Ganda</option>
-                            <option value="textarea">Textarea</option>
-                        </select>
-                        @error('tipe_pertanyaan')<p class="mt-2 text-sm text-red-500">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2">Urutan <span class="text-red-500">*</span></label>
-                        <input type="number" name="urutan" value="{{ old('urutan') }}"
-                            class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860] @error('urutan') border-red-400 @else border-gray-300 @enderror">
-                        @error('urutan')<p class="mt-2 text-sm text-red-500">{{ $message }}</p>@enderror
-                    </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipe Pertanyaan <span class="text-red-500">*</span></label>
+                    <select name="tipe_pertanyaan" x-model="tipe" @change="onTipeChange()"
+                        class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860] @error('tipe_pertanyaan') border-red-400 @else border-gray-300 @enderror">
+                        <option value="" disabled>-- Pilih Tipe --</option>
+                        <option value="rating">Rating</option>
+                        <option value="pilihan_ganda">Pilihan Ganda</option>
+                        <option value="textarea">Textarea</option>
+                    </select>
+                    @error('tipe_pertanyaan')<p class="mt-2 text-sm text-red-500">{{ $message }}</p>@enderror
                 </div>
 
                 {{-- Builder opsi: rating & pilihan_ganda --}}

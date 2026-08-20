@@ -37,9 +37,9 @@
                     Dashboard
                 </a>
 
-                <a href="{{ route('tamu.index') }}"
-                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('tamu.index') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('tamu.index') }}" fill="none" stroke="currentColor"
+                <a href="{{ route('super.tamu.index') }}"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.tamu.*') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('super.tamu.*') }}" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-4.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -47,14 +47,24 @@
                     Tamu
                 </a>
 
-                <a href="{{ route('super.index.survei') }}"
-                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.index.survei') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('super.index.survei') }}" fill="none" stroke="currentColor"
+                <a href="{{ route('super.survei.index') }}"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.survei.index') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('super.survei.index') }}" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     Survei
+                </a>
+
+                <a href="{{ route('super.jadwal_dinas.index') }}"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.jadwal_dinas.index') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('super.jadwal_dinas.index') }}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Jadwal Dinas
                 </a>
             </div>
 
@@ -64,9 +74,9 @@
                 </p>
 
                 {{-- Dropdown Masterdata --}}
-                <div x-data="{ open: {{ request()->routeIs('index.akun') || request()->routeIs('index.sub*') || request()->routeIs('tujuan.index*') || request()->routeIs('index.pertanyaan') ? 'true' : 'false' }} }">
+                <div x-data="{ open: {{ request()->routeIs('super.sub.*') || request()->routeIs('super.tujuan.*') || request()->routeIs('super.akun.*') || request()->routeIs('super.pertanyaan.*') || request()->routeIs('super.jenis.*') ? 'true' : 'false' }} }">
                     <button @click="open = !open"
-                        class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('index.akun') === 'bg-[#173860] text-white shadow-sm' || $navClass('index.sub*') === 'bg-[#173860] text-white shadow-sm' || $navClass('tujuan.index*') === 'bg-[#173860] text-white shadow-sm' || $navClass('index.pertanyaan') === 'bg-[#173860] text-white shadow-sm' ? 'bg-[#173860] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        class="w-full group flex items-center justify-between px-3 py-2.5 rounded-lg transition {{ $navClass('super.sub.*') === 'bg-[#173860] text-white shadow-sm' || $navClass('super.tujuan.*') === 'bg-[#173860] text-white shadow-sm' || $navClass('super.akun.*') === 'bg-[#173860] text-white shadow-sm' || $navClass('super.pertanyaan.*') === 'bg-[#173860] text-white shadow-sm' || $navClass('super.jenis.*') === 'bg-[#173860] text-white shadow-sm' ? 'bg-[#173860] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                         <span class="flex items-center gap-3">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -80,14 +90,18 @@
                         </svg>
                     </button>
                     <div x-show="open" x-collapse class="mt-1 pl-11 space-y-0.5">
-                        <a href="{{ route('index.sub') }}"
-                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('index.sub*') }}">Sub Bagian</a>
-                        <a href="{{ route('tujuan.index') }}"
-                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('tujuan.index*') }}">Tujuan</a>
-                        <a href="{{ route('index.akun') }}"
-                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('index.akun') }}">Akun</a>
-                        <a href="{{ route('super.index.survei') }}"
-                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.index.survei') }}">Pertanyaan</a>
+                        <a href="{{ route('super.sub.index') }}"
+                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.sub.*') }}">Sub
+                            Bagian</a>
+                        <a href="{{ route('super.tujuan.index') }}"
+                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.tujuan.*') }}">Tujuan</a>
+                        <a href="{{ route('super.akun.index') }}"
+                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.akun.*') }}">Akun</a>
+                        <a href="{{ route('super.pertanyaan.index') }}"
+                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.pertanyaan.*') }}">Pertanyaan</a>
+                        <a href="{{ route('super.jenis.index') }}"
+                            class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.jenis.*') }}">Jenis
+                            Permohonan</a>
                     </div>
                 </div>
 
@@ -123,10 +137,10 @@
                     </div>
                 </div>
 
-                <a href="{{ route('log-aktivitas.index') }}"
-                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('log-aktivitas.*') }}">
-                    <svg class="w-5 h-5 {{ $iconClass('log-aktivitas.*') }}" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
+                <a href="{{ route('super.log-aktivitas.index') }}"
+                    class="group flex items-center gap-3 px-3 py-2.5 rounded-lg transition {{ $navClass('super.log-aktivitas.*') }}">
+                    <svg class="w-5 h-5 {{ $iconClass('super.log-aktivitas.*') }}" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>

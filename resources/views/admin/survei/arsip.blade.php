@@ -77,7 +77,6 @@
                                 <th class="px-6 py-3.5">NAMA</th>
                                 <th class="px-6 py-3.5 text-center">EMAIL</th>
                                 <th class="px-6 py-3.5 text-center">INSTANSI</th>
-                                <th class="px-6 py-3.5 text-center">STATUS</th>
                                 <th class="px-6 py-3.5 text-center w-48">AKSI</th>
                             </tr>
                         </thead>
@@ -100,19 +99,6 @@
                                     <td class="px-6 py-4 text-center text-gray-700">
                                         {{ $respon->instansi ?? '-' }}
                                     </td>
-
-                                    <td class="px-6 py-4 text-center">
-                                        @if ($respon->cek == 'approve')
-                                            <span class="px-3 py-1 bg-emerald-500 text-white rounded-full text-[11px] font-bold whitespace-nowrap">
-                                                APPROVE
-                                            </span>
-                                        @else
-                                            <span class="px-3 py-1 bg-amber-500 text-white rounded-full text-[11px] font-bold whitespace-nowrap">
-                                                MENUNGGU
-                                            </span>
-                                        @endif
-                                    </td>
-
                                     <td class="px-6 py-4 text-center whitespace-nowrap">
                                         <div class="flex justify-center items-center gap-2">
                                             <!-- Tombol Pulihkan -->
@@ -130,7 +116,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-10 text-center text-gray-400">
+                                    <td colspan="5" class="px-6 py-10 text-center text-gray-400">
                                         Belum ada arsip survei.
                                     </td>
                                 </tr>

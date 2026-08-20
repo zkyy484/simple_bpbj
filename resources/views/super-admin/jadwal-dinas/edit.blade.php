@@ -36,7 +36,7 @@
         </div>
 
         <!-- Body Form -->
-        <form :action="`{{ url('/super/jadwal-dinas/update/') }}/${selectedJadwal.id}`" method="POST"
+        <form :action="`{{ url('/super/jadwal-dinas/update') }}/${selectedJadwal.id}`" method="POST"
             x-data="{ loading: false }" @submit="loading = true"
             class="space-y-4 overflow-y-auto p-6 flex-1">
             @csrf

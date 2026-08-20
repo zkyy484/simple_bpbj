@@ -20,7 +20,6 @@ class PertanyaanController extends Controller
         $pertanyaans = Pertanyaan::with('opsi')
             ->where('status', 'aktif')
             ->when($request->search, fn($q) => $q->where('pertanyaan', 'like', '%' . $request->search . '%'))
-            ->orderBy('urutan')
             ->paginate(5);
 
         return view('super-admin.survei.index', compact('pertanyaans', 'admins'));
@@ -51,7 +50,6 @@ class PertanyaanController extends Controller
         $validated = $request->validate([
             'pertanyaan' => 'required|string',
             'tipe_pertanyaan' => 'required|in:rating,pilihan_ganda,textarea',
-            'urutan' => 'required|integer',
             'opsi' => 'required_if:tipe_pertanyaan,rating,pilihan_ganda|array|min:1',
             'opsi.*.opsi' => 'required_with:opsi|string|max:100',
             'opsi.*.nilai' => 'nullable|integer',
@@ -61,7 +59,6 @@ class PertanyaanController extends Controller
             $pertanyaan = Pertanyaan::create([
                 'pertanyaan' => $validated['pertanyaan'],
                 'tipe_pertanyaan' => $validated['tipe_pertanyaan'],
-                'urutan' => $validated['urutan'],
             ]);
 
             if (in_array($validated['tipe_pertanyaan'], ['rating', 'pilihan_ganda'])) {
@@ -81,7 +78,7 @@ class PertanyaanController extends Controller
             "Menambahkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\" (tipe: {$pertanyaan->tipe_pertanyaan})."
         );
 
-        return redirect()->route('index.pertanyaan')->with('success', 'Pertanyaan berhasil ditambahkan');
+        return redirect()->route('super.index.pertanyaan')->with('success', 'Pertanyaan berhasil ditambahkan');
     }
 
     public function update(Request $request, string $id)
@@ -91,7 +88,6 @@ class PertanyaanController extends Controller
 
         $rules = [
             'pertanyaan' => 'required|string',
-            'urutan' => 'required|integer',
             'opsi' => 'required_if:tipe_pertanyaan,rating,pilihan_ganda|array',
             'opsi.*.id_opsi' => 'nullable|exists:opsis,id_opsi',
             'opsi.*.opsi' => 'required_with:opsi|string|max:100',
@@ -117,7 +113,6 @@ class PertanyaanController extends Controller
             $pertanyaan->update([
                 'pertanyaan' => $validated['pertanyaan'],
                 'tipe_pertanyaan' => $tipeFinal,
-                'urutan' => $validated['urutan'],
             ]);
 
             if (in_array($tipeFinal, ['rating', 'pilihan_ganda'])) {

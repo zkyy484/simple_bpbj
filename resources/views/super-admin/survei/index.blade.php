@@ -12,7 +12,6 @@
                 'id' => old('id_pertanyaan'),
                 'pertanyaan' => old('pertanyaan'),
                 'tipe_pertanyaan' => old('tipe_pertanyaan'),
-                'urutan' => old('urutan'),
                 'opsi' => old('opsi') ?? [],
             ])
             : '{}' }}
@@ -34,7 +33,7 @@
 
         {{-- Search & Action Bar --}}
         <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-            <form action="{{ route('super.index.survei') }}" method="GET" class="flex-1 w-full max-w-lg">
+            <form action="{{ route('super.survei.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                 <div class="relative flex items-center">
                     <input type="text" name="search" value="{{ request('search') }}"
                         placeholder="Cari Pertanyaan Survei..."
@@ -46,7 +45,7 @@
             </form>
 
             <div class="flex gap-3 shrink-0">
-                <a href="{{ route('pertanyaan.arsip') }}"
+                <a href="{{ route('super.pertanyaan.arsip') }}"
                     class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                     <i data-lucide="archive" class="w-4 h-4 text-gray-600"></i>
                     <span>ARSIP</span>
@@ -73,17 +72,17 @@
                 <table class="w-full text-left text-sm">
                     <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                         <tr>
-                            <th class="px-6 py-3.5 text-center w-16">Urutan</th>
-                            <th class="px-6 py-3.5">Pertanyaan</th>
-                            <th class="px-6 py-3.5 text-center">Tipe</th>
-                            <th class="px-6 py-3.5 text-center">Status</th>
-                            <th class="px-6 py-3.5 text-center w-48">Aksi</th>
+                            <th class="px-6 py-3.5 text-center w-16">NO</th>
+                            <th class="px-6 py-3.5">PERTANYAAN</th>
+                            <th class="px-6 py-3.5 text-center">TIPE</th>
+                            <th class="px-6 py-3.5 text-center">STATUS</th>
+                            <th class="px-6 py-3.5 text-center w-48">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($pertanyaans as $p)
                         <tr class="hover:bg-gray-50/50 transition align-top">
-                            <td class="px-6 py-4 text-center font-semibold text-gray-500">{{ $p->urutan }}</td>
+                            <td class="px-6 py-4 text-center font-semibold text-gray-500">{{ $p->id_pertanyaan }}</td>
                             <td class="px-6 py-4 font-semibold text-gray-900">{{ $p->pertanyaan }}</td>
                             <td class="px-6 py-4 text-center">
                                 <span class="px-3 py-1 text-[11px] font-bold text-white rounded-full bg-[#173860] whitespace-nowrap">

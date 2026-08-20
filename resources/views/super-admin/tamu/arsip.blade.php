@@ -24,7 +24,7 @@
                 <div class="text-sm text-gray-500 mb-1">
                     <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
                     <span class="mx-1">/</span>
-                    <a href="{{ route('tamu.index') }}" class="hover:text-gray-700">Tamu</a>
+                    <a href="{{ route('super.tamu.index') }}" class="hover:text-gray-700">Tamu</a>
                     <span class="mx-1">/</span>
                     <span class="text-gray-700 font-medium">Arsip</span>
                 </div>
@@ -33,7 +33,7 @@
 
             {{-- Search & Action Bar --}}
             <div class="bg-white rounded-2xl shadow-sm p-6 flex flex-col lg:flex-row justify-between items-center gap-5">
-                <form action="{{ route('tamu.arsip') }}" method="GET" class="flex-1 w-full max-w-lg">
+                <form action="{{ route('super.tamu.arsip') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Nama / Kode Tiket / Sub Bagian / Tujuan..."
@@ -45,7 +45,7 @@
                 </form>
 
                 <div class="flex gap-3 shrink-0">
-                    <a href="{{ route('tamu.index') }}"
+                    <a href="{{ route('super.tamu.index') }}"
                         class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold tracking-wide rounded-lg transition flex items-center gap-2 whitespace-nowrap">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-gray-600"></i>
                         <span>KEMBALI</span>

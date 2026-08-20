@@ -43,7 +43,7 @@
             this.approveUrl = '{{ url('/admin/tamu') }}/' + tamu.id + '/approval';
             this.openApprove = true;
         }
-    }" class="relative">
+    }" class="relative" :data-modal-open="openDetail || openDelete || openApprove">
 
         <!-- CONTENT MAIN -->
         <div class="space-y-6 transition-all duration-300"
@@ -253,8 +253,96 @@
 @endsection
 
 @push('scripts')
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        lucide.createIcons();
-    </script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+
+    // ==========================================================
+    // AUTO REFRESH (AJAX) - KHUSUS KOMPONEN "DAFTAR TAMU"
+    // Pencarian TETAP normal (submit form / reload), TIDAK dibuat realtime.
+    // ==========================================================
+    (function () {
+        const wrapper = document.getElementById('tabel-tamu-wrapper');
+        if (!wrapper) return;
+
+        const REFRESH_INTERVAL = 1000; // 1 detik, ubah sesuai kebutuhan
+
+        let isRefreshing = false;  // mencegah request tumpuk
+        let timerId = null;
+
+        // Elemen x-data terdekat membawa atribut "data-modal-open" yang di-bind
+        // secara reaktif ke (openDetail || openDelete || openApprove), sehingga
+        // refresh otomatis bisa dijeda selama modal detail/approve sedang terbuka.
+        const alpineRoot = wrapper.closest('[x-data]');
+        function isModalOpen() {
+            return !!alpineRoot && alpineRoot.dataset.modalOpen === 'true';
+        }
+
+        function buildRefreshUrl() {
+            // Pertahankan query string aktif (search, page, dll) apa adanya.
+            // Tambahkan flag ajax=1 sebagai penanda ke server.
+            const url = new URL(window.location.href);
+            url.searchParams.set('ajax', '1');
+            return url.toString();
+        }
+
+        function refreshTable() {
+            if (isRefreshing || isModalOpen() || document.hidden) return;
+            isRefreshing = true;
+
+            fetch(buildRefreshUrl(), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'text/html',
+                },
+                credentials: 'same-origin',
+            })
+                .then((res) => {
+                    if (!res.ok) throw new Error('Gagal memuat data tamu.');
+                    return res.text();
+                })
+                .then((html) => {
+                    wrapper.innerHTML = html;
+
+                    // Re-init directive Alpine pada HTML baru agar tombol
+                    // Detail/Approval tetap berfungsi.
+                    if (window.Alpine && typeof window.Alpine.initTree === 'function') {
+                        window.Alpine.initTree(wrapper);
+                    }
+
+                    // Render ulang ikon Lucide untuk elemen yang baru disisipkan.
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                        window.lucide.createIcons();
+                    }
+                })
+                .catch(() => {
+                    // Diamkan saja saat auto-refresh gagal (mis. koneksi terputus),
+                    // agar tidak mengganggu admin yang sedang bekerja. Coba lagi di interval berikutnya.
+                })
+                .finally(() => {
+                    isRefreshing = false;
+                });
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            timerId = setInterval(refreshTable, REFRESH_INTERVAL);
+        }
+
+        function stopAutoRefresh() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        // Jangan boros request saat tab tidak aktif; refresh sekali saat kembali aktif.
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshTable();
+        });
+
+        startAutoRefresh();
+    })();
+</script>
 @endpush

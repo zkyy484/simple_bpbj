@@ -35,7 +35,7 @@ class AuthenticatedSessionController extends Controller
 
         return match ($user->role) {
             'super_admin' => redirect()->route('super.dashboard'),
-            'admin' => redirect()->route('admin.dashboard'),
+            'admin_fo' => redirect()->route('admin.dashboard'),
             'pegawai' => redirect()->route('pegawai.dashboard'),
             default => redirect('/login'),
         };

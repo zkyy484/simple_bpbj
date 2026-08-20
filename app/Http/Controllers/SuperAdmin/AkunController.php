@@ -23,7 +23,7 @@ class AkunController extends Controller
 
         $accounts = User::with('subBagian')
             ->where('status', 'aktif')
-            ->whereIn('role', ['admin', 'pegawai']) // Hanya admin & pegawai
+            ->whereIn('role', ['admin_fo', 'pegawai']) // Hanya admin & pegawai
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
@@ -82,7 +82,7 @@ class AkunController extends Controller
             'alamat' => ['required', 'string'],
             'username' => ['required', 'string', 'max:50', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
+            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'pegawai'])],
         ], [
             // Pesan Error Kustom
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
@@ -122,7 +122,7 @@ class AkunController extends Controller
         );
 
         return redirect()
-            ->route('index.akun')
+            ->back()
             ->with('success', 'Akun pegawai berhasil ditambahkan.');
     }
 
@@ -216,7 +216,7 @@ class AkunController extends Controller
     {
         return match ($role) {
             'super_admin' => 'Super Admin',
-            'admin' => 'Admin',
+            'admin_fo' => 'Admin FO',
             'pegawai' => 'Pegawai',
             default => 'pengguna',
         };
