@@ -175,7 +175,7 @@ Route::post('/survei/tamu', [TamuController::class, 'storeSurvei'])->name('surve
 Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name('survei.thanks');
 
 // DSIPLAY
-Route::get('/', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
+Route::get('/dis', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
 
 
 

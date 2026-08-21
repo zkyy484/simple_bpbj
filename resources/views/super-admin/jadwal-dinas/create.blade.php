@@ -62,16 +62,16 @@
                     <h3 class="text-xs font-bold uppercase tracking-wider text-gray-400">Informasi Surat Masuk</h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Nomor Agenda -->
+                        <!-- Bidang/Sekretariat -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nomor Agenda
+                                Bidang/Sekretariat
                             </label>
-                            @php $borderAgenda = $errors->has('nomor_agenda') ? 'border-red-400' : 'border-gray-300'; @endphp
-                            <input type="text" name="nomor_agenda" value="{{ old('nomor_agenda') }}"
-                                placeholder="Contoh: AGD/2026/08"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderAgenda }}">
-                            @error('nomor_agenda')
+                            @php $borderBidang = $errors->has('bidang_sekretariat') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="text" name="bidang_sekretariat" value="{{ old('bidang_sekretariat') }}"
+                                placeholder="Contoh: Sekretariat / Bidang Pengadaan"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderBidang }}">
+                            @error('bidang_sekretariat')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                             @enderror
                         </div>
@@ -91,44 +91,15 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Nomor Surat -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Nomor Surat <span class="text-red-500">*</span>
-                            </label>
-                            @php $borderNomor = $errors->has('nomor_surat') ? 'border-red-400' : 'border-gray-300'; @endphp
-                            <input type="text" name="nomor_surat" value="{{ old('nomor_surat') }}"
-                                placeholder="Contoh: 005/123/PBJ/2026"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderNomor }}">
-                            @error('nomor_surat')
-                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <!-- Tanggal Surat -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tanggal Surat <span class="text-red-500">*</span>
-                            </label>
-                            @php $borderTglSurat = $errors->has('tanggal_surat') ? 'border-red-400' : 'border-gray-300'; @endphp
-                            <input type="date" name="tanggal_surat" value="{{ old('tanggal_surat') }}"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] {{ $borderTglSurat }}">
-                            @error('tanggal_surat')
-                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <!-- Perihal -->
+                    <!-- Acara -->
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2">
-                            Perihal <span class="text-red-500">*</span>
+                            Acara <span class="text-red-500">*</span>
                         </label>
-                        @php $borderPerihal = $errors->has('perihal') ? 'border-red-400' : 'border-gray-300'; @endphp
-                        <textarea name="perihal" rows="2" placeholder="Isi perihal undangan atau kegiatan..."
-                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] resize-none {{ $borderPerihal }}">{{ old('perihal') }}</textarea>
-                        @error('perihal')
+                        @php $borderAcara = $errors->has('acara') ? 'border-red-400' : 'border-gray-300'; @endphp
+                        <textarea name="acara" rows="2" placeholder="Isi nama acara atau kegiatan..."
+                            class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] resize-none {{ $borderAcara }}">{{ old('acara') }}</textarea>
+                        @error('acara')
                             <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                         @enderror
                     </div>
@@ -142,26 +113,55 @@
                     </div>
 
                     <div class="bg-gray-50/70 p-4 rounded-xl border border-gray-200/80 space-y-4">
-                        <!-- Tanggal Kegiatan -->
-                        <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Tanggal Pelaksanaan Kegiatan <span class="text-red-500">*</span>
-                            </label>
-                            @php $borderTglKegiatan = $errors->has('tanggal_kegiatan') ? 'border-red-400' : 'border-gray-300'; @endphp
-                            <input type="date" name="tanggal_kegiatan" value="{{ old('tanggal_kegiatan') }}"
-                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderTglKegiatan }}">
-                            @error('tanggal_kegiatan')
-                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1.5 text-xs text-gray-500">
-                                Tanggal ini menjadi pacuan jadwal ditampilkan pada Layar Monitor TV (00.01 - 23.59).
-                            </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Hari/Tanggal -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Hari/Tanggal <span class="text-red-500">*</span>
+                                </label>
+                                @php $borderHariTanggal = $errors->has('hari_tanggal') ? 'border-red-400' : 'border-gray-300'; @endphp
+                                <input type="date" name="hari_tanggal" value="{{ old('hari_tanggal') }}"
+                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderHariTanggal }}">
+                                @error('hari_tanggal')
+                                    <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                                <p class="mt-1.5 text-xs text-gray-500">
+                                    Tanggal ini menjadi pacuan jadwal ditampilkan pada Layar Monitor TV (00.01 - 23.59).
+                                </p>
+                            </div>
+
+                            <!-- Waktu -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    Waktu
+                                </label>
+                                @php $borderWaktu = $errors->has('waktu') ? 'border-red-400' : 'border-gray-300'; @endphp
+                                <input type="time" name="waktu" value="{{ old('waktu') }}"
+                                    class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderWaktu }}">
+                                @error('waktu')
+                                    <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
-                        <!-- Pegawai yang Ditugaskan -->
+                        <!-- Tempat/Zoom -->
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                Pegawai Yang Ditugaskan (Opsional)
+                                Tempat/Zoom
+                            </label>
+                            @php $borderTempat = $errors->has('tempat_zoom') ? 'border-red-400' : 'border-gray-300'; @endphp
+                            <input type="text" name="tempat_zoom" value="{{ old('tempat_zoom') }}"
+                                placeholder="Contoh: Ruang Rapat Utama atau link Zoom"
+                                class="w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white {{ $borderTempat }}">
+                            @error('tempat_zoom')
+                                <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Yang Hadir -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                Yang Hadir (Opsional)
                             </label>
                             <div class="bg-white rounded-xl border border-gray-300 p-3 max-h-40 overflow-y-auto space-y-2">
                                 @forelse($users as $user)
@@ -194,7 +194,7 @@
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p class="text-xs leading-relaxed">
-                                Pegawai yang ditugaskan dapat dikosongi terlebih dahulu dan diisi kemudian saat penunjukan delegasi selesai.
+                                Kolom "Yang Hadir" dapat dikosongi terlebih dahulu dan diisi kemudian saat penunjukan delegasi selesai.
                             </p>
                         </div>
                     </div>

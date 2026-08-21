@@ -9,12 +9,12 @@
         selectedJadwal: {{ $errors->any() && old('form_type') == 'edit'
             ? Js::from([
                 'id' => old('id_jadwal_dinas'),
-                'nomor_agenda' => old('nomor_agenda'),
+                'bidang_sekretariat' => old('bidang_sekretariat'),
+                'acara' => old('acara'),
                 'surat_dari' => old('surat_dari'),
-                'nomor_surat' => old('nomor_surat'),
-                'perihal' => old('perihal'),
-                'tanggal_surat' => old('tanggal_surat'),
-                'tanggal_kegiatan' => old('tanggal_kegiatan'),
+                'hari_tanggal' => old('hari_tanggal'),
+                'waktu' => old('waktu'),
+                'tempat_zoom' => old('tempat_zoom'),
                 'keterangan' => old('keterangan'),
                 'pegawai_ids' => old('pegawai_ids', []),
             ])
@@ -40,7 +40,7 @@
                 <form action="{{ route('super.jadwal_dinas.index') }}" method="GET" class="flex-1 w-full max-w-lg">
                     <div class="relative flex items-center">
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari perihal, nomor surat, atau instansi..."
+                            placeholder="Cari acara, surat dari, bidang, atau tempat..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none placeholder:text-gray-400">
                         <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
@@ -72,10 +72,14 @@
                             <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                                 <tr>
                                     <th class="px-6 py-3.5 text-center w-16">No</th>
-                                    <th class="px-6 py-3.5">Agenda & Surat</th>
-                                    <th class="px-6 py-3.5">Perihal</th>
-                                    <th class="px-6 py-3.5">Tgl Kegiatan</th>
-                                    <th class="px-6 py-3.5">Pegawai Bertugas</th>
+                                    <th class="px-6 py-3.5">Bidang/Sekretariat</th>
+                                    <th class="px-6 py-3.5">Acara</th>
+                                    <th class="px-6 py-3.5">Surat Dari</th>
+                                    <th class="px-6 py-3.5">Hari/Tanggal</th>
+                                    <th class="px-6 py-3.5">Waktu</th>
+                                    <th class="px-6 py-3.5">Tempat/Zoom</th>
+                                    <th class="px-6 py-3.5">Yang Hadir</th>
+                                    <th class="px-6 py-3.5">Keterangan</th>
                                     <th class="px-6 py-3.5 text-center w-32">Aksi</th>
                                 </tr>
                             </thead>
@@ -85,18 +89,25 @@
                                         <td class="px-6 py-4 text-center font-semibold text-gray-900">
                                             {{ $jadwals->firstItem() + $index }}
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <div class="font-bold text-gray-900">{{ $jadwal->nomor_surat }}</div>
-                                            <div class="text-xs text-gray-400">Agenda: {{ $jadwal->nomor_agenda ?? '-' }}</div>
-                                            <div class="text-xs text-blue-600 font-medium">Dari: {{ $jadwal->surat_dari }}</div>
+                                        <td class="px-6 py-4 text-gray-700">
+                                            {{ $jadwal->bidang_sekretariat ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 font-medium text-gray-800 max-w-xs">
-                                            {{ $jadwal->perihal }}
+                                            {{ $jadwal->acara }}
+                                        </td>
+                                        <td class="px-6 py-4 text-blue-600 font-medium">
+                                            {{ $jadwal->surat_dari }}
                                         </td>
                                         <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
                                             <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-md text-xs font-semibold">
-                                                {{ \Carbon\Carbon::parse($jadwal->tanggal_kegiatan)->translatedFormat('d M Y') }}
+                                                {{ \Carbon\Carbon::parse($jadwal->hari_tanggal)->translatedFormat('l, d M Y') }}
                                             </span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-700 whitespace-nowrap">
+                                            {{ $jadwal->waktu ? \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') : '-' }}
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-700">
+                                            {{ $jadwal->tempat_zoom ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4">
                                             @if($jadwal->pegawais->count() > 0)
@@ -111,16 +122,19 @@
                                                 <span class="text-xs text-amber-600 italic">Belum ditentukan</span>
                                             @endif
                                         </td>
+                                        <td class="px-6 py-4 text-gray-600 max-w-xs">
+                                            {{ $jadwal->keterangan ?? '-' }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             <button type="button"
                                                 @click="openEdit = true; selectedJadwal = {
                                                     id: '{{ $jadwal->id_jadwal_dinas }}',
-                                                    nomor_agenda: @js($jadwal->nomor_agenda),
+                                                    bidang_sekretariat: @js($jadwal->bidang_sekretariat),
+                                                    acara: @js($jadwal->acara),
                                                     surat_dari: @js($jadwal->surat_dari),
-                                                    nomor_surat: @js($jadwal->nomor_surat),
-                                                    perihal: @js($jadwal->perihal),
-                                                    tanggal_surat: '{{ $jadwal->tanggal_surat }}',
-                                                    tanggal_kegiatan: '{{ $jadwal->tanggal_kegiatan }}',
+                                                    hari_tanggal: '{{ \Carbon\Carbon::parse($jadwal->hari_tanggal)->format('Y-m-d') }}',
+                                                    waktu: @js($jadwal->waktu ? \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') : ''),
+                                                    tempat_zoom: @js($jadwal->tempat_zoom),
                                                     keterangan: @js($jadwal->keterangan),
                                                     pegawai_ids: @js($jadwal->pegawais->pluck('id_user'))
                                                 }"
@@ -132,7 +146,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-10 text-center text-gray-400">
+                                        <td colspan="10" class="px-6 py-10 text-center text-gray-400">
                                             Belum ada data jadwal dinas yang tersedia.
                                         </td>
                                     </tr>
