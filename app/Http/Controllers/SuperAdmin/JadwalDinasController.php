@@ -8,13 +8,14 @@ use App\Models\Respon;
 use App\Models\Tamu;
 use App\Models\User;
 use App\Models\ActivityLog;
-use Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class JadwalDinasController extends Controller
 {
     // List Jadwal Dinas (Admin/Pegawai)
+    // Kolom: NO | Bidang/Sekretariat | Acara | Surat Dari | Hari/Tanggal | Waktu | Tempat/Zoom | Yang Hadir | Keterangan
     public function index(Request $request)
     {
         $search = $request->search;
@@ -22,11 +23,12 @@ class JadwalDinasController extends Controller
 
         $jadwals = JadwalDinas::with('pegawais')
             ->when($search, function ($q) use ($search) {
-                $q->where('nomor_surat', 'like', "%{$search}%")
+                $q->where('acara', 'like', "%{$search}%")
                     ->orWhere('surat_dari', 'like', "%{$search}%")
-                    ->orWhere('perihal', 'like', "%{$search}%");
+                    ->orWhere('bidang_sekretariat', 'like', "%{$search}%")
+                    ->orWhere('tempat_zoom', 'like', "%{$search}%");
             })
-            ->latest('tanggal_kegiatan')
+            ->latest('hari_tanggal')
             ->paginate(10);
 
         $users = User::orderBy('nama_lengkap', 'asc')->get();
@@ -38,33 +40,39 @@ class JadwalDinasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'bidang_sekretariat' => 'nullable|string|max:150',
+            'acara' => 'required|string',
             'surat_dari' => 'required|string|max:150',
-            'nomor_surat' => 'required|string|max:100',
-            'perihal' => 'required|string',
-            'tanggal_surat' => 'required|date',
-            'tanggal_kegiatan' => 'required|date',
+            'hari_tanggal' => 'required|date',
+            'waktu' => 'nullable|date_format:H:i',
+            'tempat_zoom' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string',
             'pegawai_ids' => 'nullable|array',
             'pegawai_ids.*' => 'exists:users,id_user',
+        ], [
+            'acara.required' => 'Kolom Acara wajib diisi.',
+            'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
+            'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
         ]);
 
         $jadwal = JadwalDinas::create([
-            'nomor_agenda' => $request->nomor_agenda,
+            'bidang_sekretariat' => $request->bidang_sekretariat,
+            'acara' => $request->acara,
             'surat_dari' => $request->surat_dari,
-            'nomor_surat' => $request->nomor_surat,
-            'perihal' => $request->perihal,
-            'tanggal_surat' => $request->tanggal_surat,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'hari_tanggal' => $request->hari_tanggal,
+            'waktu' => $request->waktu,
+            'tempat_zoom' => $request->tempat_zoom,
             'keterangan' => $request->keterangan,
         ]);
 
-        // Sinkronisasi Pegawai yang Ditugaskan (Bisa Kosong / Nullable)
+        // Sinkronisasi Yang Hadir / Pegawai yang Ditugaskan (Bisa Kosong / Nullable)
         if ($request->has('pegawai_ids')) {
             $jadwal->pegawais()->sync($request->pegawai_ids);
         }
 
         ActivityLog::catat(
             'Input Jadwal Dinas',
-            "Menambahkan agenda dinas luar perihal: {$jadwal->perihal} pada tanggal {$jadwal->tanggal_kegiatan}."
+            "Menambahkan agenda dinas luar acara: {$jadwal->acara} pada tanggal {$jadwal->hari_tanggal}."
         );
 
         return redirect()->back()->with('success', 'Jadwal dinas luar berhasil ditambahkan.');
@@ -101,8 +109,8 @@ class JadwalDinasController extends Controller
 
         // ==== Jadwal Dinas Hari Ini ====
         $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
-            ->whereDate('tanggal_kegiatan', $today)
-            ->orderBy('tanggal_kegiatan')
+            ->whereDate('hari_tanggal', $today)
+            ->orderBy('waktu')
             ->get();
 
         return view('display', compact(
@@ -116,45 +124,45 @@ class JadwalDinasController extends Controller
             'jadwalHariIni'
         ));
     }
+
     public function update(Request $request, int $id)
     {
         $request->validate([
+            'bidang_sekretariat' => 'nullable|string|max:150',
+            'acara' => 'required|string',
             'surat_dari' => 'required|string|max:150',
-            'nomor_surat' => 'required|string|max:100',
-            'perihal' => 'required|string',
-            'tanggal_surat' => 'required|date',
-            'tanggal_kegiatan' => 'required|date',
+            'hari_tanggal' => 'required|date',
+            'waktu' => 'nullable|date_format:H:i',
+            'tempat_zoom' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string',
             'pegawai_ids' => 'nullable|array',
             'pegawai_ids.*' => 'exists:users,id_user',
         ], [
+            'acara.required' => 'Kolom Acara wajib diisi.',
             'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
-            'nomor_surat.required' => 'Nomor Surat wajib diisi.',
-            'perihal.required' => 'Perihal wajib diisi.',
-            'tanggal_surat.required' => 'Tanggal Surat wajib diisi.',
-            'tanggal_kegiatan.required' => 'Tanggal Kegiatan wajib diisi.',
+            'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
         ]);
 
         // Jika Primary Key kustom di model adalah 'id_jadwal_dinas'
         $jadwal = JadwalDinas::where('id_jadwal_dinas', $id)->firstOrFail();
-        // Jika menggunakan PK standar 'id', tetap gunakan: JadwalDinas::findOrFail($id);
 
         // Update data utama
         $jadwal->update([
-            'nomor_agenda' => $request->nomor_agenda,
+            'bidang_sekretariat' => $request->bidang_sekretariat,
+            'acara' => $request->acara,
             'surat_dari' => $request->surat_dari,
-            'nomor_surat' => $request->nomor_surat,
-            'perihal' => $request->perihal,
-            'tanggal_surat' => $request->tanggal_surat,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'hari_tanggal' => $request->hari_tanggal,
+            'waktu' => $request->waktu,
+            'tempat_zoom' => $request->tempat_zoom,
             'keterangan' => $request->keterangan,
         ]);
 
-        // Sync relasi pegawai
+        // Sync relasi pegawai (Yang Hadir)
         $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
 
         ActivityLog::catat(
             'Edit Jadwal Dinas',
-            "Memperbarui data jadwal dinas perihal: {$jadwal->perihal} (Nomor Surat: {$jadwal->nomor_surat})."
+            "Memperbarui data jadwal dinas acara: {$jadwal->acara} (Surat Dari: {$jadwal->surat_dari})."
         );
 
         return redirect()

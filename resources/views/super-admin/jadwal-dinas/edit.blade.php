@@ -42,12 +42,12 @@
             @csrf
             @method('PUT')
             <input type="hidden" name="form_type" value="edit">
-            <input type="hidden" name="id_jadwal_dinas" :value="selectedJadwal.id">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor Agenda</label>
-                    <input type="text" name="nomor_agenda" x-model="selectedJadwal.nomor_agenda"
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Bidang/Sekretariat</label>
+                    <input type="text" name="bidang_sekretariat" x-model="selectedJadwal.bidang_sekretariat"
+                        placeholder="Contoh: Sekretariat / Bidang Pengadaan"
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
                 </div>
 
@@ -60,37 +60,34 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        Nomor Surat <span class="text-red-500">*</span>
-                    </label>
-                    <input type="text" name="nomor_surat" x-model="selectedJadwal.nomor_surat" required
-                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">
-                        Tanggal Surat <span class="text-red-500">*</span>
-                    </label>
-                    <input type="date" name="tanggal_surat" x-model="selectedJadwal.tanggal_surat" required
-                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                </div>
-            </div>
-
             <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">
-                    Perihal <span class="text-red-500">*</span>
+                    Acara <span class="text-red-500">*</span>
                 </label>
-                <textarea name="perihal" rows="2" x-model="selectedJadwal.perihal" required
+                <textarea name="acara" rows="2" x-model="selectedJadwal.acara" required
                     class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none resize-none"></textarea>
             </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">
+                        Hari/Tanggal <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" name="hari_tanggal" x-model="selectedJadwal.hari_tanggal" required
+                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Waktu</label>
+                    <input type="time" name="waktu" x-model="selectedJadwal.waktu"
+                        class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                </div>
+            </div>
+
             <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">
-                    Tanggal Pelaksanaan Kegiatan <span class="text-red-500">*</span>
-                </label>
-                <input type="date" name="tanggal_kegiatan" x-model="selectedJadwal.tanggal_kegiatan" required
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat/Zoom</label>
+                <input type="text" name="tempat_zoom" x-model="selectedJadwal.tempat_zoom"
+                    placeholder="Contoh: Ruang Rapat Utama atau link Zoom"
                     class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
             </div>
 

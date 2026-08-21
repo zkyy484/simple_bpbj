@@ -190,9 +190,9 @@
                                     <tr
                                         class="text-slate-600 border-b-2 border-slate-200 text-base font-extrabold uppercase tracking-wider">
                                         <th class="py-3.5 px-4">Pegawai Bertugas</th>
-                                        <th class="py-3.5 px-4">Jabatan / Fungsi</th>
-                                        <th class="py-3.5 px-4">Perihal / Kegiatan</th>
-                                        <th class="py-3.5 px-4">Lokasi Tujuan</th>
+                                        <th class="py-3.5 px-4">Acara / Kegiatan</th>
+                                        <th class="py-3.5 px-4">Waktu</th>
+                                        <th class="py-3.5 px-4">Tempat / Zoom</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-200 text-base">
@@ -202,20 +202,20 @@
                                                 <td class="py-4 px-4 font-black text-slate-900 text-lg">
                                                     {{ $pegawai->name ?? $pegawai->nama_lengkap }}
                                                 </td>
-                                                <td class="py-4 px-4 text-slate-700 font-bold">
-                                                    {{ $pegawai->subBagian->nama_sub_bagian ?? '-' }}
-                                                </td>
                                                 <td class="py-4 px-4 text-blue-700 font-extrabold text-lg">
-                                                    {{ $jadwal->perihal }}
+                                                    {{ $jadwal->acara }}
                                                 </td>
                                                 <td class="py-4 px-4 text-slate-800 font-semibold">
-                                                    {{ $jadwal->keterangan ?? '-' }}
+                                                    {{ $jadwal->waktu ? \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') : '-' }}
+                                                </td>
+                                                <td class="py-4 px-4 text-slate-800 font-semibold">
+                                                    {{ $jadwal->tempat_zoom ?? '-' }}
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
                                                 <td colspan="4" class="py-4 px-4 text-slate-500 font-medium italic">
-                                                    {{ $jadwal->perihal }} — belum ada pegawai ditugaskan
+                                                    {{ $jadwal->acara }} — belum ada pegawai ditugaskan
                                                 </td>
                                             </tr>
                                         @endforelse
