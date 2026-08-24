@@ -20,6 +20,7 @@ use App\Http\Controllers\SuperAdmin\LaporanController as SuperAdminLaporanContro
 use App\Http\Controllers\Admin\AkunController as AdminAkunController;
 use App\Http\Controllers\Admin\SurveiController as AdminSurveiController;
 use App\Http\Controllers\SuperAdmin\LogAktivitasController;
+use App\Http\Controllers\SuperAdmin\PengaturanController;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\SuperAdmin\JenisPermohonanController;
 
@@ -177,6 +178,9 @@ Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name
 // DSIPLAY
 Route::get('/dis', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
 
+// PENGATURAN DISPLAY ONLINE (LINK VIDEO YOUTUBE)
+Route::get('/super/pengaturan-display', [PengaturanController::class, 'index'])->name('super.pengaturan.index');
+Route::put('/super/pengaturan-display', [PengaturanController::class, 'update'])->name('super.pengaturan.update');
 
 
 require __DIR__ . '/auth.php';
