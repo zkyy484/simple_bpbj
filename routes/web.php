@@ -177,6 +177,7 @@ Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name
 
 // DSIPLAY
 Route::get('/dis', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
+Route::get('/dis/stats', [JadwalDinasController::class, 'displayStats'])->name('display.stats');
 
 // PENGATURAN DISPLAY ONLINE (LINK VIDEO YOUTUBE)
 Route::get('/super/pengaturan-display', [PengaturanController::class, 'index'])->name('super.pengaturan.index');

@@ -57,7 +57,11 @@
 
         <!-- Live Clock & Date dengan Fallback -->
         <div class="text-right">
-            <div id="clock" class="text-3xl font-black text-amber-400 font-mono tracking-wider">
+            <div id="clock"
+                data-jam="{{ (int) ($now ?? now('Asia/Makassar'))->format('H') }}"
+                data-menit="{{ (int) ($now ?? now('Asia/Makassar'))->format('i') }}"
+                data-detik="{{ (int) ($now ?? now('Asia/Makassar'))->format('s') }}"
+                class="text-3xl font-black text-amber-400 font-mono tracking-wider">
                 {{ ($now ?? now('Asia/Makassar'))->format('H:i:s') }} WITA
             </div>
             <div id="date" class="text-sm text-slate-300 font-semibold">
@@ -81,8 +85,8 @@
                 <div class="flex-1 overflow-hidden">
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Total Kunjungan
                     </p>
-                    <p class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
-                        57{{ number_format($totalKunjungan ?? 0, 0, ',', '.') }}
+                    <p id="statTotalKunjungan" class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
+                        {{ number_format($totalKunjungan ?? 0, 0, ',', '.') }}
                     </p>
                     <p class="text-xs text-emerald-600 font-bold flex items-center gap-1 truncate">
                         <i class="fa-solid fa-arrow-trend-up"></i> Total Sepanjang Waktu
@@ -99,13 +103,13 @@
                 <div class="flex-1 overflow-hidden">
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Kunjungan Hari
                         Ini</p>
-                    <p class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
-                        1{{ number_format($kunjunganHariIni ?? 0, 0, ',', '.') }}
+                    <p id="statKunjunganHariIni" class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
+                        {{ number_format($kunjunganHariIni ?? 0, 0, ',', '.') }}
                     </p>
-                    <p
+                    <p id="statPersenHariIni"
                         class="text-xs {{ ($persenHariIni ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} font-bold flex items-center gap-1 truncate">
-                        <i class="fa-solid fa-arrow-trend-{{ ($persenHariIni ?? 0) >= 0 ? 'up' : 'down' }}"></i>
-                        {{ ($persenHariIni ?? 0) >= 0 ? '+' : '' }}{{ $persenHariIni ?? 0 }}% Kemarin
+                        <i id="statPersenIcon" class="fa-solid fa-arrow-trend-{{ ($persenHariIni ?? 0) >= 0 ? 'up' : 'down' }}"></i>
+                        <span id="statPersenText">{{ ($persenHariIni ?? 0) >= 0 ? '+' : '' }}{{ $persenHariIni ?? 0 }}% Kemarin</span>
                     </p>
                 </div>
             </div>
@@ -120,14 +124,14 @@
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Nilai SKM /
                         Survei</p>
                     <div class="flex items-baseline gap-1.5 my-1">
-                        <p class="text-4xl lg:text-5xl font-black text-amber-500 leading-none tracking-tight">
-                            9{{ number_format($nilaiSkm ?? 0, 2) }}
+                        <p id="statNilaiSkm" class="text-4xl lg:text-5xl font-black text-amber-500 leading-none tracking-tight">
+                            {{ number_format($nilaiSkm ?? 0, 2) }}
                         </p>
                         <span class="text-sm font-bold text-slate-400">/ 100</span>
                     </div>
                     <p class="text-xs text-slate-600 font-semibold truncate">
-                        Responden: <strong
-                            class="text-slate-900 font-bold">49{{ number_format($totalResponden ?? 0, 0, ',', '.') }}</strong>
+                        Responden: <strong id="statTotalResponden"
+                            class="text-slate-900 font-bold">{{ number_format($totalResponden ?? 0, 0, ',', '.') }}</strong>
                     </p>
                 </div>
             </div>
@@ -203,24 +207,90 @@
     <!-- Script Otomatisasi TV Display -->
     <script>
         // 1. Sinkronisasi Waktu Server (WITA)
-        let serverTime = new Date("{{ ($now ?? now('Asia/Makassar'))->toIso8601String() }}");
+        // PENTING: dihitung manual (bukan pakai objek Date + getHours/getMinutes)
+        // karena Date.getHours() otomatis mengikuti timezone perangkat/browser TV,
+        // bukan waktu WITA dari server. Kalau TV di-set ke zona waktu lain (mis. UTC/WIB),
+        // jam yang tampil jadi meleset. Dengan increment angka manual di bawah, jam
+        // selalu mengikuti waktu server (Asia/Makassar) apapun timezone perangkatnya.
+        // Nilai awal diambil dari atribut data-* pada elemen #clock (di-set oleh Blade/server).
+        const clockEl = document.getElementById('clock');
+        let jamServer   = parseInt(clockEl?.dataset.jam ?? '0', 10);
+        let menitServer = parseInt(clockEl?.dataset.menit ?? '0', 10);
+        let detikServer = parseInt(clockEl?.dataset.detik ?? '0', 10);
 
         function updateClock() {
-            serverTime.setSeconds(serverTime.getSeconds() + 1);
+            detikServer++;
+            if (detikServer >= 60) {
+                detikServer = 0;
+                menitServer++;
+            }
+            if (menitServer >= 60) {
+                menitServer = 0;
+                jamServer++;
+            }
+            if (jamServer >= 24) {
+                jamServer = 0;
+            }
 
-            const hours = String(serverTime.getHours()).padStart(2, '0');
-            const minutes = String(serverTime.getMinutes()).padStart(2, '0');
-            const seconds = String(serverTime.getSeconds()).padStart(2, '0');
+            const hours = String(jamServer).padStart(2, '0');
+            const minutes = String(menitServer).padStart(2, '0');
+            const seconds = String(detikServer).padStart(2, '0');
 
-            const clockEl = document.getElementById('clock');
             if (clockEl) {
                 clockEl.textContent = `${hours}:${minutes}:${seconds} WITA`;
+            }
+
+            // Reload sekali saja setiap lewat tengah malam (00:00:02 WITA) agar
+            // tanggal di header dan statistik "hari ini" ikut ter-reset dengan benar.
+            // Di luar momen ini halaman tidak pernah reload, supaya video Display Online tidak terputus.
+            if (jamServer === 0 && menitServer === 0 && detikServer === 2) {
+                location.reload();
             }
         }
         setInterval(updateClock, 1000);
 
-        // Reload halaman setiap 5 menit agar data statistik ter-update
-        setTimeout(() => location.reload(), 5 * 60 * 1000);
+        // 2. Auto refresh statistik via AJAX (tanpa reload halaman, video Display Online tidak terputus)
+        function formatRibuan(num) {
+            return new Intl.NumberFormat('id-ID').format(num ?? 0);
+        }
+
+        function refreshStatistikDisplay() {
+            fetch("{{ route('display.stats') }}", {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Response tidak OK');
+                    return res.json();
+                })
+                .then(data => {
+                    const elTotalKunjungan = document.getElementById('statTotalKunjungan');
+                    const elKunjunganHariIni = document.getElementById('statKunjunganHariIni');
+                    const elPersenWrap = document.getElementById('statPersenHariIni');
+                    const elPersenIcon = document.getElementById('statPersenIcon');
+                    const elPersenText = document.getElementById('statPersenText');
+                    const elNilaiSkm = document.getElementById('statNilaiSkm');
+                    const elTotalResponden = document.getElementById('statTotalResponden');
+
+                    if (elTotalKunjungan) elTotalKunjungan.textContent = formatRibuan(data.totalKunjungan);
+                    if (elKunjunganHariIni) elKunjunganHariIni.textContent = formatRibuan(data.kunjunganHariIni);
+
+                    const persen = data.persenHariIni ?? 0;
+                    if (elPersenWrap && elPersenIcon && elPersenText) {
+                        elPersenWrap.classList.remove('text-emerald-600', 'text-rose-600');
+                        elPersenWrap.classList.add(persen >= 0 ? 'text-emerald-600' : 'text-rose-600');
+                        elPersenIcon.classList.remove('fa-arrow-trend-up', 'fa-arrow-trend-down');
+                        elPersenIcon.classList.add(persen >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down');
+                        elPersenText.textContent = `${persen >= 0 ? '+' : ''}${persen}% Kemarin`;
+                    }
+
+                    if (elNilaiSkm) elNilaiSkm.textContent = Number(data.nilaiSkm ?? 0).toFixed(2);
+                    if (elTotalResponden) elTotalResponden.textContent = formatRibuan(data.totalResponden);
+                })
+                .catch(err => console.error('Gagal refresh statistik Display TV:', err));
+        }
+
+        // Refresh statistik tiap 30 detik
+        setInterval(refreshStatistikDisplay, 30 * 1000);
 
         const bgAudio = document.getElementById('bgAudio');
 

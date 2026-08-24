@@ -86,6 +86,44 @@ class JadwalDinasController extends Controller
         $today = Carbon::today('Asia/Makassar');
         $now   = Carbon::now('Asia/Makassar');
 
+        // ==== Statistik Kunjungan & SKM ====
+        $stats = $this->hitungStatistikDisplay($today);
+
+        // ==== Jadwal Dinas Hari Ini ====
+        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
+            ->whereDate('hari_tanggal', $today)
+            ->orderBy('waktu')
+            ->get();
+
+        // ==== Daftar Link Video Display (YouTube) ====
+        // Diambil dari Pengaturan > Display Online (bisa lebih dari 1 video, sudah terurut
+        // sesuai urutan yang diatur admin), lalu dikonversi ke URL embed agar bisa ditampilkan
+        // lewat <iframe> saat tidak ada jadwal dinas hari ini. Jika hanya 1 video, video di-loop
+        // terus menerus. Jika lebih dari 1 video, TV Display akan memutar video secara bergantian
+        // sesuai urutannya (lihat script di resources/views/display.blade.php).
+        $linkVideoEmbeds = Pengaturan::displayVideoEmbeds(loopSingle: true);
+
+        return view('display', array_merge($stats, compact(
+            'today',
+            'now',
+            'jadwalHariIni',
+            'linkVideoEmbeds'
+        )));
+    }
+
+    // Endpoint AJAX: dipanggil berkala oleh display.blade.php untuk refresh
+    // statistik kartu (Total Kunjungan, Kunjungan Hari Ini, Nilai SKM) tanpa
+    // reload seluruh halaman, supaya video Display Online tidak ikut terputus.
+    public function displayStats()
+    {
+        $today = Carbon::today('Asia/Makassar');
+
+        return response()->json($this->hitungStatistikDisplay($today));
+    }
+
+    // Kalkulasi statistik yang dipakai bersama oleh displayTV() dan displayStats()
+    private function hitungStatistikDisplay(Carbon $today): array
+    {
         // ==== Statistik Kunjungan ====
         $totalKunjungan = Tamu::where('status_aktif', 'aktif')->count();
 
@@ -109,31 +147,13 @@ class JadwalDinasController extends Controller
         $rataRatingGlobal = (clone $skmQuery)->avg('rata_rating');
         $nilaiSkm = $rataRatingGlobal ? round($rataRatingGlobal * 25, 2) : 0;
 
-        // ==== Jadwal Dinas Hari Ini ====
-        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
-            ->whereDate('hari_tanggal', $today)
-            ->orderBy('waktu')
-            ->get();
-
-        // ==== Daftar Link Video Display (YouTube) ====
-        // Diambil dari Pengaturan > Display Online (bisa lebih dari 1 video, sudah terurut
-        // sesuai urutan yang diatur admin), lalu dikonversi ke URL embed agar bisa ditampilkan
-        // lewat <iframe> saat tidak ada jadwal dinas hari ini. Jika hanya 1 video, video di-loop
-        // terus menerus. Jika lebih dari 1 video, TV Display akan memutar video secara bergantian
-        // sesuai urutannya (lihat script di resources/views/display.blade.php).
-        $linkVideoEmbeds = Pengaturan::displayVideoEmbeds(loopSingle: true);
-
-        return view('display', compact(
-            'today',
-            'now',
+        return compact(
             'totalKunjungan',
             'kunjunganHariIni',
             'persenHariIni',
             'nilaiSkm',
-            'totalResponden',
-            'jadwalHariIni',
-            'linkVideoEmbeds'
-        ));
+            'totalResponden'
+        );
     }
 
     public function update(Request $request, int $id)
