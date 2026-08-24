@@ -53,9 +53,10 @@
     @php
         $pilihanGanda = $jawabans->filter(fn($j) => $j->pertanyaan->tipe_pertanyaan === 'pilihan_ganda');
         $ratingDanTextarea = $jawabans->filter(fn($j) => in_array($j->pertanyaan->tipe_pertanyaan, ['rating', 'textarea']));
+        $nomorSoal = 1; // Counter untuk penomoran berurutan
     @endphp
 
-    {{-- KELOMPOK 1: PILIHAN GANDA (DI ATAS) --}}
+    {{-- KELOMPOK 1: PILIHAN GANDA --}}
     @if ($pilihanGanda->isNotEmpty())
         <div class="space-y-3">
             <h4 class="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg inline-block">
@@ -65,11 +66,11 @@
             @foreach ($pilihanGanda as $jawaban)
                 @php $pertanyaan = $jawaban->pertanyaan; @endphp
                 <div class="p-4 bg-white border border-gray-200 rounded-xl space-y-3">
-                    <p class="text-sm font-semibold text-gray-900 leading-relaxed">
-                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mr-1">
-                            {{ $pertanyaan->urutan }}
+                    <p class="text-sm font-semibold text-gray-900 leading-relaxed flex items-start gap-2">
+                        <span class="inline-flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                            {{ $nomorSoal++ }}
                         </span>
-                        {{ $pertanyaan->pertanyaan }}
+                        <span>{{ $pertanyaan->pertanyaan }}</span>
                     </p>
 
                     <div class="space-y-1.5 pt-1">
@@ -93,7 +94,7 @@
         </div>
     @endif
 
-    {{-- KELOMPOK 2: RATING & TEXTAREA (DI BAWAH) --}}
+    {{-- KELOMPOK 2: RATING & TEXTAREA --}}
     @if ($ratingDanTextarea->isNotEmpty())
         <div class="space-y-3 pt-2">
             <h4 class="text-xs font-bold uppercase tracking-wider text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg inline-block">
@@ -104,11 +105,11 @@
                 @php $pertanyaan = $jawaban->pertanyaan; @endphp
 
                 <div class="p-4 bg-white border border-gray-200 rounded-xl space-y-3">
-                    <p class="text-sm font-semibold text-gray-900 leading-relaxed">
-                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-50 text-amber-600 text-xs font-bold mr-1">
-                            {{ $pertanyaan->urutan }}
+                    <p class="text-sm font-semibold text-gray-900 leading-relaxed flex items-start gap-2">
+                        <span class="inline-flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                            {{ $nomorSoal++ }}
                         </span>
-                        {{ $pertanyaan->pertanyaan }}
+                        <span>{{ $pertanyaan->pertanyaan }}</span>
                     </p>
 
                     {{-- TIPE RATING --}}
