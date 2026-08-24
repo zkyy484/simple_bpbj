@@ -67,16 +67,6 @@ class TamuController extends Controller
         return redirect()->route('thanks.page', $tamu->id_tamu);
     }
 
-    public function SurveiPage()
-    {
-        $pertanyaans = Pertanyaan::with('opsi')
-            ->where('status', 'aktif')
-            ->orderBy('urutan')
-            ->get();
-
-        return view('tamu.survei', compact('pertanyaans'));
-    }
-
     // Menampilkan halaman terima kasih setelah data tersimpan (buku tamu)
     public function Thanks(int $id)
     {
@@ -109,7 +99,6 @@ class TamuController extends Controller
     {
         $pertanyaans = Pertanyaan::with('opsi')
             ->where('status', 'aktif')
-            ->orderBy('urutan')
             ->get();
 
         // Sesuaikan path view dengan lokasi Blade Anda
