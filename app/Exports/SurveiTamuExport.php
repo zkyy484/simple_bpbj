@@ -9,12 +9,14 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize
+class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, WithStyles, ShouldAutoSize, WithTitle
 {
     protected Collection $respons;
     protected Collection $pertanyaanRating;
+    private int $rowNumber = 0;
 
     public function __construct(Collection $respons, Collection $pertanyaanRating)
     {
@@ -35,7 +37,8 @@ class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, Wit
             $headings[] = 'U' . ($index + 1);
         }
 
-        $headings[] = 'Average';
+        // Mengubah header 'Average' menjadi 'Total'
+        $headings[] = 'Total';
 
         return $headings;
     }
@@ -45,6 +48,8 @@ class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, Wit
      */
     public function map($respon): array
     {
+        $this->rowNumber++;
+
         // Index jawaban berdasarkan id_pertanyaan agar lookup O(1)
         $jawabanByPertanyaan = $respon->jawaban->keyBy('id_pertanyaan');
 
@@ -69,19 +74,30 @@ class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, Wit
         $jenisLayanan = optional(optional($jawabanJenisLayanan)->opsi)->opsi ?? '-';
 
         $row = [
-            $respon->id_respon,
+            $this->rowNumber,
             $pekerjaan,
             $jenisLayanan,
         ];
 
+        $totalRating = 0;
+        $hasRating = false;
+
         // Kolom U1, U2, dst — urut sesuai urutan pertanyaan tipe rating
         foreach ($this->pertanyaanRating as $pertanyaan) {
             $jawaban = $jawabanByPertanyaan->get($pertanyaan->id_pertanyaan);
-            $row[] = $jawaban->rating ?? '-';
+            $rating = $jawaban->rating ?? null;
+
+            $row[] = $rating ?? '-';
+
+            // Hitung total nilai rating
+            if ($rating !== null) {
+                $totalRating += (float) $rating;
+                $hasRating = true;
+            }
         }
 
-        // Kolom average, diambil dari field rata_rating
-        $row[] = $respon->rata_rating !== null ? (float) $respon->rata_rating : '-';
+        // Kolom Total
+        $row[] = $hasRating ? $totalRating : '-';
 
         return $row;
     }
@@ -91,5 +107,10 @@ class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, Wit
         return [
             1 => ['font' => ['bold' => true]],
         ];
+    }
+
+    public function title(): string
+    {
+        return 'Data Survei Tamu';
     }
 }

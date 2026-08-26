@@ -78,7 +78,7 @@ class PertanyaanController extends Controller
             "Menambahkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\" (tipe: {$pertanyaan->tipe_pertanyaan})."
         );
 
-        return redirect()->route('super.index.pertanyaan')->with('success', 'Pertanyaan berhasil ditambahkan');
+        return redirect()->route('super.pertanyaan.index')->with('success', 'Pertanyaan berhasil ditambahkan');
     }
 
     public function update(Request $request, string $id)
@@ -139,7 +139,7 @@ class PertanyaanController extends Controller
             "Memperbarui pertanyaan survei: \"{$pertanyaan->pertanyaan}\"."
         );
 
-        return redirect()->route('index.pertanyaan')->with('success', 'Pertanyaan berhasil diperbarui');
+        return redirect()->route('super.pertanyaan.index')->with('success', 'Pertanyaan berhasil diperbarui');
     }
 
     public function destroy(Request $request)

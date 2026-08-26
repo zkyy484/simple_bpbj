@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SuperAdmin;
 
 use App\Exports\SurveiTamuExport;
+use App\Exports\SurveiTamuMultiSheetExport;
 use App\Http\Controllers\Controller;
 use App\Models\Pertanyaan;
 use App\Models\ActivityLog;
@@ -326,7 +327,9 @@ class LaporanController extends Controller
     {
         $deteksi = $request->deteksi; // 'normal', 'anomali', atau null
 
-        $respons = $this->filteredQuerySurveiTamu($request)->get()
+        $respons = $this->filteredQuerySurveiTamu($request)
+            ->orderBy('id_respon', 'asc') // Menyesuaikan urutan id_respon
+            ->get()
             ->map(function ($respon) {
                 $hasil = $this->analisaPolaSurvei($respon);
                 $respon->is_anomali = $hasil['anomali'];
@@ -343,12 +346,12 @@ class LaporanController extends Controller
         // Ambil semua pertanyaan tipe rating, urut sesuai 'urutan', untuk jadi kolom U1..Un
         $pertanyaanRating = Pertanyaan::where('tipe_pertanyaan', 'rating')
             ->where('status', 'aktif')
-            ->orderBy('urutan')
             ->get();
 
         $fileName = 'laporan-survei-tamu-' . now()->format('Y-m-d_His') . '.xlsx';
 
-        return Excel::download(new SurveiTamuExport($respons, $pertanyaanRating), $fileName);
+        // Panggil class MultiSheet export
+        return Excel::download(new SurveiTamuMultiSheetExport($respons, $pertanyaanRating), $fileName);
     }
 
     public function arsip(Request $request)

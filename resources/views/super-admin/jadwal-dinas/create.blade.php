@@ -125,9 +125,6 @@
                                 @error('hari_tanggal')
                                     <p class="mt-2 text-sm text-red-500">{{ $message }}</p>
                                 @enderror
-                                <p class="mt-1.5 text-xs text-gray-500">
-                                    Tanggal ini menjadi pacuan jadwal ditampilkan pada Layar Monitor TV (00.01 - 23.59).
-                                </p>
                             </div>
 
                             <!-- Waktu -->
@@ -164,7 +161,7 @@
                                 Yang Hadir (Opsional)
                             </label>
                             <div class="bg-white rounded-xl border border-gray-300 p-3 max-h-40 overflow-y-auto space-y-2">
-                                @forelse($users as $user)
+                                @forelse($pegawaiList as $user)
                                     <label class="flex items-center gap-3 text-sm text-gray-700 hover:bg-gray-50 p-1.5 rounded-lg cursor-pointer transition">
                                         <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
                                             {{ is_array(old('pegawai_ids')) && in_array($user->id_user, old('pegawai_ids')) ? 'checked' : '' }}
@@ -185,18 +182,6 @@
                             <textarea name="keterangan" rows="2" placeholder="Catatan tambahan lokasi atau ruangan (opsional)"
                                 class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:ring-2 focus:ring-[#173860] focus:border-[#173860] bg-white resize-none">{{ old('keterangan') }}</textarea>
                         </div>
-
-                        <!-- Catatan Kecil Informasi -->
-                        <div class="flex items-start gap-2 pt-1 text-gray-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mt-0.5 shrink-0 text-[#173860]"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <p class="text-xs leading-relaxed">
-                                Kolom "Yang Hadir" dapat dikosongi terlebih dahulu dan diisi kemudian saat penunjukan delegasi selesai.
-                            </p>
-                        </div>
                     </div>
                 </div>
 
@@ -211,18 +196,6 @@
                 
                 <button type="submit" :disabled="loading"
                     class="px-6 py-2.5 rounded-xl bg-[#173860] hover:bg-[#102a48] text-white font-semibold transition flex items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
-                    <!-- Icon Spinner Loading (Muncul saat submit) -->
-                    <svg x-show="loading" x-cloak class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-
-                    <!-- Icon Check (Muncul saat normal) -->
-                    <svg x-show="!loading" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-
-                    <!-- Text Tombol -->
                     <span x-text="loading ? 'Menyimpan...' : 'Simpan Data'"></span>
                 </button>
             </div>
