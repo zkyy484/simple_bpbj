@@ -9,25 +9,27 @@ return new class extends Migration
     public function up(): void
     {
         // Tabel Utama Jadwal Dinas / Surat Masuk Kegiatan
+        // Kolom disesuaikan dengan format tabel Jadwal:
+        // NO | Bidang/Sekretariat | Acara | Surat Dari | Hari/Tanggal | Waktu | Tempat/Zoom | Yang Hadir | Keterangan
         Schema::create('jadwal_dinas', function (Blueprint $table) {
             $table->id('id_jadwal_dinas');
-            $table->string('nomor_agenda', 50)->nullable();
-            $table->string('surat_dari', 150);
-            $table->string('nomor_surat', 100);
-            $table->text('perihal');
-            $table->date('tanggal_surat');
-            $table->date('tanggal_kegiatan'); // Patokan waktu tampil di monitor TV
-            $table->text('keterangan')->nullable();
+            $table->string('bidang_sekretariat', 150)->nullable(); // Bidang/Sekretariat
+            $table->text('acara'); // Acara
+            $table->string('surat_dari', 150); // Surat Dari
+            $table->date('hari_tanggal'); // Hari/Tanggal (patokan tampil di monitor TV)
+            $table->time('waktu')->nullable(); // Waktu
+            $table->string('tempat_zoom', 255)->nullable(); // Tempat/Zoom
+            $table->text('keterangan')->nullable(); // Keterangan
             $table->timestamps();
         });
 
-        // Tabel Pivot Relasi Many-to-Many ke Tabel Users (Pegawai Delegasi)
+        // Tabel Pivot Relasi Many-to-Many ke Tabel Users (Yang Hadir)
         Schema::create('jadwal_dinas_user', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_jadwal_dinas')
                   ->constrained('jadwal_dinas', 'id_jadwal_dinas')
                   ->cascadeOnDelete();
-            
+
             // Relasi ke id_user pada tabel users
             $table->foreignId('id_user')
                   ->constrained('users', 'id_user')

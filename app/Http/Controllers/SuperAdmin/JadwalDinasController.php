@@ -8,8 +8,9 @@ use App\Models\Respon;
 use App\Models\Tamu;
 use App\Models\User;
 use App\Models\ActivityLog;
-use Auth;
+use App\Models\Pengaturan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class JadwalDinasController extends Controller
@@ -17,65 +18,235 @@ class JadwalDinasController extends Controller
     // List Jadwal Dinas (Admin/Pegawai)
     public function index(Request $request)
     {
-        $search = $request->search;
         $admins = Auth::user();
+        $query = JadwalDinas::with(['pegawais.subBagian'])
+            ->orderBy('hari_tanggal', 'desc')
+            ->orderBy('waktu', 'desc');
 
-        $jadwals = JadwalDinas::with('pegawais')
-            ->when($search, function ($q) use ($search) {
-                $q->where('nomor_surat', 'like', "%{$search}%")
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('acara', 'like', "%{$search}%")
                     ->orWhere('surat_dari', 'like', "%{$search}%")
-                    ->orWhere('perihal', 'like', "%{$search}%");
-            })
-            ->latest('tanggal_kegiatan')
-            ->paginate(10);
+                    ->orWhere('bidang_sekretariat', 'like', "%{$search}%")
+                    ->orWhere('tempat_zoom', 'like', "%{$search}%");
+            });
+        }
 
-        $users = User::orderBy('nama_lengkap', 'asc')->get();
+        $jadwalDinas = $query->paginate(10)->withQueryString();
+        $pegawaiList = User::orderBy('nama_lengkap')->get();
 
-        return view('super-admin.jadwal-dinas.index', compact('jadwals', 'users', 'admins'));
+        return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList', 'admins'));
     }
 
-    // Simpan Data Jadwal & Penugasan
+    // Simpan Jadwal Dinas Baru
     public function store(Request $request)
     {
         $request->validate([
+            'bidang_sekretariat' => 'nullable|string|max:150',
+            'acara' => 'required|string',
             'surat_dari' => 'required|string|max:150',
-            'nomor_surat' => 'required|string|max:100',
-            'perihal' => 'required|string',
-            'tanggal_surat' => 'required|date',
-            'tanggal_kegiatan' => 'required|date',
+            'hari_tanggal' => 'required|date',
+            'waktu' => 'nullable',
+            'tempat_zoom' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string',
+            'pegawai_ids' => 'nullable|array',
+            'pegawai_ids.*' => 'exists:users,id_user',
+        ], [
+            'acara.required' => 'Kolom Acara wajib diisi.',
+            'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
+            'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
+        ]);
+
+        $jadwal = JadwalDinas::create([
+            'bidang_sekretariat' => $request->bidang_sekretariat,
+            'acara' => $request->acara,
+            'surat_dari' => $request->surat_dari,
+            'hari_tanggal' => $request->hari_tanggal,
+            'waktu' => $request->waktu,
+            'tempat_zoom' => $request->tempat_zoom,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
+
+        ActivityLog::catat(
+            'Tambah Jadwal Dinas',
+            'Menambahkan jadwal dinas baru: ' . $jadwal->acara
+        );
+
+        return redirect()
+            ->route('super.jadwal-dinas.index')
+            ->with('success', 'Jadwal dinas berhasil ditambahkan.');
+    }
+
+    // Update Jadwal Dinas
+    public function update(Request $request, $id)
+    {
+        $jadwal = JadwalDinas::findOrFail($id);
+
+        $request->validate([
+            'bidang_sekretariat' => 'nullable|string|max:150',
+            'acara' => 'required|string',
+            'surat_dari' => 'required|string|max:150',
+            'hari_tanggal' => 'required|date',
+            'waktu' => 'nullable',
+            'tempat_zoom' => 'nullable|string|max:255',
+            'keterangan' => 'nullable|string',
             'pegawai_ids' => 'nullable|array',
             'pegawai_ids.*' => 'exists:users,id_user',
         ]);
 
-        $jadwal = JadwalDinas::create([
-            'nomor_agenda' => $request->nomor_agenda,
+        $jadwal->update([
+            'bidang_sekretariat' => $request->bidang_sekretariat,
+            'acara' => $request->acara,
             'surat_dari' => $request->surat_dari,
-            'nomor_surat' => $request->nomor_surat,
-            'perihal' => $request->perihal,
-            'tanggal_surat' => $request->tanggal_surat,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
+            'hari_tanggal' => $request->hari_tanggal,
+            'waktu' => $request->waktu,
+            'tempat_zoom' => $request->tempat_zoom,
             'keterangan' => $request->keterangan,
         ]);
 
-        // Sinkronisasi Pegawai yang Ditugaskan (Bisa Kosong / Nullable)
-        if ($request->has('pegawai_ids')) {
-            $jadwal->pegawais()->sync($request->pegawai_ids);
-        }
+        $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
 
         ActivityLog::catat(
-            'Input Jadwal Dinas',
-            "Menambahkan agenda dinas luar perihal: {$jadwal->perihal} pada tanggal {$jadwal->tanggal_kegiatan}."
+            'Edit Jadwal Dinas',
+            'Perbarui jadwal dinas: ' . $jadwal->acara
         );
 
-        return redirect()->back()->with('success', 'Jadwal dinas luar berhasil ditambahkan.');
+        return redirect()
+            ->route('super.jadwal-dinas.index')
+            ->with('success', 'Jadwal dinas berhasil diperbarui.');
     }
+
+    // Hapus Jadwal Dinas
+    public function destroy($id)
+    {
+        $jadwal = JadwalDinas::findOrFail($id);
+        $acara = $jadwal->acara;
+
+        $jadwal->pegawais()->detach();
+        $jadwal->delete();
+
+        ActivityLog::catat(
+            'Hapus Jadwal Dinas',
+            'Menghapus jadwal dinas: ' . $acara
+        );
+
+        return redirect()
+            ->route('super.jadwal-dinas.index')
+            ->with('success', 'Jadwal dinas berhasil dihapus.');
+    }
+
+    // List Jadwal Dinas (Admin/Pegawai)
+    // Kolom: NO | Bidang/Sekretariat | Acara | Surat Dari | Hari/Tanggal | Waktu | Tempat/Zoom | Yang Hadir | Keterangan
+    // public function index(Request $request)
+    // {
+    //     $query = JadwalDinas::with(['pegawais.subBagian'])
+    //         ->orderBy('hari_tanggal', 'desc')
+    //         ->orderBy('waktu', 'desc');
+
+    //     if ($request->filled('search')) {
+    //         $search = $request->search;
+    //         $query->where(function ($q) use ($search) {
+    //             $q->where('acara', 'like', "%{$search}%")
+    //                 ->orWhere('surat_dari', 'like', "%{$search}%")
+    //                 ->orWhere('bidang_sekretariat', 'like', "%{$search}%")
+    //                 ->orWhere('tempat_zoom', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     $jadwalDinas = $query->paginate(10)->withQueryString();
+    //     $pegawaiList = User::orderBy('nama_lengkap')->get();
+
+    //     return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList'));
+    // }
+
+    // Simpan Jadwal Dinas Baru
+    // public function store(Request $request)
+    // {
+    //     $request->validate([
+    //         'bidang_sekretariat' => 'nullable|string|max:150',
+    //         'acara' => 'required|string',
+    //         'surat_dari' => 'required|string|max:150',
+    //         'hari_tanggal' => 'required|date',
+    //         'waktu' => 'nullable|date_format:H:i',
+    //         'tempat_zoom' => 'nullable|string|max:255',
+    //         'keterangan' => 'nullable|string',
+    //         'pegawai_ids' => 'nullable|array',
+    //         'pegawai_ids.*' => 'exists:users,id_user',
+    //     ], [
+    //         'acara.required' => 'Kolom Acara wajib diisi.',
+    //         'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
+    //         'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
+    //     ]);
+
+    //     $jadwal = JadwalDinas::create([
+    //         'bidang_sekretariat' => $request->bidang_sekretariat,
+    //         'acara' => $request->acara,
+    //         'surat_dari' => $request->surat_dari,
+    //         'hari_tanggal' => $request->hari_tanggal,
+    //         'waktu' => $request->waktu,
+    //         'tempat_zoom' => $request->tempat_zoom,
+    //         'keterangan' => $request->keterangan,
+    //     ]);
+
+    //     $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
+
+    //     ActivityLog::catat(
+    //         'Tambah Jadwal Dinas',
+    //         'Menambahkan jadwal dinas baru: ' . $jadwal->acara
+    //     );
+
+    //     return redirect()
+    //         ->route('super.jadwal-dinas.index')
+    //         ->with('success', 'Jadwal dinas berhasil ditambahkan.');
+    // }
 
     // Tampilan Publik Khusus Layar Monitor TV (Full Day 00:01 - 23:59)
     public function displayTV()
     {
         $today = Carbon::today('Asia/Makassar');
-        $now   = Carbon::now('Asia/Makassar');
+        $now = Carbon::now('Asia/Makassar');
 
+        // ==== Statistik Kunjungan & SKM ====
+        $stats = $this->hitungStatistikDisplay($today);
+
+        // ==== Jadwal Dinas Hari Ini ====
+        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
+            ->whereDate('hari_tanggal', $today)
+            ->orderBy('waktu')
+            ->get();
+
+        // ==== Daftar Link Video Display (YouTube) ====
+        // Diambil dari Pengaturan > Display Online (bisa lebih dari 1 video, sudah terurut
+        // sesuai urutan yang diatur admin), lalu dikonversi ke URL embed agar bisa ditampilkan
+        // lewat <iframe> saat tidak ada jadwal dinas hari ini. Jika hanya 1 video, video di-loop
+        // terus menerus. Jika lebih dari 1 video, TV Display akan memutar video secara bergantian
+        // sesuai urutannya (lihat script di resources/views/display.blade.php).
+        $linkVideoEmbeds = Pengaturan::displayVideoEmbeds(loopSingle: true);
+
+        return view('display', array_merge($stats, compact(
+            'today',
+            'now',
+            'jadwalHariIni',
+            'linkVideoEmbeds'
+        )));
+    }
+
+    // Endpoint AJAX: dipanggil berkala oleh display.blade.php untuk refresh
+    // statistik kartu (Total Kunjungan, Kunjungan Hari Ini, Nilai SKM) tanpa
+    // reload seluruh halaman, supaya video Display Online tidak ikut terputus.
+    public function displayStats()
+    {
+        $today = Carbon::today('Asia/Makassar');
+
+        return response()->json($this->hitungStatistikDisplay($today));
+    }
+
+    // Kalkulasi statistik yang dipakai bersama oleh displayTV() dan displayStats()
+    private function hitungStatistikDisplay(Carbon $today): array
+    {
         // ==== Statistik Kunjungan ====
         $totalKunjungan = Tamu::where('status_aktif', 'aktif')->count();
 
@@ -99,66 +270,75 @@ class JadwalDinasController extends Controller
         $rataRatingGlobal = (clone $skmQuery)->avg('rata_rating');
         $nilaiSkm = $rataRatingGlobal ? round($rataRatingGlobal * 25, 2) : 0;
 
-        // ==== Jadwal Dinas Hari Ini ====
-        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
-            ->whereDate('tanggal_kegiatan', $today)
-            ->orderBy('tanggal_kegiatan')
-            ->get();
-
-        return view('display', compact(
-            'today',
-            'now',
+        return compact(
             'totalKunjungan',
             'kunjunganHariIni',
             'persenHariIni',
             'nilaiSkm',
-            'totalResponden',
-            'jadwalHariIni'
-        ));
-    }
-    public function update(Request $request, int $id)
-    {
-        $request->validate([
-            'surat_dari' => 'required|string|max:150',
-            'nomor_surat' => 'required|string|max:100',
-            'perihal' => 'required|string',
-            'tanggal_surat' => 'required|date',
-            'tanggal_kegiatan' => 'required|date',
-            'pegawai_ids' => 'nullable|array',
-            'pegawai_ids.*' => 'exists:users,id_user',
-        ], [
-            'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
-            'nomor_surat.required' => 'Nomor Surat wajib diisi.',
-            'perihal.required' => 'Perihal wajib diisi.',
-            'tanggal_surat.required' => 'Tanggal Surat wajib diisi.',
-            'tanggal_kegiatan.required' => 'Tanggal Kegiatan wajib diisi.',
-        ]);
-
-        // Jika Primary Key kustom di model adalah 'id_jadwal_dinas'
-        $jadwal = JadwalDinas::where('id_jadwal_dinas', $id)->firstOrFail();
-        // Jika menggunakan PK standar 'id', tetap gunakan: JadwalDinas::findOrFail($id);
-
-        // Update data utama
-        $jadwal->update([
-            'nomor_agenda' => $request->nomor_agenda,
-            'surat_dari' => $request->surat_dari,
-            'nomor_surat' => $request->nomor_surat,
-            'perihal' => $request->perihal,
-            'tanggal_surat' => $request->tanggal_surat,
-            'tanggal_kegiatan' => $request->tanggal_kegiatan,
-            'keterangan' => $request->keterangan,
-        ]);
-
-        // Sync relasi pegawai
-        $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
-
-        ActivityLog::catat(
-            'Edit Jadwal Dinas',
-            "Memperbarui data jadwal dinas perihal: {$jadwal->perihal} (Nomor Surat: {$jadwal->nomor_surat})."
+            'totalResponden'
         );
-
-        return redirect()
-            ->back()
-            ->with('success', 'Jadwal dinas berhasil diperbarui.');
     }
+
+    // public function update(Request $request, int $id)
+    // {
+    //     $request->validate([
+    //         'bidang_sekretariat' => 'nullable|string|max:150',
+    //         'acara' => 'required|string',
+    //         'surat_dari' => 'required|string|max:150',
+    //         'hari_tanggal' => 'required|date',
+    //         'waktu' => 'nullable|date_format:H:i',
+    //         'tempat_zoom' => 'nullable|string|max:255',
+    //         'keterangan' => 'nullable|string',
+    //         'pegawai_ids' => 'nullable|array',
+    //         'pegawai_ids.*' => 'exists:users,id_user',
+    //     ], [
+    //         'acara.required' => 'Kolom Acara wajib diisi.',
+    //         'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
+    //         'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
+    //     ]);
+
+    //     // Jika Primary Key kustom di model adalah 'id_jadwal_dinas'
+    //     $jadwal = JadwalDinas::where('id_jadwal_dinas', $id)->firstOrFail();
+
+    //     // Update data utama
+    //     $jadwal->update([
+    //         'bidang_sekretariat' => $request->bidang_sekretariat,
+    //         'acara' => $request->acara,
+    //         'surat_dari' => $request->surat_dari,
+    //         'hari_tanggal' => $request->hari_tanggal,
+    //         'waktu' => $request->waktu,
+    //         'tempat_zoom' => $request->tempat_zoom,
+    //         'keterangan' => $request->keterangan,
+    //     ]);
+
+    //     // Sync relasi pegawai (Yang Hadir)
+    //     $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
+
+    //     ActivityLog::catat(
+    //         'Update Jadwal Dinas',
+    //         'Memperbarui jadwal dinas: ' . $jadwal->acara
+    //     );
+
+    //     return redirect()
+    //         ->route('super.jadwal-dinas.index')
+    //         ->with('success', 'Jadwal dinas berhasil diperbarui.');
+    // }
+
+    // public function destroy(int $id)
+    // {
+    //     $jadwal = JadwalDinas::where('id_jadwal_dinas', $id)->firstOrFail();
+    //     $acara = $jadwal->acara;
+
+    //     $jadwal->pegawais()->detach();
+    //     $jadwal->delete();
+
+    //     ActivityLog::catat(
+    //         'Hapus Jadwal Dinas',
+    //         'Menghapus jadwal dinas: ' . $acara
+    //     );
+
+    //     return redirect()
+    //         ->route('super.jadwal-dinas.index')
+    //         ->with('success', 'Jadwal dinas berhasil dihapus.');
+    // }
 }
