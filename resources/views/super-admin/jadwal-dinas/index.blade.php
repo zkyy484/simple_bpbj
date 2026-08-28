@@ -57,13 +57,13 @@
                 </div>
             </div>
 
-            {{-- Table Card (auto-refresh via AJAX) --}}
+            {{-- Table Card --}}
             <div id="tabel-jadwal-wrapper">
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                         <h3 class="text-base font-bold text-gray-900">Daftar Penugasan Luar Kantor</h3>
                         <span class="text-xs bg-blue-50 text-[#173860] px-3 py-1 rounded-full font-semibold">
-                            Total : {{ $jadwals->total() ?? 0 }}
+                            Total : {{ $jadwalDinas->total() ?? 0 }}
                         </span>
                     </div>
 
@@ -84,10 +84,10 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                @forelse($jadwals as $index => $jadwal)
+                                @forelse($jadwalDinas as $index => $jadwal)
                                     <tr class="hover:bg-gray-50/50 transition align-top">
                                         <td class="px-6 py-4 text-center font-semibold text-gray-900">
-                                            {{ $jadwals->firstItem() + $index }}
+                                            {{ $jadwalDinas->firstItem() + $index }}
                                         </td>
                                         <td class="px-6 py-4 text-gray-700">
                                             {{ $jadwal->bidang_sekretariat ?? '-' }}
@@ -126,22 +126,33 @@
                                             {{ $jadwal->keterangan ?? '-' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
-                                            <button type="button"
-                                                @click="openEdit = true; selectedJadwal = {
-                                                    id: '{{ $jadwal->id_jadwal_dinas }}',
-                                                    bidang_sekretariat: @js($jadwal->bidang_sekretariat),
-                                                    acara: @js($jadwal->acara),
-                                                    surat_dari: @js($jadwal->surat_dari),
-                                                    hari_tanggal: '{{ \Carbon\Carbon::parse($jadwal->hari_tanggal)->format('Y-m-d') }}',
-                                                    waktu: @js($jadwal->waktu ? \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') : ''),
-                                                    tempat_zoom: @js($jadwal->tempat_zoom),
-                                                    keterangan: @js($jadwal->keterangan),
-                                                    pegawai_ids: @js($jadwal->pegawais->pluck('id_user'))
-                                                }"
-                                                class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-bold transition inline-flex items-center gap-1.5 shadow-sm">
-                                                <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
-                                                <span>Edit</span>
-                                            </button>
+                                            <div class="flex items-center justify-center gap-2">
+                                                <button type="button"
+                                                    @click="openEdit = true; selectedJadwal = {
+                                                        id: '{{ $jadwal->id_jadwal_dinas }}',
+                                                        bidang_sekretariat: @js($jadwal->bidang_sekretariat),
+                                                        acara: @js($jadwal->acara),
+                                                        surat_dari: @js($jadwal->surat_dari),
+                                                        hari_tanggal: '{{ \Carbon\Carbon::parse($jadwal->hari_tanggal)->format('Y-m-d') }}',
+                                                        waktu: @js($jadwal->waktu ? \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') : ''),
+                                                        tempat_zoom: @js($jadwal->tempat_zoom),
+                                                        keterangan: @js($jadwal->keterangan),
+                                                        pegawai_ids: @js($jadwal->pegawais->pluck('id_user'))
+                                                    }"
+                                                    class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-bold transition inline-flex items-center gap-1.5 shadow-sm">
+                                                    <i data-lucide="square-pen" class="w-3.5 h-3.5"></i>
+                                                    <span>Edit</span>
+                                                </button>
+                                                
+                                                <form action="{{ route('super.jadwal_dinas.destroy', $jadwal->id_jadwal_dinas) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition inline-flex items-center gap-1.5 shadow-sm">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                        <span>Hapus</span>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -156,52 +167,19 @@
                     </div>
 
                     <!-- Pagination -->
-                    @if ($jadwals->hasPages())
+                    @if ($jadwalDinas->hasPages())
                         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                             <p class="text-xs text-gray-500">
-                                Showing {{ $jadwals->firstItem() }} to {{ $jadwals->lastItem() }} of {{ $jadwals->total() }} entries
+                                Showing {{ $jadwalDinas->firstItem() }} to {{ $jadwalDinas->lastItem() }} of {{ $jadwalDinas->total() }} entries
                             </p>
                             <div class="flex items-center gap-1.5">
-                                @if ($jadwals->onFirstPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
-                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                    </span>
-                                @else
-                                    <a href="{{ $jadwals->previousPageUrl() }}"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
-                                        <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                                    </a>
-                                @endif
-
-                                @foreach ($jadwals->getUrlRange(1, $jadwals->lastPage()) as $page => $url)
-                                    @if ($page == $jadwals->currentPage())
-                                        <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
-                                            {{ $page }}
-                                        </span>
-                                    @else
-                                        <a href="{{ $url }}"
-                                            class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition text-xs font-semibold">
-                                            {{ $page }}
-                                        </a>
-                                    @endif
-                                @endforeach
-
-                                @if ($jadwals->hasMorePages())
-                                    <a href="{{ $jadwals->nextPageUrl() }}"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition">
-                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                    </a>
-                                @else
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
-                                        <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                                    </span>
-                                @endif
+                                {{ $jadwalDinas->links() }}
                             </div>
                         </div>
                     @else
                         <div class="px-6 py-4 border-t border-gray-100">
                             <p class="text-xs text-gray-500">
-                                Showing {{ $jadwals->count() ? 1 : 0 }} to {{ $jadwals->count() }} of {{ $jadwals->total() }} entries
+                                Showing {{ $jadwalDinas->count() ? 1 : 0 }} to {{ $jadwalDinas->count() }} of {{ $jadwalDinas->total() }} entries
                             </p>
                         </div>
                     @endif

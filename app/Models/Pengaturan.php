@@ -80,7 +80,11 @@ class Pengaturan extends Model
 
         return array_map(function ($link) use ($links, $loopSingle) {
             if (preg_match('/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{6,})/', $link, $m)) {
-                $params = 'autoplay=1&mute=1&controls=1&rel=0';
+                // enablejsapi=1 wajib agar YouTube IFrame Player API bisa mendeteksi
+                // event video benar-benar selesai (ended), sehingga rotasi multi-video
+                // di display.blade.php bisa menunggu video habis dulu baru pindah,
+                // bukan sekadar dipotong paksa oleh timer.
+                $params = 'autoplay=1&mute=1&controls=1&rel=0&enablejsapi=1';
 
                 if ($loopSingle && count($links) === 1) {
                     $params .= '&loop=1&playlist=' . $m[1];

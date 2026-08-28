@@ -105,9 +105,10 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
         ->name('laporan.survei.export.pdf');
 
     // JADWAL DINAS
-    Route::get('/super/jadwal-dinas', [JadwalDinasController::class, 'index'])->name('super.jadwal_dinas.index');
-    Route::post('/super/jadwal-dinas/add', [JadwalDinasController::class, 'store'])->name('super.jadwal_dinas.store');
-    Route::put('/super/jadwal-dinas/update/{id}', [JadwalDinasController::class, 'update'])->name('super.jadwal_dinas.update');
+Route::get('/super/jadwal-dinas', [JadwalDinasController::class, 'index'])->name('super.jadwal_dinas.index');
+Route::post('/super/jadwal-dinas/add', [JadwalDinasController::class, 'store'])->name('super.jadwal_dinas.store');
+Route::put('/super/jadwal-dinas/update/{id}', [JadwalDinasController::class, 'update'])->name('super.jadwal_dinas.update');
+Route::delete('/super/jadwal-dinas/delete/{id}', [JadwalDinasController::class, 'destroy'])->name('super.jadwal_dinas.destroy');
 
     // JENIS PERMOHONAN
     Route::get('/super/jenis-permohonan', [JenisPermohonanController::class, 'index'])->name('super.jenis.index');
@@ -177,6 +178,8 @@ Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name
 
 // DSIPLAY
 Route::get('/dis', [JadwalDinasController::class, 'displayTV'])->name('display.tv');
+Route::get('/dis/stats', [JadwalDinasController::class, 'displayStats'])->name('display.stats');
+Route::get('/dis/jadwal', [JadwalDinasController::class, 'displayJadwal'])->name('display.jadwal');
 
 // PENGATURAN DISPLAY ONLINE (LINK VIDEO YOUTUBE)
 Route::get('/super/pengaturan-display', [PengaturanController::class, 'index'])->name('super.pengaturan.index');
