@@ -413,7 +413,15 @@
                 // Jaga-jaga: jika event "ended" tidak pernah terdeteksi (mis. video error,
                 // koneksi TV bermasalah, atau link bukan YouTube), tetap dipaksa pindah
                 // setelah durasi maksimal ini supaya Display TV tidak macet di satu video.
-                const BATAS_MAKSIMAL_MS = 20 * 60 * 1000; // 20 menit
+                //
+                // PENTING (perbaikan): nilai ini HARUS lebih panjang dari durasi video
+                // TERPANJANG yang mungkin diputar. Sebelumnya di-hardcode 20 menit, sehingga
+                // video berdurasi 1 jam ikut terpotong paksa oleh timer ini padahal event
+                // "ended" belum sempat terpicu. Sekarang nilainya dihitung otomatis dari
+                // durasi asli video (via player.getDuration()) + buffer, dengan nilai default
+                // di bawah ini hanya dipakai sebagai fallback awal sebelum durasi diketahui.
+                const BATAS_MAKSIMAL_DEFAULT_MS = 3 * 60 * 60 * 1000; // 3 jam (default awal/fallback terakhir)
+                const BUFFER_SETELAH_DURASI_MS = 60 * 1000; // toleransi 1 menit di atas durasi asli video
 
                 let currentIndex = 0;
                 let fallbackTimer = null;
@@ -433,9 +441,23 @@
                     }
                 }
 
+                // Menghitung durasi timer cadangan: idealnya pakai durasi asli video
+                // (dari YouTube Player API) + sedikit buffer. Kalau durasi belum
+                // diketahui (mis. video baru dimuat / masih buffering), pakai nilai
+                // default yang panjang supaya tidak memotong video sebelum waktunya.
+                function hitungDurasiFallback() {
+                    if (player && typeof player.getDuration === 'function') {
+                        const durasiDetik = player.getDuration();
+                        if (durasiDetik && durasiDetik > 0) {
+                            return (durasiDetik * 1000) + BUFFER_SETELAH_DURASI_MS;
+                        }
+                    }
+                    return BATAS_MAKSIMAL_DEFAULT_MS;
+                }
+
                 function pasangFallbackTimer() {
                     clearTimeout(fallbackTimer);
-                    fallbackTimer = setTimeout(putarVideoBerikutnya, BATAS_MAKSIMAL_MS);
+                    fallbackTimer = setTimeout(putarVideoBerikutnya, hitungDurasiFallback());
                 }
 
                 function putarVideoBerikutnya() {
@@ -477,8 +499,9 @@
                                 if (event.data === YT.PlayerState.ENDED) {
                                     putarVideoBerikutnya();
                                 } else if (event.data === YT.PlayerState.PLAYING) {
-                                    // Video sedang berjalan normal: reset timer cadangan
-                                    // supaya tidak keburu memaksa pindah di tengah durasi.
+                                    // Video sedang berjalan normal: pasang ulang timer cadangan
+                                    // dengan durasi ASLI video ini (bukan angka tetap), supaya
+                                    // timer tidak memotong video sebelum durasinya habis.
                                     pasangFallbackTimer();
                                 }
                             },
