@@ -115,8 +115,8 @@ class JadwalDinasController extends Controller
         );
 
         return redirect()
-            ->route('super.jadwal-dinas.index')
-            ->with('success', 'Jadwal dinas berhasil diperbarui.');
+    ->route('super.jadwal_dinas.index')
+    ->with('success', 'Jadwal dinas berhasil diperbarui.');
     }
 
     // Hapus Jadwal Dinas
@@ -134,8 +134,8 @@ class JadwalDinasController extends Controller
         );
 
         return redirect()
-            ->route('super.jadwal-dinas.index')
-            ->with('success', 'Jadwal dinas berhasil dihapus.');
+    ->route('super.jadwal_dinas.index')
+    ->with('success', 'Jadwal dinas berhasil dihapus.');
     }
 
     // List Jadwal Dinas (Admin/Pegawai)
