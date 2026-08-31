@@ -108,8 +108,10 @@
                 <!-- Mengubah grid menjadi 4 kolom di layar laptop/desktop (lg:grid-cols-4) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     @foreach ($distribusiSubBagian as $i => $sb)
-                        <div class="rounded-xl p-4"
-                            style="background-color: {{ $warnaSubBagian[$i % count($warnaSubBagian)] }}">
+                        {{-- Warna diterapkan lewat data-attribute + JS, bukan langsung di style="",
+                             supaya parser CSS editor tidak salah baca sintaks Blade sebagai CSS. --}}
+                        <div class="rounded-xl p-4 sub-bagian-card"
+                            data-bg-color="{{ $warnaSubBagian[$i % count($warnaSubBagian)] }}">
                             <p class="text-[11px] font-semibold text-white">{{ $sb->nama_sub_bagian }}</p>
                             <p class="text-2xl font-bold text-white mt-2">{{ $sb->tamus_count }}</p>
                         </div>
@@ -124,14 +126,14 @@
             <!-- Doughnut Chart Card -->
             <div class="bg-white p-6 rounded-2xl shadow-sm lg:col-span-5 flex flex-col justify-between items-center">
                 <h3 class="font-bold text-gray-900 text-base self-start mb-2">Distribusi Sub Bagian</h3>
-                <div class="w-full max-w-[220px] my-auto">
+                <div class="relative w-56 h-56 mx-auto my-auto">
                     <canvas id="pieChart"></canvas>
                 </div>
                 <div class="flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-xs font-medium text-gray-600 mt-4">
                     @foreach ($distribusiSubBagian as $i => $sb)
                         <span class="flex items-center">
-                            <span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5"
-                                style="background-color: {{ $warnaSubBagian[$i % count($warnaSubBagian)] }}"></span>
+                            <span class="w-2.5 h-2.5 rounded-full inline-block mr-1.5 legend-dot"
+                                data-bg-color="{{ $warnaSubBagian[$i % count($warnaSubBagian)] }}"></span>
                             {{ $sb->nama_sub_bagian }}
                         </span>
                     @endforeach
@@ -231,95 +233,129 @@
             </div>
         </div>
     </div>
+     
+    <script type="application/json" id="dashboard-chart-data">
+        {!! json_encode([
+            'subBagianLabels' => $distribusiSubBagian->pluck('nama_sub_bagian'),
+            'subBagianData'   => $distribusiSubBagian->pluck('tamus_count'),
+            'warnaSubBagian'  => $warnaSubBagian,
+            'labelHari'       => $labelHari,
+            'dataAktivitas'   => $dataAktivitas,
+        ]) !!}
+    </script>
 @endsection
 
 @push('scripts')
     <script>
-        // 1. DOUGHNUT CHART
-        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        (function () {
+            // Ambil semua data dashboard dari tag JSON di atas (bukan langsung inline di JS).
+            const dashboardData = JSON.parse(document.getElementById('dashboard-chart-data').textContent);
 
-        const subBagianLabels = @json($distribusiSubBagian->pluck('nama_sub_bagian'));
-        const subBagianData = @json($distribusiSubBagian->pluck('tamus_count'));
-        const subBagianColors = @json($warnaSubBagian).slice(0, Math.max(subBagianLabels.length, 1));
+            // Terapkan warna kartu distribusi sub bagian & legend dot dari data-attribute.
+            document.querySelectorAll('.sub-bagian-card, .legend-dot').forEach(function (el) {
+                const color = el.getAttribute('data-bg-color');
+                if (color) {
+                    el.style.backgroundColor = color;
+                }
+            });
 
-        new Chart(ctxPie, {
-            type: 'doughnut',
-            data: {
-                labels: subBagianLabels,
-                datasets: [{
-                    data: subBagianData,
-                    backgroundColor: subBagianColors,
-                    borderWidth: 0,
-                }]
-            },
-            options: {
-                cutout: '70%',
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                responsive: true,
-                maintainAspectRatio: true,
+            // 1. DOUGHNUT CHART
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+
+            let subBagianLabels = dashboardData.subBagianLabels;
+            let subBagianData = dashboardData.subBagianData;
+            let subBagianColors = dashboardData.warnaSubBagian.slice(0, Math.max(subBagianLabels.length, 1));
+
+            // Jika belum ada data kunjungan sama sekali (semua bernilai 0),
+            // Chart.js tidak akan menggambar irisan apa pun sehingga lingkaran
+            // terlihat kosong/tidak ada. Tampilkan lingkaran abu-abu netral
+            // sebagai placeholder agar bentuk doughnut tetap terlihat.
+            const totalSubBagian = subBagianData.reduce((a, b) => a + b, 0);
+            if (totalSubBagian === 0) {
+                subBagianLabels = ['Belum ada data'];
+                subBagianData = [1];
+                subBagianColors = ['#e5e7eb'];
             }
-        });
 
-        // 2. LINE CHART ACTIVITY (Senin - Jumat, mengikuti filter minggu)
-        const ctxLine = document.getElementById('activityChart').getContext('2d');
-        const activityChart = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: @json($labelHari),
-                datasets: [{
-                    data: @json($dataAktivitas),
-                    borderColor: '#173860',
-                    borderWidth: 1.5,
-                    pointBackgroundColor: '#173860',
-                    pointRadius: 2,
-                    tension: 0.3,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: subBagianLabels,
+                    datasets: [{
+                        data: subBagianData,
+                        backgroundColor: subBagianColors,
+                        borderWidth: 0,
+                    }]
                 },
-                scales: {
-                    x: {
-                        grid: {
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
                             display: false
-                        },
-                        ticks: {
-                            font: {
-                                size: 10
-                            }
                         }
                     },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            precision: 0,
-                            font: {
-                                size: 10
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+
+            // 2. LINE CHART ACTIVITY (Senin - Jumat, mengikuti filter minggu)
+            const ctxLine = document.getElementById('activityChart').getContext('2d');
+            const activityChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: dashboardData.labelHari,
+                    datasets: [{
+                        data: dashboardData.dataAktivitas,
+                        borderColor: '#173860',
+                        borderWidth: 1.5,
+                        pointBackgroundColor: '#173860',
+                        pointRadius: 2,
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    size: 10
+                                }
                             }
                         },
-                        grid: {
-                            color: '#f3f4f6'
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: {
+                                    size: 10
+                                }
+                            },
+                            grid: {
+                                color: '#f3f4f6'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
 
-        // 3. FILTER MINGGU -> reload halaman dengan query string ?minggu=...
-        document.getElementById('filterMinggu').addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            url.searchParams.set('minggu', this.value);
-            window.location.href = url.toString();
-        });
+            // 3. FILTER MINGGU -> reload halaman dengan query string ?minggu=...
+            document.getElementById('filterMinggu').addEventListener('change', function () {
+                const url = new URL(window.location.href);
+                url.searchParams.set('minggu', this.value);
+                window.location.href = url.toString();
+            });
+        })();
     </script>
 @endpush

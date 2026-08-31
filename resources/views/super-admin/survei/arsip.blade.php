@@ -9,11 +9,11 @@
             id: '',
             nama: ''
         },
-
-        setRestoreData(sub) {
+    
+        setRestoreData(data) {
             this.selectedSub = {
-                id: sub.id_pertanyaan || sub.id,
-                nama: sub.nama
+                id: data.id_pertanyaan || data.id,
+                nama: data.nama || data.pertanyaan
             };
             this.openRestore = true;
         }
@@ -42,7 +42,8 @@
                         <input type="text" name="search" value="{{ request('search') }}"
                             placeholder="Cari Pertanyaan Survei..."
                             class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
-                        <button type="submit" class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#102a48] text-white rounded-md transition flex items-center justify-center">
+                        <button type="submit"
+                            class="absolute right-1 px-3 py-1.5 bg-[#173860] hover:bg-[#102a48] text-white rounded-md transition flex items-center justify-center">
                             <i data-lucide="search" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -68,9 +69,10 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
+                        <thead
+                            class="bg-gray-50/60 text-gray-400 text-[11px] uppercase font-semibold border-b border-gray-100">
                             <tr>
-                                <th class="px-6 py-3.5 text-center w-16">Urutan</th>
+                                <th class="px-6 py-3.5 text-center w-16">No</th>
                                 <th class="px-6 py-3.5">Pertanyaan</th>
                                 <th class="px-6 py-3.5 text-center w-48">Aksi</th>
                             </tr>
@@ -80,7 +82,7 @@
                             @forelse($pertanyaans as $index => $pertanyaan)
                                 <tr class="hover:bg-gray-50/50 transition align-top">
                                     <td class="px-6 py-4 text-center font-semibold text-gray-500">
-                                        {{ $pertanyaan->urutan }}
+                                        {{ $pertanyaan->id_pertanyaan }}
                                     </td>
 
                                     <td class="px-6 py-4 font-semibold text-gray-900">
@@ -115,13 +117,16 @@
 
                 <!-- Pagination -->
                 @if ($pertanyaans->hasPages())
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
+                    <div
+                        class="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $pertanyaans->firstItem() }} to {{ $pertanyaans->lastItem() }} of {{ $pertanyaans->total() }} entries
+                            Showing {{ $pertanyaans->firstItem() }} to {{ $pertanyaans->lastItem() }} of
+                            {{ $pertanyaans->total() }} entries
                         </p>
                         <div class="flex items-center gap-1.5">
                             @if ($pertanyaans->onFirstPage())
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                                 </span>
                             @else
@@ -133,7 +138,8 @@
 
                             @foreach ($pertanyaans->getUrlRange(1, $pertanyaans->lastPage()) as $page => $url)
                                 @if ($page == $pertanyaans->currentPage())
-                                    <span class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
+                                    <span
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-[#173860] text-white text-xs font-semibold">
                                         {{ $page }}
                                     </span>
                                 @else
@@ -150,7 +156,8 @@
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </a>
                             @else
-                                <span class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-300 cursor-not-allowed">
                                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                                 </span>
                             @endif
@@ -159,7 +166,8 @@
                 @else
                     <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500">
-                            Showing {{ $pertanyaans->count() ? 1 : 0 }} to {{ $pertanyaans->count() }} of {{ $pertanyaans->total() }} entries
+                            Showing {{ $pertanyaans->count() ? 1 : 0 }} to {{ $pertanyaans->count() }} of
+                            {{ $pertanyaans->total() }} entries
                         </p>
                     </div>
                 @endif
@@ -174,8 +182,8 @@
 @endsection
 
 @push('scripts')
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 @endpush

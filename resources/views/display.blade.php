@@ -64,7 +64,9 @@
                 class="text-3xl font-black text-amber-400 font-mono tracking-wider">
                 {{ ($now ?? now('Asia/Makassar'))->format('H:i:s') }} WITA
             </div>
-            <div id="date" class="text-sm text-slate-300 font-semibold">
+            <div id="date"
+                data-tanggal="{{ ($now ?? now('Asia/Makassar'))->format('Y-m-d') }}"
+                class="text-sm text-slate-300 font-semibold">
                 {{ ($now ?? now('Asia/Makassar'))->translatedFormat('l, d F Y') }}
             </div>
         </div>
@@ -140,83 +142,98 @@
 
         <!-- KOLOM KANAN: Display Online (9 Cols) -->
         <section
-            class="col-span-9 bg-white border border-slate-200/80 rounded-xl p-6 shadow-sm flex flex-col justify-between relative overflow-hidden">
+            class="col-span-9 bg-white border border-slate-200/80 rounded-xl shadow-sm flex flex-col relative overflow-hidden">
 
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b border-slate-200 pb-3.5 shrink-0">
-                <div class="flex items-center gap-3">
-                    <h2 class="text-lg font-black text-slate-900 tracking-wide uppercase">Display Online</h2>
+            @if (!empty($linkVideoEmbeds))
+                <!-- Badge status mengambang di atas video -->
+                <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
+                    @if (count($linkVideoEmbeds) > 1)
+                        <span id="videoCounterBadge"
+                            class="text-xs font-bold text-white bg-slate-900/70 px-2 py-1 rounded tracking-wide">1 / {{ count($linkVideoEmbeds) }}</span>
+                    @endif
                 </div>
-            </div>
 
-            <!-- Konten Display Online -->
-            <div class="flex-1 py-4 overflow-hidden">
-                <div class="h-full overflow-hidden flex flex-col justify-between">
-                    <div class="flex-1 flex flex-col">
-                        @if (!empty($linkVideoEmbeds))
-                            <div class="flex items-center gap-2 pb-3 shrink-0">
-                                <span
-                                    class="text-xs font-black bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1 rounded tracking-wide uppercase flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
-                                    Display Online
-                                </span>
-                                @if (count($linkVideoEmbeds) > 1)
-                                    <span id="videoCounterBadge"
-                                        class="text-xs font-bold text-slate-400 tracking-wide">1 / {{ count($linkVideoEmbeds) }}</span>
-                                @endif
-                            </div>
-                            <div class="flex-1 rounded-xl overflow-hidden bg-black shadow-inner">
-                                <iframe
-                                    id="displayVideoFrame"
-                                    src="{{ $linkVideoEmbeds[0] }}"
-                                    class="w-full h-full"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen
-                                ></iframe>
-                            </div>
-                        @else
-                            <div class="flex-1 flex items-center justify-center">
-                                <p class="text-slate-400 text-xl font-bold">Belum ada video Display Online yang diatur</p>
-                            </div>
-                        @endif
-                    </div>
+                <!-- Video full-bleed -->
+                <div class="flex-1 bg-black">
+                    <iframe
+                        id="displayVideoFrame"
+                        src="{{ $linkVideoEmbeds[0] }}"
+                        class="w-full h-full block"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                    ></iframe>
                 </div>
-            </div>
+            @else
+                <div class="flex items-center justify-between border-b border-slate-200 px-6 pt-6 pb-3.5 shrink-0">
+                </div>
+                <div class="flex-1 flex items-center justify-center p-6">
+                    <p class="text-slate-400 text-xl font-bold">Belum ada video Display Online yang diatur</p>
+                </div>
+            @endif
         </section>
 
     </main>
 
-    <!-- 3. Footer (Mentok Kanan-Kiri & Bawah) -->
-    <footer class="bg-gov-navy border-t border-slate-700 px-6 py-2.5 flex items-center gap-3 shadow w-full shrink-0">
-        <div
-            class="bg-gov-gold text-slate-950 font-extrabold text-sm px-3 py-1 rounded shrink-0 uppercase tracking-wider">
-            INFO PENTING
+    <!-- 3. Footer (Disesuaikan Menggunakan bg-gov-navy Agar Senada) -->
+    <footer class="w-full shrink-0">
+        <div class="bg-gov-navy border-t border-slate-700 px-8 py-3.5 flex items-center gap-4 shadow-lg">
+            <div
+                class="bg-[#1E3A8A] text-white font-extrabold text-base px-4 py-2 rounded-lg shrink-0 uppercase tracking-wider flex items-center gap-2.5 shadow-md border border-slate-600">
+                <i class="fa-solid fa-calendar-days text-xl text-sky-400"></i>
+                Jadwal Dinas Hari Ini
+            </div>
+            <div id="jadwalDinasWrap" class="flex-1 overflow-hidden">
+                @if (isset($jadwalHariIni) && $jadwalHariIni->count() > 0)
+                    <marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">
+                        @foreach ($jadwalHariIni as $jadwal)
+                            @php
+                                $namaPegawai = $jadwal->pegawais->pluck('nama_lengkap')->filter()->implode(', ');
+                            @endphp
+                            @if ($jadwal->waktu)
+                                <strong class="text-amber-400 font-bold">{{ \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') }} WITA</strong> —
+                            @endif
+                            {{ $jadwal->acara }}
+                            @if ($jadwal->bidang_sekretariat)
+                                ({{ $jadwal->bidang_sekretariat }})
+                            @endif
+                            @if ($jadwal->tempat_zoom)
+                                di {{ $jadwal->tempat_zoom }}
+                            @endif
+                            @if ($namaPegawai)
+                                — Dihadiri: {{ $namaPegawai }}
+                            @endif
+                            @if ($jadwal->surat_dari)
+                                (Surat dari: {{ $jadwal->surat_dari }})
+                            @endif
+                            &nbsp;•&nbsp;
+                        @endforeach
+                    </marquee>
+                @else
+                    <p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">
+                        Tidak ada jadwal dinas untuk hari ini.
+                    </p>
+                @endif
+            </div>
         </div>
-        <marquee class="text-sm text-slate-200 font-semibold tracking-wide">
-            Selamat Datang di Portal UKPBJ • Jam Pelayanan Tatap Muka: Senin - Jumat (08.00 - 15.30 WITA) • Utamakan
-            Transparansi dan Bebas Pungli dalam Pengadaan Barang & Jasa Pemerintah • Layanan Helpdesk & Konsultasi
-            Online dapat diakses melalui portal resmi.
-        </marquee>
     </footer>
-
-    <audio id="bgAudio" loop>
-        <source src="{{ asset('/images/bali.mp3') }}" type="audio/mpeg">
-    </audio>
 
     <!-- Script Otomatisasi TV Display -->
     <script>
         // 1. Sinkronisasi Waktu Server (WITA)
-        // PENTING: dihitung manual (bukan pakai objek Date + getHours/getMinutes)
-        // karena Date.getHours() otomatis mengikuti timezone perangkat/browser TV,
-        // bukan waktu WITA dari server. Kalau TV di-set ke zona waktu lain (mis. UTC/WIB),
-        // jam yang tampil jadi meleset. Dengan increment angka manual di bawah, jam
-        // selalu mengikuti waktu server (Asia/Makassar) apapun timezone perangkatnya.
-        // Nilai awal diambil dari atribut data-* pada elemen #clock (di-set oleh Blade/server).
         const clockEl = document.getElementById('clock');
+        const dateEl = document.getElementById('date');
         let jamServer   = parseInt(clockEl?.dataset.jam ?? '0', 10);
         let menitServer = parseInt(clockEl?.dataset.menit ?? '0', 10);
         let detikServer = parseInt(clockEl?.dataset.detik ?? '0', 10);
+
+        let tanggalServer = dateEl?.dataset.tanggal ? new Date(dateEl.dataset.tanggal + 'T00:00:00') : null;
+        const formatterTanggal = new Intl.DateTimeFormat('id-ID', {
+            weekday: 'long',
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
 
         function updateClock() {
             detikServer++;
@@ -240,16 +257,18 @@
                 clockEl.textContent = `${hours}:${minutes}:${seconds} WITA`;
             }
 
-            // Reload sekali saja setiap lewat tengah malam (00:00:02 WITA) agar
-            // tanggal di header dan statistik "hari ini" ikut ter-reset dengan benar.
-            // Di luar momen ini halaman tidak pernah reload, supaya video Display Online tidak terputus.
             if (jamServer === 0 && menitServer === 0 && detikServer === 2) {
-                location.reload();
+                if (tanggalServer) {
+                    tanggalServer.setDate(tanggalServer.getDate() + 1);
+                    if (dateEl) {
+                        dateEl.textContent = formatterTanggal.format(tanggalServer);
+                    }
+                }
             }
         }
         setInterval(updateClock, 1000);
 
-        // 2. Auto refresh statistik via AJAX (tanpa reload halaman, video Display Online tidak terputus)
+        // 2. Auto refresh statistik via AJAX
         function formatRibuan(num) {
             return new Intl.NumberFormat('id-ID').format(num ?? 0);
         }
@@ -289,51 +308,171 @@
                 .catch(err => console.error('Gagal refresh statistik Display TV:', err));
         }
 
-        // Refresh statistik tiap 30 detik
         setInterval(refreshStatistikDisplay, 30 * 1000);
 
-        const bgAudio = document.getElementById('bgAudio');
+        // 3. Auto refresh Jadwal Dinas Hari Ini via AJAX
+        function bangunTeksJadwal(item) {
+            let teks = '';
+            if (item.waktu) {
+                teks += `<strong class="text-amber-400 font-bold">${item.waktu} WITA</strong> — `;
+            }
+            teks += item.acara;
+            if (item.bidang_sekretariat) {
+                teks += ` (${item.bidang_sekretariat})`;
+            }
+            if (item.tempat_zoom) {
+                teks += ` di ${item.tempat_zoom}`;
+            }
+            if (item.nama_pegawai) {
+                teks += ` — Dihadiri: ${item.nama_pegawai}`;
+            }
+            if (item.surat_dari) {
+                teks += ` (Surat dari: ${item.surat_dari})`;
+            }
+            return teks;
+        }
 
-        // Coba autoplay langsung
-        bgAudio.volume = 0.5;
-        bgAudio.play().catch(() => {
-            // Jika diblokir browser, play saat ada interaksi pertama
-            document.addEventListener('click', () => bgAudio.play(), {
-                once: true
-            });
-        });
+        function refreshJadwalDinas() {
+            fetch("{{ route('display.jadwal') }}", {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Response tidak OK');
+                    return res.json();
+                })
+                .then(data => {
+                    const wrap = document.getElementById('jadwalDinasWrap');
+                    if (!wrap) return;
+
+                    const list = data.jadwal ?? [];
+                    if (list.length > 0) {
+                        const isi = list.map(bangunTeksJadwal).join('&nbsp;•&nbsp;');
+                        wrap.innerHTML = `<marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">${isi}</marquee>`;
+                    } else {
+                        wrap.innerHTML = `<p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">Tidak ada jadwal dinas untuk hari ini.</p>`;
+                    }
+                })
+                .catch(err => console.error('Gagal refresh Jadwal Dinas Display TV:', err));
+        }
+
+        setInterval(refreshJadwalDinas, 60 * 1000);
     </script>
 
     @if (!empty($linkVideoEmbeds) && count($linkVideoEmbeds) > 1)
         <script type="application/json" id="displayVideoListData">{!! json_encode($linkVideoEmbeds) !!}</script>
 
-        <!-- Script Rotasi Video Display Online (lebih dari 1 video, diputar bergantian sesuai urutan) -->
+        <!-- Script Rotasi Video Display Online -->
         <script>
             (function () {
                 const dataEl = document.getElementById('displayVideoListData');
                 const videoList = dataEl ? JSON.parse(dataEl.textContent) : [];
-                const DURASI_PER_VIDEO_MS = 90 * 1000; // ganti video berikutnya setiap 90 detik
 
                 if (videoList.length < 2) {
                     return;
                 }
 
+                const BATAS_MAKSIMAL_DEFAULT_MS = 3 * 60 * 60 * 1000;
+                const BUFFER_SETELAH_DURASI_MS = 60 * 1000;
+
                 let currentIndex = 0;
+                let fallbackTimer = null;
+                let player = null;
+
                 const frame = document.getElementById('displayVideoFrame');
                 const badge = document.getElementById('videoCounterBadge');
 
-                function putarVideoBerikutnya() {
-                    currentIndex = (currentIndex + 1) % videoList.length;
+                function ekstrakVideoId(url) {
+                    const m = url.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]+)/);
+                    return m ? m[1] : null;
+                }
 
-                    if (frame) {
-                        frame.src = videoList[currentIndex];
-                    }
+                function perbaruiBadge() {
                     if (badge) {
                         badge.textContent = (currentIndex + 1) + ' / ' + videoList.length;
                     }
                 }
 
-                setInterval(putarVideoBerikutnya, DURASI_PER_VIDEO_MS);
+                function hitungDurasiFallback() {
+                    if (player && typeof player.getDuration === 'function') {
+                        const durasiDetik = player.getDuration();
+                        if (durasiDetik && durasiDetik > 0) {
+                            return (durasiDetik * 1000) + BUFFER_SETELAH_DURASI_MS;
+                        }
+                    }
+                    return BATAS_MAKSIMAL_DEFAULT_MS;
+                }
+
+                function pasangFallbackTimer() {
+                    clearTimeout(fallbackTimer);
+                    fallbackTimer = setTimeout(putarVideoBerikutnya, hitungDurasiFallback());
+                }
+
+                function putarVideoBerikutnya() {
+                    clearTimeout(fallbackTimer);
+                    currentIndex = (currentIndex + 1) % videoList.length;
+                    perbaruiBadge();
+
+                    const urlBerikutnya = videoList[currentIndex];
+                    const idBerikutnya = ekstrakVideoId(urlBerikutnya);
+
+                    if (player && idBerikutnya) {
+                        player.loadVideoById(idBerikutnya);
+                    } else if (frame) {
+                        frame.src = urlBerikutnya;
+                        pasangFallbackTimer();
+                    }
+                }
+
+                function inisialisasiYouTubePlayer() {
+                    const idPertama = ekstrakVideoId(videoList[0]);
+
+                    if (!idPertama || !frame || typeof YT === 'undefined' || !YT.Player) {
+                        pasangFallbackTimer();
+                        return;
+                    }
+
+                    player = new YT.Player('displayVideoFrame', {
+                        events: {
+                            onReady: function () {
+                                pasangFallbackTimer();
+                            },
+                            onStateChange: function (event) {
+                                if (event.data === YT.PlayerState.ENDED) {
+                                    putarVideoBerikutnya();
+                                } else if (event.data === YT.PlayerState.PLAYING) {
+                                    pasangFallbackTimer();
+                                }
+                            },
+                            onError: function () {
+                                putarVideoBerikutnya();
+                            }
+                        }
+                    });
+                }
+
+                perbaruiBadge();
+
+                if (typeof YT !== 'undefined' && YT.Player) {
+                    inisialisasiYouTubePlayer();
+                } else {
+                    const tag = document.createElement('script');
+                    tag.src = 'https://www.youtube.com/iframe_api';
+                    document.head.appendChild(tag);
+
+                    const originalReady = window.onYouTubeIframeAPIReady;
+                    window.onYouTubeIframeAPIReady = function () {
+                        if (typeof originalReady === 'function') {
+                            originalReady();
+                        }
+                        inisialisasiYouTubePlayer();
+                    };
+
+                    setTimeout(function () {
+                        if (!player) {
+                            pasangFallbackTimer();
+                        }
+                    }, 8000);
+                }
             })();
         </script>
     @endif

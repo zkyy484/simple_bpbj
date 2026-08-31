@@ -155,14 +155,26 @@
                             @enderror
                         </div>
 
-                        <!-- Yang Hadir -->
-                        <div>
+                        <!-- Yang Hadir dengan Fitur Search Filter Alpine.js -->
+                        <div x-data="{ searchPegawai: '' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Yang Hadir (Opsional)
                             </label>
+
+                            <!-- Input Search Filter -->
+                            <div class="relative mb-2">
+                                <input type="text" x-model="searchPegawai" placeholder="Cari nama pegawai..."
+                                    class="w-full bg-white border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-xs text-gray-800 focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none">
+                                <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+
+                            <!-- List Checkbox Pegawai -->
                             <div class="bg-white rounded-xl border border-gray-300 p-3 max-h-40 overflow-y-auto space-y-2">
                                 @forelse($pegawaiList as $user)
-                                    <label class="flex items-center gap-3 text-sm text-gray-700 hover:bg-gray-50 p-1.5 rounded-lg cursor-pointer transition">
+                                    <label x-show="searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase())"
+                                        class="flex items-center gap-3 text-sm text-gray-700 hover:bg-gray-50 p-1.5 rounded-lg cursor-pointer transition">
                                         <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
                                             {{ is_array(old('pegawai_ids')) && in_array($user->id_user, old('pegawai_ids')) ? 'checked' : '' }}
                                             class="w-4 h-4 rounded border-gray-300 text-[#173860] focus:ring-[#173860]">
@@ -171,6 +183,14 @@
                                 @empty
                                     <p class="text-xs text-gray-400 italic p-1">Belum ada data pegawai.</p>
                                 @endforelse
+
+                                <!-- Pesan Jika Pegawai Tidak Ditemukan saat Mencari -->
+                                @if($pegawaiList->isNotEmpty())
+                                    <div x-show="searchPegawai !== '' && ![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')" 
+                                         class="text-xs text-gray-400 text-center py-2">
+                                        Pegawai tidak ditemukan.
+                                    </div>
+                                @endif
                             </div>
                         </div>
 

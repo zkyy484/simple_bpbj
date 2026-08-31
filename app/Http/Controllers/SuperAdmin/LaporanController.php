@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Exports\SurveiTamuExport;
 use App\Exports\SurveiTamuMultiSheetExport;
 use App\Http\Controllers\Controller;
+use App\Models\JenisPermohonan;
 use App\Models\Pertanyaan;
 use App\Models\ActivityLog;
 use App\Models\Respon;
@@ -87,34 +88,67 @@ class LaporanController extends Controller
     {
         $admins = Auth::user();
 
-        $pengunjungs = $this->filteredQueryPengunjung($request)
+        // 1. Ambil data master Jenis Permohonan untuk dropdown filter
+        $jenisPermohonans = JenisPermohonan::where('status', 'aktif')
+            ->orderBy('nama_jenis_permohonan', 'asc')
+            ->get();
+
+        // 2. Query data Tamu/Pengunjung
+        $query = Tamu::with('jenisPermohonan');
+
+        if ($request->filled('tanggal_awal')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_awal);
+        }
+
+        if ($request->filled('tanggal_akhir')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_akhir);
+        }
+
+        if ($request->filled('id_jenis_permohonan')) {
+            $query->where('id_jenis_permohonan', $request->id_jenis_permohonan);
+        }
+
+        $pengunjungs = $query->latest('id_tamu')
             ->paginate(10)
             ->withQueryString();
 
-        return view('super-admin.laporan.pengunjung', compact('pengunjungs', 'admins'));
+        // 3. Passing data ke Blade View laporan.pengunjung
+        return view('super-admin.laporan.pengunjung', compact('pengunjungs', 'jenisPermohonans', 'admins'));
     }
 
     public function exportPengunjungPdf(Request $request)
-    {
-        $pengunjungs = $this->filteredQueryPengunjung($request)->get();
+{
+    // Ambil query utama dan pastikan relasi jenisPermohonan diikutsertakan (eager load)
+    $query = $this->filteredQueryPengunjung($request)->with('jenisPermohonan');
 
-        $periode = trim(
-            ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
-        );
+    $pengunjungs = $query->get();
 
-        $pdf = Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
-            'pengunjungs' => $pengunjungs,
-            'periode' => $periode,
-            'pelakuUsaha' => $request->pelaku_usaha,
-        ])->setPaper('a4', 'landscape');
+    $periode = trim(
+        ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
+    );
 
-        ActivityLog::catat(
-            'Export Laporan Pengunjung',
-            "Mengekspor laporan pengunjung periode {$periode} ke PDF."
-        );
-
-        return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
+    // Ambil nama jenis permohonan yang difilter jika ada
+    $jenisPermohonanNama = 'Semua';
+    if ($request->filled('id_jenis_permohonan')) {
+        $jenisPermohonan = \App\Models\JenisPermohonan::find($request->id_jenis_permohonan);
+        if ($jenisPermohonan) {
+            $jenisPermohonanNama = $jenisPermohonan->nama_jenis_permohonan;
+        }
     }
+
+    $pdf = Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
+        'pengunjungs' => $pengunjungs,
+        'periode' => $periode,
+        'jenisPermohonan' => $jenisPermohonanNama,
+    ])->setPaper('a4', 'landscape');
+
+    ActivityLog::catat(
+        'Export Laporan Pengunjung',
+        "Mengekspor laporan pengunjung periode {$periode} ke PDF."
+    );
+
+    return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
+}
 
     // LAPORAN SURVEI
     /**

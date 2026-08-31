@@ -141,7 +141,7 @@ class AkunController extends Controller
             'no_telepon' => ['required', 'string', 'max:20'],
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
             'alamat' => ['required', 'string'],
-            'role' => ['required', Rule::in(['super_admin', 'admin', 'pegawai'])],
+            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'pegawai'])],
         ], [
             'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
             'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
@@ -163,7 +163,7 @@ class AkunController extends Controller
         );
 
         return redirect()
-            ->route('index.akun')
+            ->route('super.akun.index')
             ->with('success', 'Data akun berhasil diperbarui.');
     }
 
@@ -184,7 +184,7 @@ class AkunController extends Controller
         );
 
         return redirect()
-            ->route('index.akun')
+            ->route('super.akun.index')
             ->with('success', 'Akun berhasil diarsipkan.');
     }
 
@@ -205,7 +205,7 @@ class AkunController extends Controller
         );
 
         return redirect()
-            ->route('akun.arsip')
+            ->route('super.akun.arsip')
             ->with('success', 'Akun berhasil dipulihkan.');
     }
 

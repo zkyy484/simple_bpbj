@@ -15,7 +15,7 @@ class Tamu extends Model
         'nama_lengkap',
         'email',
         'nomor_telepon',
-        'jenis_permohonan',
+        'id_jenis_permohonan',
         'nama_perusahaan',
         'id_sub_bagian',
         'id_tujuan',
@@ -42,6 +42,11 @@ class Tamu extends Model
     public function tujuan()
     {
         return $this->belongsTo(Tujuan::class, 'id_tujuan', 'id_tujuan');
+    }
+
+    public function jenisPermohonan()
+    {
+        return $this->belongsTo(JenisPermohonan::class, 'id_jenis_permohonan', 'id_jenis_permohonan');
     }
 
     

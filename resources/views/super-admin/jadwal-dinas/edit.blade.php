@@ -14,11 +14,13 @@
         <!-- Header Modal Sticky -->
         <div class="bg-white px-6 py-5 flex items-center justify-between border-b border-gray-200 sticky top-0 z-10">
             <h2 class="text-lg font-bold text-gray-900 leading-tight">Edit Jadwal Dinas</h2>
-            <button type="button" @click="openEdit = false" class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center">✕</button>
+            <button type="button" @click="openEdit = false"
+                class="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center">✕</button>
         </div>
 
         <!-- Body Form Edit -->
-        <form :action="`{{ url('super-admin/jadwal-dinas') }}/${selectedJadwal.id}`" method="POST" x-data="{ loading: false }" @submit="loading = true">
+        <form :action="'{{ route('super.jadwal_dinas.update', ':id') }}'.replace(':id', selectedJadwal.id)"
+            method="POST" x-data="{ loading: false }" @submit="loading = true">
             @csrf
             @method('PUT')
             <input type="hidden" name="form_type" value="edit">
@@ -62,17 +64,40 @@
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
                 </div>
 
-                <div>
+                <!-- Yang Hadir dengan Fitur Search Alpine.js -->
+                <div x-data="{ searchPegawai: '' }">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Yang Hadir</label>
+
+                    <!-- Input Search Filter -->
+                    <div class="relative mb-2">
+                        <input type="text" x-model="searchPegawai" placeholder="Cari nama pegawai..."
+                            class="w-full bg-[#f0f2f5] border border-gray-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                        <svg class="w-4 h-4 text-gray-400 absolute left-2.5 top-2" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+
+                    <!-- List Checkbox Pegawai -->
                     <div class="bg-gray-50 rounded-xl border p-3 max-h-40 overflow-y-auto space-y-2">
-                        @foreach($pegawaiList as $user)
-                            <label class="flex items-center gap-3 text-sm text-gray-700 cursor-pointer">
+                        @foreach ($pegawaiList as $user)
+                            <label
+                                x-show="searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase())"
+                                class="flex items-center gap-3 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 p-1 rounded transition">
                                 <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
-                                    :checked="selectedJadwal.pegawai_ids && selectedJadwal.pegawai_ids.includes({{ $user->id_user }})"
+                                    :checked="selectedJadwal.pegawai_ids && selectedJadwal.pegawai_ids.includes(
+                                        {{ $user->id_user }})"
                                     class="w-4 h-4 rounded border-gray-300 text-[#173860] focus:ring-[#173860]">
                                 <span>{{ $user->nama_lengkap }}</span>
                             </label>
                         @endforeach
+
+                        <!-- Pesan Jika Pegawai Tidak Ditemukan -->
+                        <div x-show="searchPegawai !== '' && ![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')"
+                            class="text-xs text-gray-400 text-center py-2">
+                            Pegawai tidak ditemukan.
+                        </div>
                     </div>
                 </div>
 
