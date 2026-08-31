@@ -12,6 +12,8 @@ use App\Models\Pengaturan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Exports\JadwalDinasExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JadwalDinasController extends Controller
 {
@@ -115,7 +117,7 @@ class JadwalDinasController extends Controller
         );
 
         return redirect()
-            ->route('super.jadwal-dinas.index')
+            ->route('super.jadwal_dinas.index')
             ->with('success', 'Jadwal dinas berhasil diperbarui.');
     }
 
@@ -134,74 +136,9 @@ class JadwalDinasController extends Controller
         );
 
         return redirect()
-            ->route('super.jadwal-dinas.index')
+            ->route('super.jadwal_dinas.index')
             ->with('success', 'Jadwal dinas berhasil dihapus.');
     }
-
-    // List Jadwal Dinas (Admin/Pegawai)
-    // Kolom: NO | Bidang/Sekretariat | Acara | Surat Dari | Hari/Tanggal | Waktu | Tempat/Zoom | Yang Hadir | Keterangan
-    // public function index(Request $request)
-    // {
-    //     $query = JadwalDinas::with(['pegawais.subBagian'])
-    //         ->orderBy('hari_tanggal', 'desc')
-    //         ->orderBy('waktu', 'desc');
-
-    //     if ($request->filled('search')) {
-    //         $search = $request->search;
-    //         $query->where(function ($q) use ($search) {
-    //             $q->where('acara', 'like', "%{$search}%")
-    //                 ->orWhere('surat_dari', 'like', "%{$search}%")
-    //                 ->orWhere('bidang_sekretariat', 'like', "%{$search}%")
-    //                 ->orWhere('tempat_zoom', 'like', "%{$search}%");
-    //         });
-    //     }
-
-    //     $jadwalDinas = $query->paginate(10)->withQueryString();
-    //     $pegawaiList = User::orderBy('nama_lengkap')->get();
-
-    //     return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList'));
-    // }
-
-    // Simpan Jadwal Dinas Baru
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'bidang_sekretariat' => 'nullable|string|max:150',
-    //         'acara' => 'required|string',
-    //         'surat_dari' => 'required|string|max:150',
-    //         'hari_tanggal' => 'required|date',
-    //         'waktu' => 'nullable|date_format:H:i',
-    //         'tempat_zoom' => 'nullable|string|max:255',
-    //         'keterangan' => 'nullable|string',
-    //         'pegawai_ids' => 'nullable|array',
-    //         'pegawai_ids.*' => 'exists:users,id_user',
-    //     ], [
-    //         'acara.required' => 'Kolom Acara wajib diisi.',
-    //         'surat_dari.required' => 'Kolom Surat Dari wajib diisi.',
-    //         'hari_tanggal.required' => 'Kolom Hari/Tanggal wajib diisi.',
-    //     ]);
-
-    //     $jadwal = JadwalDinas::create([
-    //         'bidang_sekretariat' => $request->bidang_sekretariat,
-    //         'acara' => $request->acara,
-    //         'surat_dari' => $request->surat_dari,
-    //         'hari_tanggal' => $request->hari_tanggal,
-    //         'waktu' => $request->waktu,
-    //         'tempat_zoom' => $request->tempat_zoom,
-    //         'keterangan' => $request->keterangan,
-    //     ]);
-
-    //     $jadwal->pegawais()->sync($request->input('pegawai_ids', []));
-
-    //     ActivityLog::catat(
-    //         'Tambah Jadwal Dinas',
-    //         'Menambahkan jadwal dinas baru: ' . $jadwal->acara
-    //     );
-
-    //     return redirect()
-    //         ->route('super.jadwal-dinas.index')
-    //         ->with('success', 'Jadwal dinas berhasil ditambahkan.');
-    // }
 
     // Tampilan Publik Khusus Layar Monitor TV (Full Day 00:01 - 23:59)
     public function displayTV()
@@ -304,5 +241,13 @@ class JadwalDinasController extends Controller
             'nilaiSkm',
             'totalResponden'
         );
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $search = $request->input('search');
+        $fileName = 'Jadwal_Dinas_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+        return Excel::download(new JadwalDinasExport($search), $fileName);
     }
 }

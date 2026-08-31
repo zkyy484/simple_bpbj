@@ -14,29 +14,29 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             // Data master (tidak punya dependensi)
-            SubBagianSeeder::class,
-            TujuanSeeder::class,
-            JenisPermohonanSeeder::class,
-            PengaturanSeeder::class,
+            // SubBagianSeeder::class,
+            // TujuanSeeder::class,
+            // JenisPermohonanSeeder::class,
+            // PengaturanSeeder::class,
 
             // Akun pengguna (butuh SubBagianSeeder)
             SuperAdminSeeder::class,
-            UserSeeder::class,
+            // UserSeeder::class,
 
             // Buku Tamu Digital (butuh SubBagian, Tujuan, JenisPermohonan, User)
-            TamuSeeder::class,
+            // TamuSeeder::class,
 
             // Survei Kepuasan
-            PertanyaanSeeder::class,   // butuh: -
-            OpsiSeeder::class,         // butuh Pertanyaan
-            ResponSeeder::class,       // butuh: -
-            JawabanSeeder::class,      // butuh Respon, Pertanyaan, Opsi
+            // PertanyaanSeeder::class,   // butuh: -
+            // OpsiSeeder::class,         // butuh Pertanyaan
+            // ResponSeeder::class,       // butuh: -
+            // JawabanSeeder::class,      // butuh Respon, Pertanyaan, Opsi
 
             // Jadwal Dinas & Monitor TV (butuh User)
-            JadwalDinasSeeder::class,
+            // JadwalDinasSeeder::class,
 
-            // Log Aktivitas (butuh User)
-            ActivityLogSeeder::class,
+            // // Log Aktivitas (butuh User)
+            // ActivityLogSeeder::class,
         ]);
     }
 }

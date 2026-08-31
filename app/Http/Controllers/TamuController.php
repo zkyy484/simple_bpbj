@@ -42,8 +42,9 @@ class TamuController extends Controller
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
             'id_tujuan' => ['required', 'exists:tujuans,id_tujuan'],
             'permasalahan' => ['nullable', 'string'],
-            'paraf' => ['required', 'string'],
-            'foto' => ['required', 'string'],
+            'foto' => ['required', 'string'], // Hasil paraf/foto kamera tersimpan di sini
+        ], [
+            'foto.required' => 'Silakan lengkapi Verifikasi Kehadiran terlebih dahulu (menggunakan Paraf atau Foto Kamera).',
         ]);
 
         $validated['kode_tiket'] = 'KNS-' . now()->format('Ymd') . str_pad(
@@ -70,14 +71,14 @@ class TamuController extends Controller
     // Menampilkan halaman terima kasih setelah data tersimpan (buku tamu)
     public function Thanks(int $id)
     {
-        $tamu = Tamu::with(['tujuan'    ])->findOrFail($id);
+        $tamu = Tamu::with(['tujuan'])->findOrFail($id);
 
         return view('tamu.tamu-success', compact('tamu'));
     }
 
 
     // TRACKING TIKET
-    public function show(String $kode_tiket)
+    public function show(string $kode_tiket)
     {
         $tamu = Tamu::with([
             'pegawai',
@@ -137,11 +138,11 @@ class TamuController extends Controller
 
                 // Simpan data Respon Utama
                 $respon = Respon::create([
-                    'nama_lengkap'     => $validated['nama_lengkap'],
-                    'email'            => $validated['email'] ?? null,
-                    'instansi'         => $validated['instansi'] ?? null,
+                    'nama_lengkap' => $validated['nama_lengkap'],
+                    'email' => $validated['email'] ?? null,
+                    'instansi' => $validated['instansi'] ?? null,
                     'durasi_pengisian' => $durasi,
-                    'tanggal_respon'   => $waktuSelesai->toDateTimeString(),
+                    'tanggal_respon' => $waktuSelesai->toDateTimeString(),
                 ]);
 
                 $urutanOpsiRating = [];
@@ -165,19 +166,19 @@ class TamuController extends Controller
                         }
 
                         Jawaban::create([
-                            'id_respon'     => $respon->id_respon,
+                            'id_respon' => $respon->id_respon,
                             'id_pertanyaan' => $p->id_pertanyaan,
-                            'id_opsi'       => $opsi->id_opsi,
-                            'rating'        => $ratingValue,
-                            'jawaban'       => null,
+                            'id_opsi' => $opsi->id_opsi,
+                            'rating' => $ratingValue,
+                            'jawaban' => null,
                         ]);
                     } else {
                         Jawaban::create([
-                            'id_respon'     => $respon->id_respon,
+                            'id_respon' => $respon->id_respon,
                             'id_pertanyaan' => $p->id_pertanyaan,
-                            'id_opsi'       => null,
-                            'rating'        => null,
-                            'jawaban'       => $jawabanInput,
+                            'id_opsi' => null,
+                            'rating' => null,
+                            'jawaban' => $jawabanInput,
                         ]);
                     }
                 }
@@ -216,7 +217,7 @@ class TamuController extends Controller
         $rataRating = $nilaiArray->count() ? round($nilaiArray->avg(), 2) : null;
 
         $respon->update([
-            'rata_rating'     => $rataRating,
+            'rata_rating' => $rataRating,
         ]);
     }
 

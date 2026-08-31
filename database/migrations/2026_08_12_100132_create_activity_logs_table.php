@@ -25,7 +25,7 @@ return new class extends Migration
 
             $table->enum('role', [
                 'super_admin',
-                'admin',
+                'admin_fo',
                 'pegawai',
             ])->nullable();
 

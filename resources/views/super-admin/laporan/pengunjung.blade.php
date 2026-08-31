@@ -5,7 +5,7 @@
 @section('content')
     <div class="space-y-6">
 
-        <!-- Breadcrumb & Title (Jarak Diperdekat) -->
+        <!-- Breadcrumb & Title -->
         <div class="space-y-1">
             <div class="text-sm text-gray-500">
                 <a href="{{ route('super.dashboard') }}" class="hover:text-gray-700">Dashboard</a>
@@ -22,7 +22,7 @@
             class="bg-white rounded-2xl shadow-sm p-6">
             <div class="flex flex-col lg:flex-row lg:items-end gap-5">
 
-                {{-- Input Tanggal Awal (Auto Submit) --}}
+                {{-- Input Tanggal Awal --}}
                 <div class="flex-1 min-w-[160px]">
                     <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
                         Tanggal Awal
@@ -32,7 +32,7 @@
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
                 </div>
 
-                {{-- Input Tanggal Akhir (Auto Submit) --}}
+                {{-- Input Tanggal Akhir --}}
                 <div class="flex-1 min-w-[160px]">
                     <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
                         Tanggal Akhir
@@ -42,22 +42,26 @@
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
                 </div>
 
-                {{-- Dropdown Pelaku Usaha (Auto Submit) --}}
+                {{-- Dropdown Jenis Permohonan (Dinamis dari Master Data) --}}
                 <div class="flex-1 min-w-[160px]">
                     <label class="block text-[11px] font-semibold tracking-wide text-gray-500 uppercase mb-2">
-                        Pelaku Usaha
+                        Jenis Permohonan
                     </label>
-                    <select name="pelaku_usaha" onchange="this.form.submit()"
+                    <select name="id_jenis_permohonan" onchange="this.form.submit()"
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-4 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer">
-                        <option value="">Semua Pelaku Usaha</option>
-                        <option value="Pelaku Usaha" @selected(request('pelaku_usaha') === 'Pelaku Usaha')>Pelaku Usaha</option>
-                        <option value="Instansi Pemerintah" @selected(request('pelaku_usaha') === 'Instansi Pemerintah')>Instansi Pemerintahan</option>
+                        <option value="">Semua Jenis Permohonan</option>
+                        @foreach ($jenisPermohonans as $jenis)
+                            <option value="{{ $jenis->id_jenis_permohonan }}" 
+                                @selected((int) request('id_jenis_permohonan') === (int) $jenis->id_jenis_permohonan)>
+                                {{ $jenis->nama_jenis_permohonan }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
-                {{-- Action Buttons (Export PDF & Reset Filter) --}}
+                {{-- Action Buttons --}}
                 <div class="flex gap-3 shrink-0 items-center">
-                    @if (request()->hasAny(['tanggal_awal', 'tanggal_akhir', 'pelaku_usaha']))
+                    @if (request()->hasAny(['tanggal_awal', 'tanggal_akhir', 'id_jenis_permohonan']))
                         <a href="{{ route('laporan.pengunjung.index') }}"
                             class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold tracking-wide rounded-lg transition whitespace-nowrap">
                             RESET FILTER
@@ -72,7 +76,7 @@
             </div>
         </form>
 
-        <!-- Table Card (Auto Refresh via AJAX) -->
+        <!-- Table Card -->
         <div id="tabel-pengunjung-wrapper">
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -91,7 +95,7 @@
                                 <th class="px-6 py-3.5">Email</th>
                                 <th class="px-6 py-3.5">Nomor</th>
                                 <th class="px-6 py-3.5">Perusahaan</th>
-                                <th class="px-6 py-3.5">Pelaku Usaha</th>
+                                <th class="px-6 py-3.5">Jenis Permohonan</th>
                                 <th class="px-6 py-3.5">Status</th>
                             </tr>
                         </thead>
@@ -115,7 +119,9 @@
                                     <td class="px-6 py-4 text-gray-700">{{ $pengunjung->email ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700 whitespace-nowrap">{{ $pengunjung->nomor_telepon ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700">{{ $pengunjung->nama_perusahaan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-700">{{ $pengunjung->jenis_permohonan ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">
+                                        {{ $pengunjung->jenisPermohonan->nama_jenis_permohonan ?? '-' }}
+                                    </td>
                                     <td class="px-6 py-4">
                                         <span class="px-3 py-1 {{ $statusColor }} rounded-full text-[11px] font-bold whitespace-nowrap">
                                             {{ $statusLabel }}

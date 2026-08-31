@@ -29,20 +29,20 @@
 
     <div class="meta">
         Periode: {{ $periode }} &nbsp;|&nbsp;
-        Pelaku Usaha: {{ $pelakuUsaha ?: 'Semua' }} &nbsp;|&nbsp;
+        Jenis Permohonan: {{ $jenisPermohonan }} &nbsp;|&nbsp;
         Dicetak: {{ now()->format('d-m-Y H:i') }} WITA
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Nama</th>
-                <th>Email</th>
-                <th>Nomor</th>
-                <th>Perusahaan</th>
-                <th>Pelaku Usaha</th>
-                <th>Status</th>
+                <th style="width: 5%; text-align: center;">NO</th>
+                <th>NAMA</th>
+                <th>EMAIL</th>
+                <th>NOMOR TELEPON</th>
+                <th>PERUSAHAAN</th>
+                <th>JENIS PERMOHONAN</th>
+                <th>STATUS</th>
             </tr>
         </thead>
         <tbody>
@@ -56,12 +56,12 @@
                     $badge = $statusMap[$pengunjung->status_tindak_lanjut] ?? ['label' => '-', 'class' => ''];
                 @endphp
                 <tr>
-                    <td>{{ $pengunjung->id_tamu }}</td>
+                    <td style="text-align: center;">{{ $loop->iteration }}</td>
                     <td>{{ $pengunjung->nama_lengkap }}</td>
                     <td>{{ $pengunjung->email ?? '-' }}</td>
                     <td>{{ $pengunjung->nomor_telepon ?? '-' }}</td>
                     <td>{{ $pengunjung->nama_perusahaan ?? '-' }}</td>
-                    <td>{{ $pengunjung->jenis_permohonan ?? '-' }}</td>
+                    <td>{{ $pengunjung->jenisPermohonan->nama_jenis_permohonan ?? '-' }}</td>
                     <td><span class="badge {{ $badge['class'] }}">{{ strtoupper($badge['label']) }}</span></td>
                 </tr>
             @empty

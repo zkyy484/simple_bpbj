@@ -1,4 +1,4 @@
-{{-- super-admin/pertanyaan/delete.blade.php --}}
+{{-- super-admin/sub_bagian/delete.blade.php --}}
 <div x-show="openDelete" x-cloak class="fixed inset-0 z-[999] flex items-center justify-center p-4">
 
     <!-- Overlay -->
@@ -25,7 +25,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-gray-900 leading-tight">
-                        Hapus Pertanyaan
+                        Hapus Sub Bagian
                     </h2>
                 </div>
             </div>
@@ -43,20 +43,20 @@
         <!-- Body -->
         <div class="p-6 text-center space-y-3">
             <p class="text-gray-600 text-sm">
-                Apakah Anda yakin ingin menghapus pertanyaan ini? Semua opsi dan jawaban terkait juga akan terhapus.
+                Apakah Anda yakin ingin menghapus data sub bagian ini? Data akan dipindahkan ke arsip.
             </p>
             <div class="p-3 bg-red-50 rounded-xl border border-red-100 text-red-700 font-semibold text-sm">
-                <span x-text="selectedItem.pertanyaan"></span>
+                <span x-text="selectedSub.nama"></span>
             </div>
         </div>
 
         <!-- Footer Form -->
-        <form action="{{ route('super.pertanyaan.destroy') }}" method="POST">
+        <form action="{{ route('super.sub.delete') }}" method="POST">
             @csrf
             @method('DELETE')
 
-            <!-- Input Hidden menggunakan binding :value agar id terkirim secara reaktif -->
-            <input type="hidden" name="id_pertanyaan" :value="selectedItem.id">
+            <!-- Input Hidden ID Sub Bagian -->
+            <input type="hidden" name="id_sub_bagian" :value="selectedSub.id">
 
             <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-end gap-3">
                 <button type="button" @click="openDelete = false"

@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     // PROFILE AKUN
     Route::get('/super/profile', [SuperProfileController::class, 'index'])->name('super.profile');
     Route::put('/super/profile', [SuperProfileController::class, 'update'])->name('super.profile.update');
+    Route::delete('/super/delete paraf', [SuperProfileController::class, 'deleteParaf'])->name('super.profile.paraf.delete');
 
     // GANTI PASSWORD (terpisah dari update profil)
     Route::put('/super/profile/password', [SuperProfileController::class, 'updatePassword'])->name('super.profile.password.update');
@@ -75,10 +76,11 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     // SURVEI PERTANYAAN
     Route::get('/super/pertanyaan', [PertanyaanController::class, 'index'])->name('super.pertanyaan.index');
     Route::post('/super/pertanyaan', [PertanyaanController::class, 'store'])->name('super.pertanyaan.store');
-    Route::put('/super/pertanyaan/{id}', [PertanyaanController::class, 'update'])->name('super.pertanyaan.update');
     Route::delete('/super/pertanyaan/delete', [PertanyaanController::class, 'destroy'])->name('super.pertanyaan.destroy');
     Route::get('/super/pertanyaan/arsip', [PertanyaanController::class, 'arsip'])->name('super.pertanyaan.arsip');
     Route::put('/super/pertanyaan/pulihkan', [PertanyaanController::class, 'pulihkan'])->name('super.pertanyaan.pulihkan');
+    Route::put('/super/pertanyaan/{id}', [PertanyaanController::class, 'update'])->name('super.pertanyaan.update');
+
 
     // SURVEI TAMU
     Route::get('/super/survei', [SurveiController::class, 'index'])->name('super.survei.index');
@@ -105,10 +107,11 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
         ->name('laporan.survei.export.pdf');
 
     // JADWAL DINAS
-Route::get('/super/jadwal-dinas', [JadwalDinasController::class, 'index'])->name('super.jadwal_dinas.index');
-Route::post('/super/jadwal-dinas/add', [JadwalDinasController::class, 'store'])->name('super.jadwal_dinas.store');
-Route::put('/super/jadwal-dinas/update/{id}', [JadwalDinasController::class, 'update'])->name('super.jadwal_dinas.update');
-Route::delete('/super/jadwal-dinas/delete/{id}', [JadwalDinasController::class, 'destroy'])->name('super.jadwal_dinas.destroy');
+    Route::get('/super/jadwal-dinas', [JadwalDinasController::class, 'index'])->name('super.jadwal_dinas.index');
+    Route::post('/super/jadwal-dinas/add', [JadwalDinasController::class, 'store'])->name('super.jadwal_dinas.store');
+    Route::put('/super/jadwal-dinas/update/{id}', [JadwalDinasController::class, 'update'])->name('super.jadwal_dinas.update');
+    Route::delete('/super/jadwal-dinas/delete/{id}', [JadwalDinasController::class, 'destroy'])->name('super.jadwal_dinas.destroy');
+    Route::get('super/jadwal-dinas/export', [JadwalDinasController::class, 'exportExcel'])->name('super.jadwal_dinas.export');
 
     // JENIS PERMOHONAN
     Route::get('/super/jenis-permohonan', [JenisPermohonanController::class, 'index'])->name('super.jenis.index');

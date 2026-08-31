@@ -36,14 +36,14 @@
     <table>
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Tanggal</th>
-                <th>No. Tiket</th>
-                <th>Nama</th>
-                <th>Sub Bagian</th>
-                <th>Tujuan</th>
-                <th>Pegawai</th>
-                <th>Status</th>
+                <th style="width: 5%; text-align: center;">NO</th>
+                <th>TANGGAL</th>
+                <th>NO. TIKET</th>
+                <th>NAMA</th>
+                <th>SUB BAGIAN</th>
+                <th>TUJUAN</th>
+                <th>PEGAWAI</th>
+                <th>STATUS</th>
             </tr>
         </thead>
         <tbody>
@@ -57,7 +57,7 @@
                     $badge = $statusMap[$tamu->status_tindak_lanjut] ?? ['label' => '-', 'class' => ''];
                 @endphp
                 <tr>
-                    <td>{{ $tamu->id_tamu }}</td>
+                    <td style="text-align: center;">{{ $loop->iteration }}</td>
                     <td>{{ $tamu->created_at->format('d-m-Y') }}</td>
                     <td>{{ $tamu->kode_tiket }}</td>
                     <td>{{ $tamu->nama_lengkap }}</td>
