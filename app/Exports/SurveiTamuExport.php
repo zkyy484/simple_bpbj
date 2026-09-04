@@ -53,22 +53,22 @@ class SurveiTamuExport implements FromCollection, WithHeadings, WithMapping, Wit
         // Index jawaban berdasarkan id_pertanyaan agar lookup O(1)
         $jawabanByPertanyaan = $respon->jawaban->keyBy('id_pertanyaan');
 
-        // Cari jawaban untuk pertanyaan pilihan_ganda "Pekerjaan"
+        // Cari jawaban untuk pertanyaan pilihan_ganda "Pekerjaan" (Case-Insensitive)
         $jawabanPekerjaan = $respon->jawaban->first(function ($j) {
             $pertanyaan = $j->pertanyaan;
             return $pertanyaan
                 && $pertanyaan->tipe_pertanyaan === 'pilihan_ganda'
-                && trim($pertanyaan->pertanyaan) === 'Pekerjaan';
+                && mb_strtolower(trim($pertanyaan->pertanyaan)) === 'pekerjaan';
         });
 
         $pekerjaan = optional(optional($jawabanPekerjaan)->opsi)->opsi ?? '-';
 
-        // Cari jawaban untuk pertanyaan pilihan_ganda "Pilih jenis layanan yang diterima"
+        // Cari jawaban untuk pertanyaan pilihan_ganda "Pilih jenis layanan yang diterima" (Case-Insensitive)
         $jawabanJenisLayanan = $respon->jawaban->first(function ($j) {
             $pertanyaan = $j->pertanyaan;
             return $pertanyaan
                 && $pertanyaan->tipe_pertanyaan === 'pilihan_ganda'
-                && trim($pertanyaan->pertanyaan) === 'Pilih jenis layanan yang diterima';
+                && mb_strtolower(trim($pertanyaan->pertanyaan)) === 'pilih jenis layanan yang diterima';
         });
 
         $jenisLayanan = optional(optional($jawabanJenisLayanan)->opsi)->opsi ?? '-';

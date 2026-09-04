@@ -165,7 +165,31 @@ class PertanyaanController extends Controller
         return back()->with('success', 'Pertanyaan berhasil dihapus');
     }
 
-    public function pulihkan(Request $request) {
+    // public function pulihkan(Request $request)
+    // {
+    //     // Validasi agar ID wajib ada
+    //     $request->validate([
+    //         'id_pertanyaan' => 'required'
+    //     ]);
+
+    //     // Cari data berdasarkan ID yang dikirim dari input hidden
+    //     $pertanyaan = Pertanyaan::where('id_pertanyaan', $request->id_pertanyaan)->firstOrFail();
+
+    //     // Ubah status menjadi nonaktif (soft delete)
+    //     $pertanyaan->update([
+    //         'status' => 'aktif'
+    //     ]);
+
+    //     ActivityLog::catat(
+    //         'Arsipkan Pertanyaan Survei',
+    //         "Mengarsipkan pertanyaan survei: \"{$pertanyaan->pertanyaan}\"."
+    //     );
+
+    //     return back()->with('success', 'Pertanyaan berhasil dipulihkan');
+    // }
+
+    public function pulihkan(Request $request)
+    {
         $request->validate([
             'id_pertanyaan' => 'required'
         ]);

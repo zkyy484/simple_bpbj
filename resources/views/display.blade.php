@@ -145,20 +145,15 @@
             class="col-span-9 bg-white border border-slate-200/80 rounded-xl shadow-sm flex flex-col relative overflow-hidden">
 
             @if (!empty($linkVideoEmbeds))
-                <!-- Badge status mengambang di atas video, tidak memakan lebar/tinggi video -->
+                <!-- Badge status mengambang di atas video -->
                 <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
-                    <span
-                        class="text-xs font-black bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1 rounded tracking-wide uppercase flex items-center gap-1.5 shadow-sm">
-                        <span class="w-2 h-2 rounded-full bg-rose-600 animate-pulse"></span>
-                        Display Online
-                    </span>
                     @if (count($linkVideoEmbeds) > 1)
                         <span id="videoCounterBadge"
                             class="text-xs font-bold text-white bg-slate-900/70 px-2 py-1 rounded tracking-wide">1 / {{ count($linkVideoEmbeds) }}</span>
                     @endif
                 </div>
 
-                <!-- Video full-bleed: menempel ke seluruh tepi kartu, tanpa bingkai putih -->
+                <!-- Video full-bleed -->
                 <div class="flex-1 bg-black">
                     <iframe
                         id="displayVideoFrame"
@@ -170,11 +165,7 @@
                     ></iframe>
                 </div>
             @else
-                <!-- Header hanya ditampilkan saat tidak ada video, agar tetap ada judul kartu -->
                 <div class="flex items-center justify-between border-b border-slate-200 px-6 pt-6 pb-3.5 shrink-0">
-                    <div class="flex items-center gap-3">
-                        <h2 class="text-lg font-black text-slate-900 tracking-wide uppercase">Display Online</h2>
-                    </div>
                 </div>
                 <div class="flex-1 flex items-center justify-center p-6">
                     <p class="text-slate-400 text-xl font-bold">Belum ada video Display Online yang diatur</p>
@@ -184,24 +175,23 @@
 
     </main>
 
-    <!-- 3. Footer (Mentok Kanan-Kiri & Bawah) -->
+    <!-- 3. Footer (Disesuaikan Menggunakan bg-gov-navy Agar Senada) -->
     <footer class="w-full shrink-0">
-        <!-- Baris Jadwal Dinas Hari Ini -->
-        <div class="bg-gov-blue border-b border-slate-700 px-6 py-2.5 flex items-center gap-3 shadow">
+        <div class="bg-gov-navy border-t border-slate-700 px-8 py-3.5 flex items-center gap-4 shadow-lg">
             <div
-                class="bg-white text-gov-blue font-extrabold text-sm px-3 py-1 rounded shrink-0 uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-calendar-days"></i>
+                class="bg-[#1E3A8A] text-white font-extrabold text-base px-4 py-2 rounded-lg shrink-0 uppercase tracking-wider flex items-center gap-2.5 shadow-md border border-slate-600">
+                <i class="fa-solid fa-calendar-days text-xl text-sky-400"></i>
                 Jadwal Dinas Hari Ini
             </div>
             <div id="jadwalDinasWrap" class="flex-1 overflow-hidden">
                 @if (isset($jadwalHariIni) && $jadwalHariIni->count() > 0)
-                    <marquee id="jadwalDinasMarquee" class="text-sm text-white font-semibold tracking-wide">
+                    <marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">
                         @foreach ($jadwalHariIni as $jadwal)
                             @php
                                 $namaPegawai = $jadwal->pegawais->pluck('nama_lengkap')->filter()->implode(', ');
                             @endphp
                             @if ($jadwal->waktu)
-                                <strong>{{ \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') }} WITA</strong> —
+                                <strong class="text-amber-400 font-bold">{{ \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') }} WITA</strong> —
                             @endif
                             {{ $jadwal->acara }}
                             @if ($jadwal->bidang_sekretariat)
@@ -220,44 +210,23 @@
                         @endforeach
                     </marquee>
                 @else
-                    <p id="jadwalDinasKosong" class="text-sm text-white font-semibold tracking-wide">
+                    <p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">
                         Tidak ada jadwal dinas untuk hari ini.
                     </p>
                 @endif
             </div>
-        </div>
-
-        <!-- Baris Info Penting -->
-        <div class="bg-gov-navy border-t border-slate-700 px-6 py-2.5 flex items-center gap-3 shadow">
-            <div
-                class="bg-gov-gold text-slate-950 font-extrabold text-sm px-3 py-1 rounded shrink-0 uppercase tracking-wider">
-                INFO PENTING
-            </div>
-            <marquee class="text-sm text-slate-200 font-semibold tracking-wide">
-                Selamat Datang di Portal UKPBJ • Jam Pelayanan Tatap Muka: Senin - Jumat (08.00 - 15.30 WITA) • Utamakan
-                Transparansi dan Bebas Pungli dalam Pengadaan Barang & Jasa Pemerintah • Layanan Helpdesk & Konsultasi
-                Online dapat diakses melalui portal resmi.
-            </marquee>
         </div>
     </footer>
 
     <!-- Script Otomatisasi TV Display -->
     <script>
         // 1. Sinkronisasi Waktu Server (WITA)
-        // PENTING: dihitung manual (bukan pakai objek Date + getHours/getMinutes)
-        // karena Date.getHours() otomatis mengikuti timezone perangkat/browser TV,
-        // bukan waktu WITA dari server. Kalau TV di-set ke zona waktu lain (mis. UTC/WIB),
-        // jam yang tampil jadi meleset. Dengan increment angka manual di bawah, jam
-        // selalu mengikuti waktu server (Asia/Makassar) apapun timezone perangkatnya.
-        // Nilai awal diambil dari atribut data-* pada elemen #clock (di-set oleh Blade/server).
         const clockEl = document.getElementById('clock');
         const dateEl = document.getElementById('date');
         let jamServer   = parseInt(clockEl?.dataset.jam ?? '0', 10);
         let menitServer = parseInt(clockEl?.dataset.menit ?? '0', 10);
         let detikServer = parseInt(clockEl?.dataset.detik ?? '0', 10);
 
-        // Tanggal berjalan disimpan sebagai objek Date lokal, hanya dipakai untuk
-        // memformat ulang teks tanggal saat lewat tengah malam (tanpa reload halaman).
         let tanggalServer = dateEl?.dataset.tanggal ? new Date(dateEl.dataset.tanggal + 'T00:00:00') : null;
         const formatterTanggal = new Intl.DateTimeFormat('id-ID', {
             weekday: 'long',
@@ -288,8 +257,6 @@
                 clockEl.textContent = `${hours}:${minutes}:${seconds} WITA`;
             }
 
-            // Lewat tengah malam (00:00:02 WITA): perbarui teks tanggal saja tanpa
-            // reload halaman, supaya video Display Online tidak pernah terputus/mengulang.
             if (jamServer === 0 && menitServer === 0 && detikServer === 2) {
                 if (tanggalServer) {
                     tanggalServer.setDate(tanggalServer.getDate() + 1);
@@ -301,7 +268,7 @@
         }
         setInterval(updateClock, 1000);
 
-        // 2. Auto refresh statistik via AJAX (tanpa reload halaman, video Display Online tidak terputus)
+        // 2. Auto refresh statistik via AJAX
         function formatRibuan(num) {
             return new Intl.NumberFormat('id-ID').format(num ?? 0);
         }
@@ -341,16 +308,13 @@
                 .catch(err => console.error('Gagal refresh statistik Display TV:', err));
         }
 
-        // Refresh statistik tiap 30 detik
         setInterval(refreshStatistikDisplay, 30 * 1000);
 
-        // 3. Auto refresh Jadwal Dinas Hari Ini via AJAX (tanpa reload halaman,
-        // video Display Online tidak terputus). Berguna juga saat tanggal
-        // berganti hari, supaya jadwal otomatis mengikuti hari yang baru.
+        // 3. Auto refresh Jadwal Dinas Hari Ini via AJAX
         function bangunTeksJadwal(item) {
             let teks = '';
             if (item.waktu) {
-                teks += `<strong>${item.waktu} WITA</strong> — `;
+                teks += `<strong class="text-amber-400 font-bold">${item.waktu} WITA</strong> — `;
             }
             teks += item.acara;
             if (item.bidang_sekretariat) {
@@ -383,24 +347,21 @@
                     const list = data.jadwal ?? [];
                     if (list.length > 0) {
                         const isi = list.map(bangunTeksJadwal).join('&nbsp;•&nbsp;');
-                        wrap.innerHTML = `<marquee id="jadwalDinasMarquee" class="text-sm text-white font-semibold tracking-wide">${isi}</marquee>`;
+                        wrap.innerHTML = `<marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">${isi}</marquee>`;
                     } else {
-                        wrap.innerHTML = `<p id="jadwalDinasKosong" class="text-sm text-white font-semibold tracking-wide">Tidak ada jadwal dinas untuk hari ini.</p>`;
+                        wrap.innerHTML = `<p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">Tidak ada jadwal dinas untuk hari ini.</p>`;
                     }
                 })
                 .catch(err => console.error('Gagal refresh Jadwal Dinas Display TV:', err));
         }
 
-        // Refresh jadwal dinas tiap 60 detik
         setInterval(refreshJadwalDinas, 60 * 1000);
     </script>
 
     @if (!empty($linkVideoEmbeds) && count($linkVideoEmbeds) > 1)
         <script type="application/json" id="displayVideoListData">{!! json_encode($linkVideoEmbeds) !!}</script>
 
-        <!-- Script Rotasi Video Display Online (lebih dari 1 video, diputar bergantian sesuai urutan).
-             Video ditunggu sampai BENAR-BENAR SELESAI (event "ended" dari YouTube IFrame Player API)
-             baru pindah ke video berikutnya — bukan dipotong paksa oleh timer tetap. -->
+        <!-- Script Rotasi Video Display Online -->
         <script>
             (function () {
                 const dataEl = document.getElementById('displayVideoListData');
@@ -410,22 +371,12 @@
                     return;
                 }
 
-                // Jaga-jaga: jika event "ended" tidak pernah terdeteksi (mis. video error,
-                // koneksi TV bermasalah, atau link bukan YouTube), tetap dipaksa pindah
-                // setelah durasi maksimal ini supaya Display TV tidak macet di satu video.
-                //
-                // PENTING (perbaikan): nilai ini HARUS lebih panjang dari durasi video
-                // TERPANJANG yang mungkin diputar. Sebelumnya di-hardcode 20 menit, sehingga
-                // video berdurasi 1 jam ikut terpotong paksa oleh timer ini padahal event
-                // "ended" belum sempat terpicu. Sekarang nilainya dihitung otomatis dari
-                // durasi asli video (via player.getDuration()) + buffer, dengan nilai default
-                // di bawah ini hanya dipakai sebagai fallback awal sebelum durasi diketahui.
-                const BATAS_MAKSIMAL_DEFAULT_MS = 3 * 60 * 60 * 1000; // 3 jam (default awal/fallback terakhir)
-                const BUFFER_SETELAH_DURASI_MS = 60 * 1000; // toleransi 1 menit di atas durasi asli video
+                const BATAS_MAKSIMAL_DEFAULT_MS = 3 * 60 * 60 * 1000;
+                const BUFFER_SETELAH_DURASI_MS = 60 * 1000;
 
                 let currentIndex = 0;
                 let fallbackTimer = null;
-                let player = null; // instance YT.Player, dibuat setelah IFrame API siap
+                let player = null;
 
                 const frame = document.getElementById('displayVideoFrame');
                 const badge = document.getElementById('videoCounterBadge');
@@ -441,10 +392,6 @@
                     }
                 }
 
-                // Menghitung durasi timer cadangan: idealnya pakai durasi asli video
-                // (dari YouTube Player API) + sedikit buffer. Kalau durasi belum
-                // diketahui (mis. video baru dimuat / masih buffering), pakai nilai
-                // default yang panjang supaya tidak memotong video sebelum waktunya.
                 function hitungDurasiFallback() {
                     if (player && typeof player.getDuration === 'function') {
                         const durasiDetik = player.getDuration();
@@ -469,12 +416,8 @@
                     const idBerikutnya = ekstrakVideoId(urlBerikutnya);
 
                     if (player && idBerikutnya) {
-                        // Ganti video di player yang sama (tanpa memuat ulang iframe),
-                        // supaya listener "ended" tetap terpasang untuk video berikutnya.
                         player.loadVideoById(idBerikutnya);
                     } else if (frame) {
-                        // Fallback untuk link non-YouTube atau saat player API belum siap:
-                        // ganti src iframe langsung, lalu pasang timer cadangan.
                         frame.src = urlBerikutnya;
                         pasangFallbackTimer();
                     }
@@ -484,7 +427,6 @@
                     const idPertama = ekstrakVideoId(videoList[0]);
 
                     if (!idPertama || !frame || typeof YT === 'undefined' || !YT.Player) {
-                        // Video pertama bukan YouTube atau API gagal dimuat: pakai fallback timer saja.
                         pasangFallbackTimer();
                         return;
                     }
@@ -495,18 +437,13 @@
                                 pasangFallbackTimer();
                             },
                             onStateChange: function (event) {
-                                // state 0 = ENDED (video benar-benar selesai)
                                 if (event.data === YT.PlayerState.ENDED) {
                                     putarVideoBerikutnya();
                                 } else if (event.data === YT.PlayerState.PLAYING) {
-                                    // Video sedang berjalan normal: pasang ulang timer cadangan
-                                    // dengan durasi ASLI video ini (bukan angka tetap), supaya
-                                    // timer tidak memotong video sebelum durasinya habis.
                                     pasangFallbackTimer();
                                 }
                             },
                             onError: function () {
-                                // Video error / tidak bisa diputar: langsung pindah ke berikutnya.
                                 putarVideoBerikutnya();
                             }
                         }
@@ -515,8 +452,6 @@
 
                 perbaruiBadge();
 
-                // Muat YouTube IFrame API secara dinamis, lalu inisialisasi player
-                // setelah API benar-benar siap.
                 if (typeof YT !== 'undefined' && YT.Player) {
                     inisialisasiYouTubePlayer();
                 } else {
@@ -532,7 +467,6 @@
                         inisialisasiYouTubePlayer();
                     };
 
-                    // Jaga-jaga jika script API gagal dimuat sama sekali (mis. tidak ada internet).
                     setTimeout(function () {
                         if (!player) {
                             pasangFallbackTimer();
