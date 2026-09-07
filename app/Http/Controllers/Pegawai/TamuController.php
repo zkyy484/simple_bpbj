@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TindakLanjutMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class TamuController extends Controller
 {
@@ -45,8 +46,46 @@ class TamuController extends Controller
                 ->with('error', 'Anda bukan penanggung jawab tamu ini.');
         }
 
+        // Validasi input
+        $request->validate([
+            'solusi' => 'required|string',
+            'dokumen_lampiran' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx|max:5120', // Maksimal 5MB
+        ], [
+            'solusi.required' => 'Kolom solusi wajib diisi.',
+            'dokumen_lampiran.mimes' => 'Format file harus berupa PDF, Word, atau Excel.',
+            'dokumen_lampiran.max' => 'Ukuran file dokumen maksimal 5 MB.',
+        ]);
+
+        // Handle Upload File (jika ada file diunggah)
+        if ($request->hasFile('dokumen_lampiran')) {
+            // Hapus file lama jika sebelumnya sudah pernah diunggah
+            if ($tamu->dokumen_lampiran && Storage::disk('public')->exists($tamu->dokumen_lampiran)) {
+                Storage::disk('public')->delete($tamu->dokumen_lampiran);
+            }
+
+            $file = $request->file('dokumen_lampiran');
+
+            // 1. Ambil nama asli file (beserta ekstensi)
+            $originalName = $file->getClientOriginalName();
+
+            // 2. Bersihkan karakter khusus agar aman di URL (Opsional tapi direkomendasikan)
+            $filename = pathinfo($originalName, PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $safeFileName = \Str::slug($filename) . '.' . $extension;
+
+            // 3. Simpan dengan nama asli (menggunakan storeAs)
+            // Jika ingin 100% persis tanpa diubah sedikitpun, gunakan: $file->storeAs('dokumen_tamu', $originalName, 'public');
+            $filePath = $file->storeAs('dokumen_tamu', $safeFileName, 'public');
+
+            // 4. Simpan path file ke database
+            $tamu->dokumen_lampiran = $filePath;
+        }
+
         $tamu->solusi = $request->solusi;
-        $tamu->status_tindak_lanjut = $request->status_tindak_lanjut;
+
+        // Otomatis ubah status menjadi selesai saat solusi diisi
+        $tamu->status_tindak_lanjut = 'selesai';
+
         $tamu->save();
 
         ActivityLog::catat(

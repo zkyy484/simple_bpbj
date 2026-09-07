@@ -91,12 +91,36 @@
                         </td>
                     </tr>
 
+                    <!-- Dokumen Lampiran (Hanya tampil jika file dokumen diunggah) -->
+                    @if ($tamu->dokumen_lampiran)
+                    <tr>
+                        <td style="padding:20px 40px 0 40px;">
+                            <div style="color:#1F2937; font-size:14px; font-weight:700; margin:0 0 8px 0;">
+                                Dokumen Lampiran
+                            </div>
+                            <div style="background-color:#F8FAFC; border:1px solid #E2E8F0; padding:14px 16px; border-radius:8px;">
+                                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td style="font-size:13px; color:#334155; font-weight:600;">
+                                            📄 {{ basename($tamu->dokumen_lampiran) }}
+                                        </td>
+                                        <td align="right">
+                                            <a href="{{ asset('storage/' . $tamu->dokumen_lampiran) }}" target="_blank" style="display:inline-block; padding:7px 14px; background-color:#173860; color:#ffffff; font-size:12px; font-weight:700; text-decoration:none; border-radius:6px;">
+                                                Unduh / Lihat Dokumen
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    @endif
 
                     <!-- Catatan kode manual -->
                     <tr>
                         <td style="padding:16px 40px 32px 40px;">
                             <div style="margin-top:8px; padding-top:16px; border-top:1px dashed #E5E7EB; color:#6B7280; font-size:12.5px; line-height:1.6; text-align:center;">
-                                Jika tombol di atas tidak dapat dibuka, silakan lakukan pengecekan status secara manual menggunakan kode tiket berikut:<br>
+                                Jika ada pertanyaan mengenai tindak lanjut ini, Anda dapat menghubungi petugas kami dengan menyebutkan kode tiket:<br>
                                 <strong style="color:#111827; font-family:'Courier New', monospace; font-size:13.5px;">{{ $tamu->kode_tiket }}</strong>
                             </div>
                         </td>
