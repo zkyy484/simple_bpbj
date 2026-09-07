@@ -22,6 +22,7 @@ class Tamu extends Model
         'permasalahan',
         'id_user',
         'solusi',
+        'dokumen_lampiran',
         'status_tindak_lanjut',
         'approval',
         'paraf',

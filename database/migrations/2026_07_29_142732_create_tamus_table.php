@@ -52,6 +52,7 @@ return new class extends Migration
                   ->nullOnDelete();
 
             $table->text('solusi')->nullable();
+            $table->string('dokumen_lampiran')->nullable();
 
             $table->enum('status_tindak_lanjut', [
                 'belum_eskalasi',

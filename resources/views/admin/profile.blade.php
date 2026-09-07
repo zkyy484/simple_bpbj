@@ -9,9 +9,12 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="bg-[#dbe5ff] font-sans text-gray-800 min-h-screen flex flex-col justify-between">
+<body class="bg-[#dbe5ff] font-sans text-gray-800 min-h-screen flex flex-col justify-between"
+      x-data="{ showPasswordModal: {{ $errors->hasBag('updatePassword') || $errors->has('current_password') || $errors->has('password') ? 'true' : 'false' }} }">
 
     <!-- Top Action Bar -->
     <div class="bg-white px-8 py-4 flex justify-between items-center shadow-sm sticky top-0 z-10">
@@ -21,11 +24,15 @@
             </a>
             <h2 class="text-2xl font-bold text-gray-900">Pengaturan Profile</h2>
         </div>
-        <div class="flex gap-3">
-            <button type="button" onclick="window.history.back()"
-                class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
-                Batal
+        <div class="flex items-center gap-3">
+            <!-- Tombol Pemicu Modal Password -->
+            <button type="button" @click="showPasswordModal = true"
+                class="px-5 py-2 border border-[#1b3a6b] text-[#1b3a6b] font-semibold rounded-lg hover:bg-blue-50 transition shadow-sm flex items-center gap-2">
+                <i data-lucide="key-round" class="w-4 h-4"></i>
+                Ubah Password
             </button>
+            
+            <!-- Tombol Simpan Form Profil -->
             <button type="submit" form="profile-form"
                 class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
                 Simpan Perubahan
@@ -36,7 +43,7 @@
     <main class="max-w-7xl w-full mx-auto p-6 md:p-8">
 
         {{-- ============================ --}}
-        {{-- FORM 1: INFO PROFIL --}}
+        {{-- FORM INFO PROFIL --}}
         {{-- ============================ --}}
         <form id="profile-form" action="{{ route('admin.profile.update') }}" method="POST"
             class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -148,39 +155,58 @@
         </form>
 
         {{-- ============================ --}}
-        {{-- FORM 2: UBAH PASSWORD --}}
+        {{-- MODAL UBAH PASSWORD (ALPINE.JS) --}}
         {{-- ============================ --}}
-        <div id="password-section" class="mt-6">
-            <form action="{{ route('admin.update.password') }}" method="POST"
-                class="bg-white rounded-2xl shadow-sm overflow-hidden">
-                @csrf
-                @method('PUT')
+        <div x-show="showPasswordModal" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+             style="display: none;">
 
-                <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i data-lucide="lock" class="w-5 h-5 text-gray-800"></i>
-                        <h3 class="text-base font-bold text-gray-900">Ubah Password</h3>
-                    </div>
-                    <span class="text-xs text-gray-500 font-medium">Wajib diisi semua jika ingin mengganti
-                        password</span>
-                </div>
-                <div class="p-6 space-y-5">
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-2">Password Saat Ini</label>
-                        <div class="relative">
-                            <input type="password" id="current_password" name="current_password"
-                                placeholder="Masukkan password lama untuk konfirmasi"
-                                class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-3 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <button type="button" onclick="togglePassword('current_password', 'icon-current')"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800">
-                                <i id="icon-current" data-lucide="eye" class="w-5 h-5"></i>
-                            </button>
+            <div @click.away="showPasswordModal = false"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="bg-white w-full max-w-xl rounded-2xl shadow-xl overflow-hidden">
+                
+                <form action="{{ route('admin.update.password') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="border-b border-gray-100 px-6 py-4 flex items-center justify-between bg-gray-50">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="lock" class="w-5 h-5 text-[#1b3a6b]"></i>
+                            <h3 class="text-base font-bold text-gray-900">Ubah Password</h3>
                         </div>
-                        @error('current_password')
-                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                        @enderror
+                        <button type="button" @click="showPasswordModal = false" class="text-gray-400 hover:text-gray-600">
+                            <i data-lucide="x" class="w-5 h-5"></i>
+                        </button>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-2">Password Saat Ini</label>
+                            <div class="relative">
+                                <input type="password" id="current_password" name="current_password"
+                                    placeholder="Masukkan password lama untuk konfirmasi"
+                                    class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-3 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
+                                <button type="button" onclick="togglePassword('current_password', 'icon-current')"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800">
+                                    <i id="icon-current" data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            @error('current_password')
+                                <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <div>
                             <label class="block text-xs font-semibold text-gray-700 mb-2">Password Baru</label>
                             <div class="relative">
@@ -195,43 +221,45 @@
                                 <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
                         <div>
-                            <label class="block text-xs font-semibold text-gray-700 mb-2">Konfirmasi Password
-                                Baru</label>
+                            <label class="block text-xs font-semibold text-gray-700 mb-2">Konfirmasi Password Baru</label>
                             <div class="relative">
                                 <input type="password" id="password_confirmation" name="password_confirmation"
                                     placeholder="Ulangi password baru"
                                     class="w-full bg-[#f0f2f5] border-none rounded-lg pl-4 pr-12 py-3 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <button type="button"
-                                    onclick="togglePassword('password_confirmation', 'icon-confirm')"
+                                <button type="button" onclick="togglePassword('password_confirmation', 'icon-confirm')"
                                     class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 hover:text-gray-800">
                                     <i id="icon-confirm" data-lucide="eye" class="w-5 h-5"></i>
                                 </button>
                             </div>
                         </div>
+
+                        <div class="bg-[#f0f2f5] p-3.5 rounded-xl flex items-start gap-3 text-gray-800">
+                            <div class="p-1 rounded-full border border-gray-800 shrink-0 mt-0.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-gray-800"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-gray-900">Catatan Keamanan</h4>
+                                <p class="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
+                                    Password baru minimal 8 karakter. Pastikan Anda mengingat password yang baru dibuat.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="bg-[#f0f2f5] p-4 rounded-xl flex items-start gap-3.5 text-gray-800 mt-2">
-                        <div class="p-1 rounded-full border border-gray-800 shrink-0 mt-0.5">
-                            <i data-lucide="info" class="w-4 h-4 text-gray-800"></i>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-xs text-gray-900">Catatan Keamanan</h4>
-                            <p class="text-[11px] text-gray-600 mt-0.5 leading-relaxed">
-                                Isi ketiga kolom di atas jika ingin mengganti password. Password baru minimal 8
-                                karakter.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end">
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                        <button type="button" @click="showPasswordModal = false"
+                            class="px-5 py-2 text-gray-600 font-semibold rounded-lg hover:bg-gray-200 transition">
+                            Batal
+                        </button>
                         <button type="submit"
                             class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
-                            Simpan Password
+                            Simpan Password Baru
                         </button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </main>
 
