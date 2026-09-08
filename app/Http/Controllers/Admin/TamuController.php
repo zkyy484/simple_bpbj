@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\ApprovalTamuMail;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
+use App\Models\SubBagian;
 use App\Models\Tamu;
+use App\Models\Tujuan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 
 class TamuController extends Controller
 {
@@ -33,34 +35,41 @@ class TamuController extends Controller
             ->paginate(10)
             ->appends($request->except('ajax'));
 
-        
+        // Daftar Sub Bagian aktif untuk dropdown edit "Sub Bagian" pada modal Detail.
+        $subBagianList = SubBagian::where('status', 'aktif')
+            ->orderBy('nama_sub_bagian')
+            ->get();
+
+        // Daftar Tujuan aktif untuk dropdown edit "Tujuan" pada modal Detail.
+        $tujuanList = Tujuan::where('status', 'aktif')
+            ->orderBy('nama_tujuan')
+            ->get();
+
         if ($request->ajax()) {
             return view('admin.tamu.partials.tabel-tamu', compact('tamus'));
         }
 
-        return view('admin.tamu.index', compact('tamus', 'search', 'admins'));
+        return view('admin.tamu.index', compact('tamus', 'search', 'admins', 'subBagianList', 'tujuanList'));
     }
 
-    // Memperbarui solusi, status tindak lanjut, status, dan pegawai penanggung jawab
+    // Memperbarui data tamu. Khusus role Admin FO, data yang boleh diubah
+    // adalah Sub Bagian dan Tujuan. Solusi dan Status Tindak Lanjut TIDAK
+    // ikut divalidasi/disimpan di sini agar tidak bisa diubah dari sisi Admin FO.
     public function update(Request $request, Tamu $tamu)
     {
         $validated = $request->validate([
-            'solusi' => ['nullable', 'string'],
-            'status_tindak_lanjut' => ['required', 'in:belum_eskalasi,eskalasi,selesai'],
-            'status' => ['nullable', 'in:menunggu,diproses,selesai'],
-            'id_user' => ['nullable', 'exists:users,id_user'],
+            'id_sub_bagian' => ['nullable', 'exists:sub_bagians,id_sub_bagian'],
+            'id_tujuan' => ['nullable', 'exists:tujuans,id_tujuan'],
         ]);
 
         $tamu->update([
-            'solusi' => $validated['solusi'] ?? $tamu->solusi,
-            'status_tindak_lanjut' => $validated['status_tindak_lanjut'],
-            'status' => $validated['status'] ?? $tamu->status,
-            'id_user' => $validated['id_user'] ?? $tamu->id_user,
+            'id_sub_bagian' => $validated['id_sub_bagian'] ?? $tamu->id_sub_bagian,
+            'id_tujuan' => $validated['id_tujuan'] ?? $tamu->id_tujuan,
         ]);
 
         ActivityLog::catat(
             'Ubah Data Tamu',
-            "Memperbarui data tindak lanjut tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+            "Memperbarui Sub Bagian/Tujuan tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
         );
 
         return back()->with('success', 'Data tamu berhasil diperbarui.');

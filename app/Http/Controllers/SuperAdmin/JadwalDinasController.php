@@ -9,6 +9,7 @@ use App\Models\Tamu;
 use App\Models\User;
 use App\Models\ActivityLog;
 use App\Models\Pengaturan;
+use App\Models\SubBagian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -36,9 +37,17 @@ class JadwalDinasController extends Controller
         }
 
         $jadwalDinas = $query->paginate(10)->withQueryString();
-        $pegawaiList = User::orderBy('nama_lengkap')->get();
 
-        return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList', 'admins'));
+        // Daftar pegawai lengkap dengan sub bagian, dipakai untuk filter
+        // "Yang Hadir" per Sub Bagian pada modal Tambah/Edit Jadwal Dinas.
+        $pegawaiList = User::with('subBagian')->orderBy('nama_lengkap')->get();
+
+        // Daftar Sub Bagian aktif untuk dropdown filter "Yang Hadir".
+        $subBagianList = SubBagian::where('status', 'aktif')
+            ->orderBy('nama_sub_bagian')
+            ->get();
+
+        return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList', 'subBagianList', 'admins'));
     }
 
     // Simpan Jadwal Dinas Baru
@@ -228,7 +237,12 @@ class JadwalDinasController extends Controller
             : ($kunjunganHariIni > 0 ? 100 : 0);
 
         // ==== Statistik SKM ====
-        $skmQuery = Respon::where('status', 'aktif');
+        // Nilai SKM/Survei dihitung ulang setiap tahun (reset otomatis ke 0
+        // saat tahun berganti, mis. dari 2026 ke 2027) dengan membatasi data
+        // hanya pada respon yang tanggal pengisiannya (tanggal_respon) ada
+        // di tahun berjalan (Asia/Makassar).
+        $skmQuery = Respon::where('status', 'aktif')
+            ->whereYear('tanggal_respon', $today->year);
 
         $totalResponden = (clone $skmQuery)->count();
         $rataRatingGlobal = (clone $skmQuery)->avg('rata_rating');
