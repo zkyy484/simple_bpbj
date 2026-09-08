@@ -39,7 +39,8 @@ return new class extends Migration
             $table->enum('role', [
                 'super_admin',
                 'admin_fo',
-                'pegawai'
+                'pegawai',
+                'admin_survei'
             ])->default('pegawai');
 
             $table->enum('status', [

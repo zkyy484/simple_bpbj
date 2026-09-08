@@ -37,6 +37,7 @@ class AuthenticatedSessionController extends Controller
             'super_admin' => redirect()->route('super.dashboard'),
             'admin_fo' => redirect()->route('admin.dashboard'),
             'pegawai' => redirect()->route('pegawai.dashboard'),
+            'admin_survei' => redirect()->route('admin-survei.dashboard'),
             default => redirect('/login'),
         };
     }

@@ -23,7 +23,8 @@ class AkunController extends Controller
 
         $accounts = User::with('subBagian')
             ->where('status', 'aktif')
-            ->whereIn('role', ['admin_fo', 'pegawai']) // Hanya admin & pegawai
+            // PERBAIKAN 1: Tambahkan 'admin_survei' agar muncul di tabel data akun
+            ->whereIn('role', ['admin_fo', 'admin_survei', 'pegawai']) 
             ->when($search, function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
@@ -39,6 +40,7 @@ class AkunController extends Controller
 
         return view('super-admin.akun.index', compact('accounts', 'subBagians', 'admins'));
     }
+
     /**
      * Daftar akun yang diarsipkan (status nonaktif)
      */
@@ -82,7 +84,8 @@ class AkunController extends Controller
             'alamat' => ['required', 'string'],
             'username' => ['required', 'string', 'max:50', 'unique:users,username'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'pegawai'])],
+            // PERBAIKAN 2: Tambahkan 'admin_survei' ke dalam array rule ini
+            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'admin_survei', 'pegawai'])],
         ], [
             // Pesan Error Kustom
             'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
@@ -141,7 +144,8 @@ class AkunController extends Controller
             'no_telepon' => ['required', 'string', 'max:20'],
             'id_sub_bagian' => ['required', 'exists:sub_bagians,id_sub_bagian'],
             'alamat' => ['required', 'string'],
-            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'pegawai'])],
+            // PERBAIKAN 3: Tambahkan 'admin_survei' ke dalam array rule ini
+            'role' => ['required', Rule::in(['super_admin', 'admin_fo', 'admin_survei', 'pegawai'])],
         ], [
             'nip.unique' => 'NIP sudah digunakan oleh pengguna lain.',
             'email.unique' => 'Email sudah digunakan oleh pengguna lain.',
@@ -217,6 +221,8 @@ class AkunController extends Controller
         return match ($role) {
             'super_admin' => 'Super Admin',
             'admin_fo' => 'Admin FO',
+            // PERBAIKAN 4: Tambahkan label Admin Survei untuk sistem log
+            'admin_survei' => 'Admin Survei', 
             'pegawai' => 'Pegawai',
             default => 'pengguna',
         };

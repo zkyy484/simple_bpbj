@@ -206,6 +206,7 @@
                                 <option value="pegawai" {{ old('role') == 'pegawai' ? 'selected' : '' }}>Pegawai
                                 </option>
                                 <option value="admin_fo" {{ old('role') == 'admin_fo' ? 'selected' : '' }}>Admin FO</option>
+                                <option value="admin_survei" {{ old('role') == 'admin_survei' ? 'selected' : '' }}>Admin Survei</option>
                             </select>
                             @error('role')
                                 <p class="mt-2 text-sm text-red-500">{{ $message }}</p>

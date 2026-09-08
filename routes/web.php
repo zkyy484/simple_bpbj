@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminSurvei\LaporanController;
 use App\Http\Controllers\SuperAdmin\JadwalDinasController;
 use App\Http\Controllers\SuperAdmin\PertanyaanController;
 use App\Http\Controllers\SuperAdmin\SurveiController;
@@ -21,6 +22,10 @@ use App\Http\Controllers\Admin\AkunController as AdminAkunController;
 use App\Http\Controllers\Admin\SurveiController as AdminSurveiController;
 use App\Http\Controllers\SuperAdmin\LogAktivitasController;
 use App\Http\Controllers\SuperAdmin\PengaturanController;
+use App\Http\Controllers\AdminSurvei\PertanyaanController as AdminSurveiPertanyaanController;
+use App\Http\Controllers\AdminSurvei\DashboardController as AdminSurveiDashboardController;
+use App\Http\Controllers\AdminSurvei\LaporanController as AdminSurveiLaporanController;
+
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\SuperAdmin\JenisPermohonanController;
 
@@ -167,6 +172,34 @@ Route::middleware(['auth', 'role:admin_fo'])->group(function () {
     Route::delete('/admin/survei/delete', [AdminSurveiController::class, 'destroy'])->name('admin.survei.destroy');
     Route::put('/admin/survei/pulihkan', [AdminSurveiController::class, 'pulihkan'])->name('admin.survei.pulihkan');
 });
+
+Route::middleware(['auth', 'role:admin_survei'])->group(function () {
+    Route::get('/admin-survei/dashboard', [AdminSurveiDashboardController::class, 'index'])->name('admin-survei.dashboard');
+
+    // SURVEI PERTANYAAN
+    Route::get('/admin-survei/pertanyaan', [AdminSurveiPertanyaanController::class, 'index'])->name('admin-survei.pertanyaan.index');
+    Route::post('/admin-survei/pertanyaan/tambah', [AdminSurveiPertanyaanController::class, 'store'])->name('admin-survei.pertanyaan.store');
+    Route::delete('/admin-survei/pertanyaan/hapus', [AdminSurveiPertanyaanController::class, 'destroy'])->name('admin-survei.pertanyaan.delete');
+    Route::get('/admin-survei/pertanyaan/arsip', [AdminSurveiPertanyaanController::class, 'arsip'])->name('admin-survei.pertanyaan.arsip');
+    Route::put('/admin-survei/pertanyaan/pulihkan', [AdminSurveiPertanyaanController::class, 'pulihkan'])->name('admin-survei.pertanyaan.pulihkan');
+    Route::put('/admin-survei/pertanyaan/{id}', [AdminSurveiPertanyaanController::class, 'update'])->name('admin-survei.pertanyaan.edit');
+
+    // LAPORAN SURVEI
+    Route::get('/admin-survei/laporan/', [AdminSurveiLaporanController::class, 'index'])->name('admin-survei.laporan.index');
+    Route::delete('/admin-survei/laporan/delete', [AdminSurveiLaporanController::class, 'destroy'])->name('admin-survei.laporan.delete');
+    Route::get('/admin-survei/laporan/arsip', [AdminSurveiLaporanController::class, 'arsip'])->name('admin-survei.laporan.arsip');
+    Route::put('/admin-survei/laporan/pulihkan', [AdminSurveiLaporanController::class, 'pulihkan'])->name('admin-survei.laporan.pulhikan');
+
+    // EXPORT PDF AND EXCEL
+    Route::get('laporan/survei/export', [AdminSurveiLaporanController::class, 'exportSurveiTamuExcel'])
+        ->name('admin-survei.laporan.excel');
+    Route::get('laporan/survei/export-pdf', [AdminSurveiLaporanController::class, 'exportSurveiTamuPdf'])
+        ->name('admin-survei.laporan.pdf');
+
+
+});
+
+
 
 
 // BUKU TAMU (Publik, tanpa login)
