@@ -62,11 +62,23 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Sub Bagian</label>
-                        <p class="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800" x-text="selected.sub_bagian"></p>
+                        <select name="id_sub_bagian" x-model="selected.id_sub_bagian"
+                            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] focus:border-transparent outline-none transition cursor-pointer bg-white">
+                            <option value="">- Pilih Sub Bagian -</option>
+                            @foreach($subBagianList as $subBagian)
+                                <option value="{{ $subBagian->id_sub_bagian }}">{{ $subBagian->nama_sub_bagian }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Tujuan</label>
-                        <p class="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800" x-text="selected.tujuan"></p>
+                        <select name="id_tujuan" x-model="selected.id_tujuan"
+                            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] focus:border-transparent outline-none transition cursor-pointer bg-white">
+                            <option value="">- Pilih Tujuan -</option>
+                            @foreach($tujuanList as $tujuan)
+                                <option value="{{ $tujuan->id_tujuan }}">{{ $tujuan->nama_tujuan }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Permasalahan</label>
@@ -78,19 +90,17 @@
                 <div class="space-y-3.5">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Solusi</label>
-                        <textarea name="solusi" x-model="selected.solusi"
-                            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm h-32 focus:ring-2 focus:ring-[#173860] focus:border-transparent outline-none resize-none transition"
-                            placeholder="Tulis solusi di sini..."></textarea>
+                        <p class="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800 h-32 overflow-y-auto whitespace-pre-line"
+                            x-text="selected.solusi || '-'"></p>
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1">Status Tindak Lanjut</label>
-                        <select name="status_tindak_lanjut" x-model="selected.status_tindak_lanjut"
-                            class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-[#173860] outline-none transition cursor-pointer">
-                            <option value="belum_eskalasi">Belum Eskalasi</option>
-                            <option value="eskalasi">Eskalasi</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
+                        <p class="bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800">
+                            <span x-show="selected.status_tindak_lanjut === 'belum_eskalasi'">Belum Eskalasi</span>
+                            <span x-show="selected.status_tindak_lanjut === 'eskalasi'">Eskalasi</span>
+                            <span x-show="selected.status_tindak_lanjut === 'selesai'">Selesai</span>
+                        </p>
                     </div>
                 </div>
             </div>

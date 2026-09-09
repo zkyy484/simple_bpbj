@@ -155,11 +155,22 @@
                             @enderror
                         </div>
 
-                        <!-- Yang Hadir dengan Fitur Search Filter Alpine.js -->
-                        <div x-data="{ searchPegawai: '' }">
+                        <!-- Yang Hadir dengan Filter Sub Bagian + Search Alpine.js -->
+                        <div x-data="{ searchPegawai: '', subBagianFilter: '' }">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
                                 Yang Hadir (Opsional)
                             </label>
+
+                            <!-- Dropdown Pilih Sub Bagian -->
+                            <div class="mb-2">
+                                <select x-model="subBagianFilter"
+                                    class="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-800 focus:ring-2 focus:ring-[#173860] focus:border-[#173860] outline-none">
+                                    <option value="">Semua Sub Bagian</option>
+                                    @foreach($subBagianList as $subBagian)
+                                        <option value="{{ $subBagian->id_sub_bagian }}">{{ $subBagian->nama_sub_bagian }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
                             <!-- Input Search Filter -->
                             <div class="relative mb-2">
@@ -173,20 +184,21 @@
                             <!-- List Checkbox Pegawai -->
                             <div class="bg-white rounded-xl border border-gray-300 p-3 max-h-40 overflow-y-auto space-y-2">
                                 @forelse($pegawaiList as $user)
-                                    <label x-show="searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase())"
+                                    <label x-show="(subBagianFilter === '' || subBagianFilter == {{ $user->id_sub_bagian ?? 'null' }}) && (searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase()))"
                                         class="flex items-center gap-3 text-sm text-gray-700 hover:bg-gray-50 p-1.5 rounded-lg cursor-pointer transition">
                                         <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
                                             {{ is_array(old('pegawai_ids')) && in_array($user->id_user, old('pegawai_ids')) ? 'checked' : '' }}
                                             class="w-4 h-4 rounded border-gray-300 text-[#173860] focus:ring-[#173860]">
                                         <span class="font-medium">{{ $user->nama_lengkap }}</span>
+                                        <span class="text-xs text-gray-400">{{ $user->subBagian->nama_sub_bagian ?? '-' }}</span>
                                     </label>
                                 @empty
                                     <p class="text-xs text-gray-400 italic p-1">Belum ada data pegawai.</p>
                                 @endforelse
 
-                                <!-- Pesan Jika Pegawai Tidak Ditemukan saat Mencari -->
+                                <!-- Pesan Jika Pegawai Tidak Ditemukan saat Mencari/Filter -->
                                 @if($pegawaiList->isNotEmpty())
-                                    <div x-show="searchPegawai !== '' && ![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')" 
+                                    <div x-show="![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')"
                                          class="text-xs text-gray-400 text-center py-2">
                                         Pegawai tidak ditemukan.
                                     </div>
