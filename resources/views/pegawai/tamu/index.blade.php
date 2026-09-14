@@ -17,6 +17,8 @@
             tujuan: '',
             permasalahan: '',
             solusi: '',
+            dokumen_lampiran: '',
+            dokumen_lampiran_url: '',
             status_tindak_lanjut: '',
             pegawai_penanggung_jawab: ''
         },
@@ -30,6 +32,11 @@
     
         setTindakLanjut(tamu) {
             this.selected = tamu;
+            // Set URL dokumen dari file yang tersimpan di storage
+            this.selected.dokumen_lampiran_url = tamu.dokumen_lampiran ?
+                '{{ asset('storage') }}/' + tamu.dokumen_lampiran :
+                null;
+    
             this.updateUrl = '{{ url('/pegawai/tamu') }}/' + tamu.id + '/tindak-lanjut';
             this.emailUrl = '{{ url('/pegawai/tamu') }}/' + tamu.id + '/kirim-email';
             this.openTindakLanjut = true;
@@ -37,6 +44,12 @@
     
         setDetail(tamu) {
             this.selected = tamu;
+    
+            // Konversi path penyimpanan ke URL storage publik
+            this.selected.dokumen_lampiran_url = tamu.dokumen_lampiran ?
+                '{{ asset('storage') }}/' + tamu.dokumen_lampiran :
+                null;
+    
             this.openDetail = true;
         }
     }" class="relative">
@@ -133,50 +146,52 @@
                                                 {{-- Tombol Terima Tamu (Memicu Modal Konfirmasi) --}}
                                                 <button type="button"
                                                     @click="setTerima({
-                id: {{ $tamu->id_tamu }},
-                kode_tiket: @js($tamu->kode_tiket),
-                nama_lengkap: @js($tamu->nama_lengkap)
-            })"
+                                                        id: {{ $tamu->id_tamu }},
+                                                        kode_tiket: @js($tamu->kode_tiket),
+                                                        nama_lengkap: @js($tamu->nama_lengkap)
+                                                    })"
                                                     class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                     <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
                                                     <span>Terima Tamu</span>
                                                 </button>
                                             @elseif ($isPenanggungJawab)
-                                                {{-- Tombol Tindak Lanjut (Muncul jika pegawai yang login adalah penanggung jawabnya) --}}
+                                                {{-- Tombol Tindak Lanjut --}}
                                                 <button type="button"
                                                     @click="setTindakLanjut({
-                id: {{ $tamu->id_tamu }},
-                kode_tiket: @js($tamu->kode_tiket),
-                nama_lengkap: @js($tamu->nama_lengkap),
-                email: @js($tamu->email ?? '-'),
-                no_telp: @js($tamu->nomor_telepon ?? '-'),
-                sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
-                tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                permasalahan: @js($tamu->permasalahan ?? '-'),
-                solusi: @js($tamu->solusi ?? ''),
-                status_tindak_lanjut: @js($tamu->status_tindak_lanjut ?? 'belum_eskalasi'),
-                pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? (auth()->user()->nama_lengkap ?? '-'))
-            })"
+                                                        id: {{ $tamu->id_tamu }},
+                                                        kode_tiket: @js($tamu->kode_tiket),
+                                                        nama_lengkap: @js($tamu->nama_lengkap),
+                                                        email: @js($tamu->email ?? '-'),
+                                                        no_telp: @js($tamu->nomor_telepon ?? '-'),
+                                                        sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
+                                                        tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
+                                                        permasalahan: @js($tamu->permasalahan ?? '-'),
+                                                        solusi: @js($tamu->solusi ?? ''),
+                                                        dokumen_lampiran: @js($tamu->dokumen_lampiran ?? ''),
+                                                        status_tindak_lanjut: @js($tamu->status_tindak_lanjut ?? 'belum_eskalasi'),
+                                                        pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? (auth()->user()->nama_lengkap ?? '-'))
+                                                    })"
                                                     class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                     <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                                     <span>Tindak Lanjuti</span>
                                                 </button>
                                             @else
-                                                {{-- Tombol Detail (Muncul jika sudah diambil pegawai lain) --}}
+                                                {{-- Tombol Detail --}}
                                                 <button type="button"
                                                     @click="setDetail({
-                id: {{ $tamu->id_tamu }},
-                kode_tiket: @js($tamu->kode_tiket),
-                nama_lengkap: @js($tamu->nama_lengkap),
-                email: @js($tamu->email ?? '-'),
-                no_telp: @js($tamu->nomor_telepon ?? '-'),
-                sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
-                tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                permasalahan: @js($tamu->permasalahan ?? '-'),
-                solusi: @js($tamu->solusi ?? '-'),
-                status_tindak_lanjut: @js($statusLabel),
-                pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? '-')
-            })"
+                                                        id: {{ $tamu->id_tamu }},
+                                                        kode_tiket: @js($tamu->kode_tiket),
+                                                        nama_lengkap: @js($tamu->nama_lengkap),
+                                                        email: @js($tamu->email ?? '-'),
+                                                        no_telp: @js($tamu->nomor_telepon ?? '-'),
+                                                        sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
+                                                        tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
+                                                        permasalahan: @js($tamu->permasalahan ?? '-'),
+                                                        solusi: @js($tamu->solusi ?? '-'),
+                                                        dokumen_lampiran: @js($tamu->dokumen_lampiran ?? ''),
+                                                        status_tindak_lanjut: @js($statusLabel),
+                                                        pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? '-')
+                                                    })"
                                                     class="px-3 py-1.5 bg-[#173860] hover:bg-[#12294a] rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                                     <span>Detail</span>

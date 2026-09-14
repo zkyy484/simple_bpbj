@@ -1,14 +1,12 @@
 <!-- MODAL: TINDAK LANJUTI (EDITABLE) -->
-<div x-data="{ isSaving: false, isSendingEmail: false }" 
-     x-show="openTindakLanjut" 
-     x-cloak 
-     class="fixed inset-0 z-50 flex items-center justify-center p-4">
-    
+<div x-data="{ isSaving: false, isSendingEmail: false }" x-show="openTindakLanjut" x-cloak
+    class="fixed inset-0 z-50 flex items-center justify-center p-4">
+
     <div class="absolute inset-0 bg-black/40" @click="if(!isSaving && !isSendingEmail) openTindakLanjut = false"></div>
 
     <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-3xl p-8"
         @click.outside="if(!isSaving && !isSendingEmail) openTindakLanjut = false">
-        
+
         <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
             <h3 class="text-xl font-bold text-[#173860]">Informasi Buku Tamu</h3>
             <button type="button" @click="openTindakLanjut = false" :disabled="isSaving || isSendingEmail"
@@ -17,7 +15,9 @@
             </button>
         </div>
 
-        <form x-ref="tindakLanjutForm" :action="updateUrl" method="POST" @submit="if(!isSendingEmail) isSaving = true">
+        {{-- TAMBAHKAN enctype="multipart/form-data" KARENA ADA UPLOAD FILE --}}
+        <form x-ref="tindakLanjutForm" :action="updateUrl" method="POST" enctype="multipart/form-data"
+            @submit="if(!isSendingEmail) isSaving = true">
             @csrf
             @method('PUT')
 
@@ -62,15 +62,66 @@
 
                 <div class="space-y-4 md:border-l md:border-gray-100 md:pl-10">
                     <div>
-                        <label class="font-semibold text-gray-700 mb-1 block">Solusi</label>
-                        <textarea name="solusi" x-model="selected.solusi" rows="3"
+                        <label class="font-semibold text-gray-700 mb-1 block">
+                            Solusi <span class="text-red-500">*</span>
+                        </label>
+                        {{-- Solusi bersifat WAJIB (required) --}}
+                        <textarea name="solusi" x-model="selected.solusi" rows="3" required
                             class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#173860] outline-none"
                             placeholder="Tuliskan solusi yang diberikan..."></textarea>
                     </div>
 
-                    {{-- Kirim Email (Diubah ke type="button" dengan penanganan JS agar tidak bentrok) --}}
+                    {{-- FIELD UPLOAD DOKUMEN (OPSIONAL) --}}
                     <div>
-                        <button type="button" 
+                        <label class="font-semibold text-gray-700 mb-1 block">
+                            Dokumen Lampiran <span class="text-gray-400 font-normal text-xs">(Opsional)</span>
+                        </label>
+
+                        <input type="file" name="dokumen_lampiran" accept=".pdf,.doc,.docx,.xls,.xlsx"
+                            class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#173860]/10 file:text-[#173860] hover:file:bg-[#173860]/20 border border-gray-200 rounded-lg cursor-pointer focus:outline-none">
+                        <p class="text-[11px] text-gray-400 mt-1">Format: PDF, Word, Excel (Maks. 5MB)</p>
+
+                        <!-- STATUS DOKUMEN TERUNGGAH / BELUM TERUNGGAH -->
+                        <div class="mt-2 text-xs">
+                            <!-- KONDISI 1: JIKA DOKUMEN SUDAH TERUPLOAD -->
+                            <template x-if="selected.dokumen_lampiran">
+                                <div
+                                    class="flex items-center gap-2 p-2 rounded-lg bg-blue-50 border border-blue-100 text-blue-900">
+                                    <svg class="w-4 h-4 text-blue-600 shrink-0" xmlns="http://www.w3.org/2000/svg"
+                                        fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                                    </svg>
+                                    <div class="flex-1 truncate">
+                                        <span class="font-medium block text-gray-700">Dokumen Terpasang:</span>
+                                        <!-- Mengambil dan menampilkan nama filenya saja dari path -->
+                                        <span class="font-semibold text-blue-700 truncate block"
+                                            x-text="selected.dokumen_lampiran.split('/').pop()"></span>
+                                    </div>
+                                    <a :href="selected.dokumen_lampiran_url" target="_blank"
+                                        class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition shrink-0">
+                                        Lihat
+                                    </a>
+                                </div>
+                            </template>
+
+                            <!-- KONDISI 2: JIKA BELUM ADA DOKUMEN -->
+                            <template x-if="!selected.dokumen_lampiran">
+                                <div class="flex items-center gap-1.5 text-gray-400 italic">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z" />
+                                    </svg>
+                                    <span>Belum ada dokumen yang diunggah.</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Kirim Email --}}
+                    <div>
+                        <button type="button"
                             @click="
                                 isSendingEmail = true; 
                                 $refs.tindakLanjutForm.action = emailUrl; 
@@ -78,9 +129,13 @@
                             "
                             :disabled="isSendingEmail || isSaving"
                             class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-[#173860] hover:bg-[#102a48] text-white transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg x-show="isSendingEmail" class="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <svg x-show="isSendingEmail" class="animate-spin h-3.5 w-3.5 text-white"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
                             </svg>
                             <span x-text="isSendingEmail ? 'Mengirim...' : 'Kirim Email'"></span>
                         </button>
@@ -89,19 +144,10 @@
                     <div class="flex gap-2">
                         <span class="w-32 font-semibold text-gray-700">Ditangani Oleh</span>
                         <span>:</span>
-                        <span class="text-gray-800 font-semibold"
-                            x-text="selected.pegawai_penanggung_jawab"></span>
+                        <span class="text-gray-800 font-semibold" x-text="selected.pegawai_penanggung_jawab"></span>
                     </div>
 
-                    <div>
-                        <label class="font-semibold text-gray-700 mb-1 block">Status Tindak Lanjut</label>
-                        <select name="status_tindak_lanjut" x-model="selected.status_tindak_lanjut"
-                            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#173860] outline-none">
-                            <option value="belum_eskalasi">Belum Eskalasi</option>
-                            <option value="eskalasi">Eskalasi</option>
-                            <option value="selesai">Selesai</option>
-                        </select>
-                    </div>
+                    {{-- Select status_tindak_lanjut dihapus karena otomatis diatur menjadi 'selesai' di backend --}}
                 </div>
             </div>
 
@@ -112,9 +158,13 @@
                 </button>
                 <button type="submit" :disabled="isSaving || isSendingEmail"
                     class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-[#173860] hover:bg-[#102a48] text-white transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
-                    <svg x-show="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg x-show="isSaving" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                        fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                            stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                     <span x-text="isSaving ? 'Menyimpan...' : 'Simpan Data'"></span>
                 </button>
