@@ -25,6 +25,7 @@ use App\Http\Controllers\SuperAdmin\PengaturanController;
 use App\Http\Controllers\AdminSurvei\PertanyaanController as AdminSurveiPertanyaanController;
 use App\Http\Controllers\AdminSurvei\DashboardController as AdminSurveiDashboardController;
 use App\Http\Controllers\AdminSurvei\LaporanController as AdminSurveiLaporanController;
+use App\Http\Controllers\AdminSurvei\ProfileController as AdminSurveiProfileController;
 
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\SuperAdmin\JenisPermohonanController;
@@ -175,6 +176,10 @@ Route::middleware(['auth', 'role:admin_fo'])->group(function () {
 
 Route::middleware(['auth', 'role:admin_survei'])->group(function () {
     Route::get('/admin-survei/dashboard', [AdminSurveiDashboardController::class, 'index'])->name('admin-survei.dashboard');
+    // ROUTE PROFILE ADMIN SURVEI
+    Route::get('/admin-survei/profile', [AdminSurveiProfileController::class, 'index'])->name('admin-survei.profile');
+    Route::put('/admin-survei/profile', [AdminSurveiProfileController::class, 'update'])->name('admin-survei.profile.update');
+    Route::put('/admin-survei/profile/password', [AdminSurveiProfileController::class, 'updatePassword'])->name('admin-survei.update.password');
 
     // SURVEI PERTANYAAN
     Route::get('/admin-survei/pertanyaan', [AdminSurveiPertanyaanController::class, 'index'])->name('admin-survei.pertanyaan.index');
@@ -198,9 +203,6 @@ Route::middleware(['auth', 'role:admin_survei'])->group(function () {
 
 
 });
-
-
-
 
 // BUKU TAMU (Publik, tanpa login)
 Route::get('/buku-tamu', [TamuController::class, 'FormPage'])->name('tamu.form');

@@ -99,6 +99,7 @@
                         class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 cursor-pointer">
                         <option value="admin_fo">Admin FO</option>
                         <option value="pegawai">Pegawai</option>
+                        <option value="admin_survei">Admin Survei</option>
                     </select>
                 </div>
             </div>

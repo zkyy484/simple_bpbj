@@ -26,10 +26,6 @@
                 class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition flex items-center gap-2">
                 <i data-lucide="lock" class="w-4 h-4"></i> Ubah Password
             </button>
-            <button type="button" onclick="window.history.back()"
-                class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
-                Batal
-            </button>
             <button type="submit" form="profile-form"
                 class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
                 Simpan Perubahan
@@ -269,17 +265,6 @@
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 sticky bottom-0 bg-white rounded-b-2xl">
-                    <button type="button" onclick="closePasswordModal()"
-                        class="px-6 py-2 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
-                        Batal
-                    </button>
-                    <button type="submit"
-                        class="px-6 py-2 bg-[#1b3a6b] text-white font-semibold rounded-lg hover:bg-[#152e55] transition shadow-sm">
-                        Simpan Password
-                    </button>
                 </div>
             </form>
         </div>
