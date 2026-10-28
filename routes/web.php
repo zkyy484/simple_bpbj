@@ -34,6 +34,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// DOKUMEN LAMPIRAN TAMU (signed URL: tanpa login, kedaluwarsa otomatis, tidak bisa dimodifikasi)
+Route::get('/dokumen-tamu/{id}', [PegawaiTamuController::class, 'dokumen'])
+    ->middleware('signed')
+    ->name('dokumen.tamu');
+
 Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super/dashboard', [SuperAdminDashboardController::class, 'index'])->name('super.dashboard');
     // PROFILE AKUN
@@ -74,6 +79,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     // TAMU
     Route::get('/super/tamu', [SuperAdminTamuController::class, 'index'])->name('super.tamu.index');
     Route::get('/super/tamu/arsip', [SuperAdminTamuController::class, 'arsip'])->name('super.tamu.arsip');
+    Route::patch('/super/tamu/{tamu}/cek', [SuperAdminTamuController::class, 'cek'])->name('super.tamu.cek');
     Route::patch('/super/tamu/{tamu}/approval', [SuperAdminTamuController::class, 'approval'])->name('super.tamu.approval');
     Route::put('/super/tamu/{tamu}', [SuperAdminTamuController::class, 'update'])->name('super.tamu.update');
     Route::delete('/super/tamu/{tamu}', [SuperAdminTamuController::class, 'destroy'])->name('super.tamu.destroy');
@@ -107,9 +113,9 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/super/laporan/survei/arsip', [SuperAdminLaporanController::class, 'arsip'])->name('laporan.survei.arsip');
 
     // EXPORT PDF AND EXCEL
-    Route::get('laporan/survei/export', [SuperAdminLaporanController::class, 'exportSurveiTamuExcel'])
+    Route::get('/super/laporan/survei/export', [SuperAdminLaporanController::class, 'exportSurveiTamuExcel'])
         ->name('laporan.survei.export');
-    Route::get('laporan/survei/export-pdf', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])
+    Route::get('/super/laporan/survei/export-pdf', [SuperAdminLaporanController::class, 'exportSurveiTamuPdf'])
         ->name('laporan.survei.export.pdf');
 
     // JADWAL DINAS
@@ -154,6 +160,7 @@ Route::middleware(['auth', 'role:admin_fo'])->group(function () {
     // TAMU (Admin)
     Route::get('/admin/tamu', [AdminTamuController::class, 'index'])->name('admin.tamu.index');
     Route::get('/admin/tamu/arsip', [AdminTamuController::class, 'arsip'])->name('admin.tamu.arsip');
+    Route::patch('/admin/tamu/{tamu}/cek', [AdminTamuController::class, 'cek'])->name('admin.tamu.cek');
     Route::patch('/admin/tamu/{tamu}/approval', [AdminTamuController::class, 'approval'])->name('admin.tamu.approval');
     Route::put('/admin/tamu/{tamu}', [AdminTamuController::class, 'update'])->name('admin.tamu.update');
     Route::delete('/admin/tamu/{tamu}', [AdminTamuController::class, 'destroy'])->name('admin.tamu.destroy');
@@ -210,6 +217,8 @@ Route::post('/buku-tamu', [TamuController::class, 'store'])->name('tamu.store');
 Route::get('/buku-tamu/terima-kasih/{tamu}', [TamuController::class, 'Thanks'])->name('thanks.page');
 
 // SURVEI TAMU
+Route::get('/survei/pilih-tamu', [TamuController::class, 'pilihTamu'])->name('survei.pilih');
+Route::post('/survei/pilih-tamu', [TamuController::class, 'simpanPilihTamu'])->name('survei.pilih.store');
 Route::get('/survei', [TamuController::class, 'create'])->name('survei.create');
 Route::post('/survei/tamu', [TamuController::class, 'storeSurvei'])->name('survei.store');
 Route::get('/survei/terima-kasih', [TamuController::class, 'thankSurvei'])->name('survei.thanks');

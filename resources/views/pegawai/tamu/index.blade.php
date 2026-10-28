@@ -32,10 +32,7 @@
     
         setTindakLanjut(tamu) {
             this.selected = tamu;
-            // Set URL dokumen dari file yang tersimpan di storage
-            this.selected.dokumen_lampiran_url = tamu.dokumen_lampiran ?
-                '{{ asset('storage') }}/' + tamu.dokumen_lampiran :
-                null;
+            // URL dokumen (signed URL) dikirim dari server lewat tamu.dokumen_lampiran_url
     
             this.updateUrl = '{{ url('/pegawai/tamu') }}/' + tamu.id + '/tindak-lanjut';
             this.emailUrl = '{{ url('/pegawai/tamu') }}/' + tamu.id + '/kirim-email';
@@ -44,12 +41,6 @@
     
         setDetail(tamu) {
             this.selected = tamu;
-    
-            // Konversi path penyimpanan ke URL storage publik
-            this.selected.dokumen_lampiran_url = tamu.dokumen_lampiran ?
-                '{{ asset('storage') }}/' + tamu.dokumen_lampiran :
-                null;
-    
             this.openDetail = true;
         }
     }" class="relative">
@@ -168,6 +159,7 @@
                                                         permasalahan: @js($tamu->permasalahan ?? '-'),
                                                         solusi: @js($tamu->solusi ?? ''),
                                                         dokumen_lampiran: @js($tamu->dokumen_lampiran ?? ''),
+                                                        dokumen_lampiran_url: @js($tamu->urlDokumen()),
                                                         status_tindak_lanjut: @js($tamu->status_tindak_lanjut ?? 'belum_eskalasi'),
                                                         pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? (auth()->user()->nama_lengkap ?? '-'))
                                                     })"
@@ -189,6 +181,7 @@
                                                         permasalahan: @js($tamu->permasalahan ?? '-'),
                                                         solusi: @js($tamu->solusi ?? '-'),
                                                         dokumen_lampiran: @js($tamu->dokumen_lampiran ?? ''),
+                                                        dokumen_lampiran_url: @js($tamu->urlDokumen()),
                                                         status_tindak_lanjut: @js($statusLabel),
                                                         pegawai_penanggung_jawab: @js($tamu->pegawai->nama_lengkap ?? '-')
                                                     })"

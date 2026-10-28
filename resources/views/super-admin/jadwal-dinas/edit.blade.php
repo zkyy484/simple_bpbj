@@ -64,9 +64,20 @@
                         class="w-full bg-[#f0f2f5] border-none rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
                 </div>
 
-                <!-- Yang Hadir dengan Fitur Search Alpine.js -->
-                <div x-data="{ searchPegawai: '' }">
+                <!-- Yang Hadir dengan Filter Sub Bagian + Search Alpine.js -->
+                <div x-data="{ searchPegawai: '', subBagianFilter: '' }">
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Yang Hadir</label>
+
+                    <!-- Dropdown Pilih Sub Bagian -->
+                    <div class="mb-2">
+                        <select x-model="subBagianFilter"
+                            class="w-full bg-[#f0f2f5] border border-gray-200 rounded-lg px-3 py-1.5 text-xs text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none">
+                            <option value="">Semua Sub Bagian</option>
+                            @foreach($subBagianList as $subBagian)
+                                <option value="{{ $subBagian->id_sub_bagian }}">{{ $subBagian->nama_sub_bagian }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <!-- Input Search Filter -->
                     <div class="relative mb-2">
@@ -83,18 +94,19 @@
                     <div class="bg-gray-50 rounded-xl border p-3 max-h-40 overflow-y-auto space-y-2">
                         @foreach ($pegawaiList as $user)
                             <label
-                                x-show="searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase())"
+                                x-show="(subBagianFilter === '' || subBagianFilter == {{ $user->id_sub_bagian ?? 'null' }}) && (searchPegawai === '' || @js(strtolower($user->nama_lengkap)).includes(searchPegawai.toLowerCase()))"
                                 class="flex items-center gap-3 text-sm text-gray-700 cursor-pointer hover:bg-gray-100 p-1 rounded transition">
                                 <input type="checkbox" name="pegawai_ids[]" value="{{ $user->id_user }}"
                                     :checked="selectedJadwal.pegawai_ids && selectedJadwal.pegawai_ids.includes(
                                         {{ $user->id_user }})"
                                     class="w-4 h-4 rounded border-gray-300 text-[#173860] focus:ring-[#173860]">
                                 <span>{{ $user->nama_lengkap }}</span>
+                                <span class="text-xs text-gray-400">{{ $user->subBagian->nama_sub_bagian ?? '-' }}</span>
                             </label>
                         @endforeach
 
                         <!-- Pesan Jika Pegawai Tidak Ditemukan -->
-                        <div x-show="searchPegawai !== '' && ![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')"
+                        <div x-show="![...$el.parentElement.querySelectorAll('label')].some(el => el.style.display !== 'none')"
                             class="text-xs text-gray-400 text-center py-2">
                             Pegawai tidak ditemukan.
                         </div>

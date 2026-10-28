@@ -57,15 +57,13 @@
 
         <!-- Live Clock & Date dengan Fallback -->
         <div class="text-right">
-            <div id="clock"
-                data-jam="{{ (int) ($now ?? now('Asia/Makassar'))->format('H') }}"
+            <div id="clock" data-jam="{{ (int) ($now ?? now('Asia/Makassar'))->format('H') }}"
                 data-menit="{{ (int) ($now ?? now('Asia/Makassar'))->format('i') }}"
                 data-detik="{{ (int) ($now ?? now('Asia/Makassar'))->format('s') }}"
                 class="text-3xl font-black text-amber-400 font-mono tracking-wider">
                 {{ ($now ?? now('Asia/Makassar'))->format('H:i:s') }} WITA
             </div>
-            <div id="date"
-                data-tanggal="{{ ($now ?? now('Asia/Makassar'))->format('Y-m-d') }}"
+            <div id="date" data-tanggal="{{ ($now ?? now('Asia/Makassar'))->format('Y-m-d') }}"
                 class="text-sm text-slate-300 font-semibold">
                 {{ ($now ?? now('Asia/Makassar'))->translatedFormat('l, d F Y') }}
             </div>
@@ -78,7 +76,7 @@
         <!-- KOLOM KIRI: Metric Cards & Live Summary (3 Cols) -->
         <section class="col-span-3 flex flex-col gap-3.5 h-full">
 
-            <!-- Card Total Kunjungan -->
+            <!-- Card Total Kunjungan (Tahun Ini) -->
             <div class="bg-white border border-slate-200/80 rounded-xl p-4 flex items-center gap-4 shadow-sm flex-1">
                 <div
                     class="w-14 h-14 bg-blue-50 border border-blue-200 text-blue-600 rounded-xl flex items-center justify-center text-3xl font-bold shrink-0">
@@ -87,11 +85,13 @@
                 <div class="flex-1 overflow-hidden">
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Total Kunjungan
                     </p>
-                    <p id="statTotalKunjungan" class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
+                    <p id="statTotalKunjungan"
+                        class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
                         {{ number_format($totalKunjungan ?? 0, 0, ',', '.') }}
                     </p>
                     <p class="text-xs text-emerald-600 font-bold flex items-center gap-1 truncate">
-                        <i class="fa-solid fa-arrow-trend-up"></i> Total Sepanjang Waktu
+                        <i class="fa-solid fa-arrow-trend-up"></i> Akumulasi Tahun
+                        {{ ($today ?? now('Asia/Makassar'))->year }}
                     </p>
                 </div>
             </div>
@@ -105,18 +105,22 @@
                 <div class="flex-1 overflow-hidden">
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Kunjungan Hari
                         Ini</p>
-                    <p id="statKunjunganHariIni" class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
+                    <p id="statKunjunganHariIni"
+                        class="text-4xl lg:text-5xl font-black text-slate-900 leading-none my-1 tracking-tight">
                         {{ number_format($kunjunganHariIni ?? 0, 0, ',', '.') }}
                     </p>
                     <p id="statPersenHariIni"
                         class="text-xs {{ ($persenHariIni ?? 0) >= 0 ? 'text-emerald-600' : 'text-rose-600' }} font-bold flex items-center gap-1 truncate">
-                        <i id="statPersenIcon" class="fa-solid fa-arrow-trend-{{ ($persenHariIni ?? 0) >= 0 ? 'up' : 'down' }}"></i>
-                        <span id="statPersenText">{{ ($persenHariIni ?? 0) >= 0 ? '+' : '' }}{{ $persenHariIni ?? 0 }}% Kemarin</span>
+                        <i id="statPersenIcon"
+                            class="fa-solid fa-arrow-trend-{{ ($persenHariIni ?? 0) >= 0 ? 'up' : 'down' }}"></i>
+                        <span
+                            id="statPersenText">{{ ($persenHariIni ?? 0) >= 0 ? '+' : '' }}{{ $persenHariIni ?? 0 }}%
+                            Kemarin</span>
                     </p>
                 </div>
             </div>
 
-            <!-- Card SKM / Survei -->
+            <!-- Card SKM / Survei (Tahun Ini) -->
             <div class="bg-white border border-slate-200/80 rounded-xl p-4 flex items-center gap-4 shadow-sm flex-1">
                 <div
                     class="w-14 h-14 bg-amber-50 border border-amber-200 text-amber-500 rounded-xl flex items-center justify-center text-3xl font-bold shrink-0">
@@ -126,7 +130,8 @@
                     <p class="text-xs font-extrabold text-slate-500 uppercase tracking-wider truncate">Nilai SKM /
                         Survei</p>
                     <div class="flex items-baseline gap-1.5 my-1">
-                        <p id="statNilaiSkm" class="text-4xl lg:text-5xl font-black text-amber-500 leading-none tracking-tight">
+                        <p id="statNilaiSkm"
+                            class="text-4xl lg:text-5xl font-black text-amber-500 leading-none tracking-tight">
                             {{ number_format($nilaiSkm ?? 0, 2) }}
                         </p>
                         <span class="text-sm font-bold text-slate-400">/ 100</span>
@@ -149,20 +154,17 @@
                 <div class="absolute top-4 left-4 z-10 flex items-center gap-2">
                     @if (count($linkVideoEmbeds) > 1)
                         <span id="videoCounterBadge"
-                            class="text-xs font-bold text-white bg-slate-900/70 px-2 py-1 rounded tracking-wide">1 / {{ count($linkVideoEmbeds) }}</span>
+                            class="text-xs font-bold text-white bg-slate-900/70 px-2 py-1 rounded tracking-wide">1 /
+                            {{ count($linkVideoEmbeds) }}</span>
                     @endif
                 </div>
 
                 <!-- Video full-bleed -->
                 <div class="flex-1 bg-black">
-                    <iframe
-                        id="displayVideoFrame"
-                        src="{{ $linkVideoEmbeds[0] }}"
-                        class="w-full h-full block"
+                    <iframe id="displayVideoFrame" src="{{ $linkVideoEmbeds[0] }}" class="w-full h-full block"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
+                        allowfullscreen></iframe>
                 </div>
             @else
                 <div class="flex items-center justify-between border-b border-slate-200 px-6 pt-6 pb-3.5 shrink-0">
@@ -175,23 +177,30 @@
 
     </main>
 
-    <!-- 3. Footer (Disesuaikan Menggunakan bg-gov-navy Agar Senada) -->
+    <!-- 3. Footer (Jadwal Dinas Hari Ini & Besok) -->
     <footer class="w-full shrink-0">
         <div class="bg-gov-navy border-t border-slate-700 px-8 py-3.5 flex items-center gap-4 shadow-lg">
             <div
                 class="bg-[#1E3A8A] text-white font-extrabold text-base px-4 py-2 rounded-lg shrink-0 uppercase tracking-wider flex items-center gap-2.5 shadow-md border border-slate-600">
                 <i class="fa-solid fa-calendar-days text-xl text-sky-400"></i>
-                Jadwal Dinas Hari Ini
+                Jadwal Dinas
             </div>
             <div id="jadwalDinasWrap" class="flex-1 overflow-hidden">
-                @if (isset($jadwalHariIni) && $jadwalHariIni->count() > 0)
+                @if (isset($jadwalGabungan) && $jadwalGabungan->count() > 0)
                     <marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">
-                        @foreach ($jadwalHariIni as $jadwal)
+                        @foreach ($jadwalGabungan as $jadwal)
                             @php
                                 $namaPegawai = $jadwal->pegawais->pluck('nama_lengkap')->filter()->implode(', ');
+                                $isToday = \Carbon\Carbon::parse($jadwal->hari_tanggal)->isToday();
+                                $labelHari = $isToday
+                                    ? 'Hari Ini'
+                                    : 'Besok';
                             @endphp
+                            <span class="text-sky-300 font-bold">[{{ $labelHari }}]</span>
                             @if ($jadwal->waktu)
-                                <strong class="text-amber-400 font-bold">{{ \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') }} WITA</strong> —
+                                <strong
+                                    class="text-amber-400 font-bold">{{ \Carbon\Carbon::parse($jadwal->waktu)->format('H:i') }}
+                                    WITA</strong> —
                             @endif
                             {{ $jadwal->acara }}
                             @if ($jadwal->bidang_sekretariat)
@@ -203,15 +212,12 @@
                             @if ($namaPegawai)
                                 — Dihadiri: {{ $namaPegawai }}
                             @endif
-                            @if ($jadwal->surat_dari)
-                                (Surat dari: {{ $jadwal->surat_dari }})
-                            @endif
                             &nbsp;•&nbsp;
                         @endforeach
                     </marquee>
                 @else
                     <p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">
-                        Tidak ada jadwal dinas untuk hari ini.
+                        Tidak ada jadwal dinas untuk hari ini dan besok.
                     </p>
                 @endif
             </div>
@@ -223,7 +229,7 @@
         // 1. Sinkronisasi Waktu Server (WITA)
         const clockEl = document.getElementById('clock');
         const dateEl = document.getElementById('date');
-        let jamServer   = parseInt(clockEl?.dataset.jam ?? '0', 10);
+        let jamServer = parseInt(clockEl?.dataset.jam ?? '0', 10);
         let menitServer = parseInt(clockEl?.dataset.menit ?? '0', 10);
         let detikServer = parseInt(clockEl?.dataset.detik ?? '0', 10);
 
@@ -275,8 +281,10 @@
 
         function refreshStatistikDisplay() {
             fetch("{{ route('display.stats') }}", {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                 .then(res => {
                     if (!res.ok) throw new Error('Response tidak OK');
                     return res.json();
@@ -310,9 +318,9 @@
 
         setInterval(refreshStatistikDisplay, 30 * 1000);
 
-        // 3. Auto refresh Jadwal Dinas Hari Ini via AJAX
+        // 3. Auto refresh Jadwal Dinas (Hari Ini & Besok) via AJAX
         function bangunTeksJadwal(item) {
-            let teks = '';
+            let teks = `<span class="text-sky-300 font-bold">[${item.label_hari}]</span> `;
             if (item.waktu) {
                 teks += `<strong class="text-amber-400 font-bold">${item.waktu} WITA</strong> — `;
             }
@@ -334,8 +342,10 @@
 
         function refreshJadwalDinas() {
             fetch("{{ route('display.jadwal') }}", {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
-            })
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
                 .then(res => {
                     if (!res.ok) throw new Error('Response tidak OK');
                     return res.json();
@@ -344,12 +354,14 @@
                     const wrap = document.getElementById('jadwalDinasWrap');
                     if (!wrap) return;
 
-                    const list = data.jadwal ?? [];
+                    const list = data.jadwalGabungan ?? [];
                     if (list.length > 0) {
                         const isi = list.map(bangunTeksJadwal).join('&nbsp;•&nbsp;');
-                        wrap.innerHTML = `<marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">${isi}</marquee>`;
+                        wrap.innerHTML =
+                            `<marquee id="jadwalDinasMarquee" class="text-lg text-slate-100 font-semibold tracking-wide">${isi}</marquee>`;
                     } else {
-                        wrap.innerHTML = `<p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">Tidak ada jadwal dinas untuk hari ini.</p>`;
+                        wrap.innerHTML =
+                            `<p id="jadwalDinasKosong" class="text-lg text-slate-300 font-semibold tracking-wide">Tidak ada jadwal dinas untuk hari ini dan besok.</p>`;
                     }
                 })
                 .catch(err => console.error('Gagal refresh Jadwal Dinas Display TV:', err));
@@ -363,7 +375,7 @@
 
         <!-- Script Rotasi Video Display Online -->
         <script>
-            (function () {
+            (function() {
                 const dataEl = document.getElementById('displayVideoListData');
                 const videoList = dataEl ? JSON.parse(dataEl.textContent) : [];
 
@@ -433,17 +445,17 @@
 
                     player = new YT.Player('displayVideoFrame', {
                         events: {
-                            onReady: function () {
+                            onReady: function() {
                                 pasangFallbackTimer();
                             },
-                            onStateChange: function (event) {
+                            onStateChange: function(event) {
                                 if (event.data === YT.PlayerState.ENDED) {
                                     putarVideoBerikutnya();
                                 } else if (event.data === YT.PlayerState.PLAYING) {
                                     pasangFallbackTimer();
                                 }
                             },
-                            onError: function () {
+                            onError: function() {
                                 putarVideoBerikutnya();
                             }
                         }
@@ -460,14 +472,14 @@
                     document.head.appendChild(tag);
 
                     const originalReady = window.onYouTubeIframeAPIReady;
-                    window.onYouTubeIframeAPIReady = function () {
+                    window.onYouTubeIframeAPIReady = function() {
                         if (typeof originalReady === 'function') {
                             originalReady();
                         }
                         inisialisasiYouTubePlayer();
                     };
 
-                    setTimeout(function () {
+                    setTimeout(function() {
                         if (!player) {
                             pasangFallbackTimer();
                         }

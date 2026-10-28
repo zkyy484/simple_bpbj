@@ -101,7 +101,7 @@
                             class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.pertanyaan.*') }}">Pertanyaan</a>
                         <a href="{{ route('super.jenis.index') }}"
                             class="block px-2 py-1.5 text-xs rounded-md {{ $navClass('super.jenis.*') }}">Jenis
-                            Permohonan</a>
+                            Pemohon</a>
                     </div>
                 </div>
 

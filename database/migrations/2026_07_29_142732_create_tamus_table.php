@@ -65,6 +65,9 @@ return new class extends Migration
                 'approve',
             ])->default('menunggu');
 
+            // Ceklis validasi survei tamu (dicentang admin / admin FO)
+            $table->boolean('cek_survei')->default(false);
+
             // Paraf pegawai/admin yang melakukan approval terhadap tamu ini
             $table->longText('paraf')->nullable();
 

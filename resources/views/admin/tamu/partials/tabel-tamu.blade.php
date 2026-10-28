@@ -32,7 +32,7 @@
                                     </td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->subBagian->nama_sub_bagian ?? '-' }}</td>
                                     <td class="px-6 py-4 text-gray-700">{{ $tamu->tujuan->nama_tujuan ?? '-' }}</td>
-                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->name ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-gray-700">{{ $tamu->pegawai->nama_lengkap ?? '-' }}</td>
                                     <td class="px-6 py-4 text-center">
                                         @php
                                             $statusColor = match ($tamu->status_tindak_lanjut) {
@@ -51,8 +51,13 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 text-center">
-                                        <input type="checkbox" class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860]" disabled
-                                            @checked($tamu->status !== 'menunggu')>
+                                        <form action="{{ route('admin.tamu.cek', $tamu->id_tamu) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="checkbox" title="Validasi survei tamu"
+                                                class="w-4 h-4 text-[#173860] rounded border-gray-300 focus:ring-[#173860] cursor-pointer"
+                                                onchange="this.form.submit()" @checked($tamu->cek_survei)>
+                                        </form>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         <!-- Tombol Pemicu Modal Approval -->
@@ -78,8 +83,10 @@
                                                     email: @js($tamu->email ?? '-'),
                                                     no_telp: @js($tamu->nomor_telepon ?? '-'),
                                                     sub_bagian: @js($tamu->subBagian->nama_sub_bagian ?? '-'),
+                                                    id_sub_bagian: {{ $tamu->id_sub_bagian ?? 'null' }},
                                                     tujuan: @js($tamu->tujuan->nama_tujuan ?? '-'),
-                                                    pegawai: @js($tamu->pegawai->name ?? '-'),
+                                                    id_tujuan: {{ $tamu->id_tujuan ?? 'null' }},
+                                                    pegawai: @js($tamu->pegawai->nama_lengkap ?? '-'),
                                                     permasalahan: @js($tamu->permasalahan ?? '-'),
                                                     solusi: @js($tamu->solusi ?? ''),
                                                     status_tindak_lanjut: @js($tamu->status_tindak_lanjut),

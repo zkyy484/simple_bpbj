@@ -14,6 +14,14 @@ class SurveiController extends Controller
     // Menampilkan daftar data survei aktif (+ detail via AJAX)
     public function index(Request $request)
     {
+        // Request auto-refresh (polling) tidak boleh "menghabiskan" flash message.
+        // Tanpa ini, pesan sukses dari aksi sebelumnya (mis. ceklis/approve) bisa
+        // terpakai oleh request polling sebelum halaman hasil redirect sempat
+        // menampilkan animasi SweetAlert "Berhasil!".
+        if ($request->ajax() || $request->boolean('ajax')) {
+            $request->session()->reflash();
+        }
+
         $admins = Auth::user();
 
         // Request AJAX untuk memuat detail 1 respon (dipanggil dari tombol "Detail")
@@ -46,6 +54,8 @@ class SurveiController extends Controller
             return view('admin.survei.detail-content', compact('respon', 'jawabans'));
         }
 
+        // Hanya tampilkan respon dari tamu yang ceklis survei-nya dicentang
+        // (Manajemen Data Tamu). Jika centang dicabut, data otomatis hilang dari sini.
         $query = Respon::query()
             ->where('status', 'aktif')
             ->with(['jawaban.pertanyaan.opsi', 'jawaban.opsi'])
@@ -249,30 +259,6 @@ class SurveiController extends Controller
 
         return view('admin.survei.arsip', compact('respons', 'admins'));
     }
-
-    // Mengubah status pengecekan respon (kolom "cek") menjadi approve
-    // public function approve(Request $request)
-    // {
-    //     $request->validate([
-    //         'id_respon' => 'required|exists:respons,id_respon',
-    //     ]);
-
-    //     $respon = Respon::findOrFail($request->id_respon);
-
-    //     Respon::where('id_respon', $request->id_respon)
-    //         ->update([
-    //             'cek' => 'approve',
-    //         ]);
-
-    //     ActivityLog::catat(
-    //         'Approve Survei',
-    //         "Menyetujui (approve) respon survei atas nama {$respon->nama_lengkap}."
-    //     );
-
-    //     return redirect()
-    //         ->back()
-    //         ->with('success', 'Status survei berhasil diubah menjadi approve.');
-    // }
 
     // Memindahkan data survei ke arsip (soft delete via status)
     public function destroy(Request $request)

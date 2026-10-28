@@ -96,25 +96,92 @@ class TamuController extends Controller
     // SURVEI TAMU
     // ========================================
 
+    // Halaman 1: tamu memilih nama (hanya tamu yang mengisi buku tamu hari ini)
+    public function pilihTamu()
+    {
+        $tamus = Tamu::hariIni()->orderBy('nama_lengkap')->get();
+
+        $sudahMengisi = Respon::whereIn('id_tamu', $tamus->pluck('id_tamu'))
+            ->whereHas('jawaban')
+            ->pluck('id_tamu')
+            ->all();
+
+        return view('tamu.survei-pilih', compact('tamus', 'sudahMengisi'));
+    }
+
+    public function simpanPilihTamu(Request $request)
+    {
+        $request->validate([
+            'id_tamu' => ['required', 'integer', 'exists:tamus,id_tamu'],
+        ], [
+            'id_tamu.required' => 'Silakan pilih nama Anda terlebih dahulu.',
+        ]);
+
+        $tamu = Tamu::hariIni()->find($request->id_tamu);
+
+        if (!$tamu) {
+            return back()->withErrors(['id_tamu' => 'Nama yang dipilih tidak terdaftar pada buku tamu hari ini.']);
+        }
+
+        if (Respon::tamuSudahMengisi($tamu->id_tamu)) {
+            return back()->withErrors(['id_tamu' => 'Anda sudah mengisi survei kepuasan.']);
+        }
+
+        session(['survei_id_tamu' => $tamu->id_tamu]);
+
+        return redirect()->route('survei.create');
+    }
+
+    // Halaman 2: form survei (/survei), identitas terisi otomatis dari data tamu
     public function create()
     {
+        $tamu = $this->tamuDariSession();
+
+        if (!$tamu) {
+            return redirect()->route('survei.pilih')
+                ->with('error', 'Silakan pilih nama Anda terlebih dahulu.');
+        }
+
         $pertanyaans = Pertanyaan::with('opsi')
             ->where('status', 'aktif')
             ->get();
 
-        // Sesuaikan path view dengan lokasi Blade Anda
-        return view('tamu.survei', compact('pertanyaans'));
+        return view('tamu.survei', compact('pertanyaans', 'tamu'));
+    }
+
+    // Ambil tamu dari session; null jika tidak valid / bukan hari ini / sudah mengisi
+    private function tamuDariSession(): ?Tamu
+    {
+        $id = session('survei_id_tamu');
+
+        if (!$id) {
+            return null;
+        }
+
+        $tamu = Tamu::hariIni()->find($id);
+
+        if (!$tamu || Respon::tamuSudahMengisi($tamu->id_tamu)) {
+            session()->forget('survei_id_tamu');
+            return null;
+        }
+
+        return $tamu;
     }
 
     public function storeSurvei(Request $request)
     {
+        $tamu = $this->tamuDariSession();
+
+        if (!$tamu) {
+            return redirect()->route('survei.pilih')
+                ->with('error', 'Sesi survei tidak valid atau Anda sudah mengisi survei. Silakan pilih nama kembali.');
+        }
+
         // Eager load 'opsi' agar $p->opsi tidak error / query berulang
         $pertanyaans = Pertanyaan::with('opsi')->where('status', 'aktif')->get();
 
+        // Nama, email, instansi TIDAK diterima dari input: diambil dari data tamu
         $rules = [
-            'nama_lengkap' => 'required|string|max:50',
-            'email' => 'nullable|email|max:50',
-            'instansi' => 'nullable|string|max:50',
             'waktu_mulai' => 'required|integer',
         ];
 
@@ -134,16 +201,20 @@ class TamuController extends Controller
         $durasi = max(1, $waktuSelesai->timestamp - (int) $validated['waktu_mulai']);
 
         try {
-            DB::transaction(function () use ($validated, $pertanyaans, $durasi, $waktuSelesai) {
+            DB::transaction(function () use ($validated, $pertanyaans, $durasi, $waktuSelesai, $tamu) {
 
-                // Simpan data Respon Utama
-                $respon = Respon::create([
-                    'nama_lengkap' => $validated['nama_lengkap'],
-                    'email' => $validated['email'] ?? null,
-                    'instansi' => $validated['instansi'] ?? null,
+                // Pakai respon dari ceklis (jika ada), kalau tidak buat baru
+                $respon = Respon::where('id_tamu', $tamu->id_tamu)->first() ?? new Respon();
+
+                $respon->fill([
+                    'id_tamu' => $tamu->id_tamu,
+                    'nama_lengkap' => mb_substr($tamu->nama_lengkap, 0, 50),
+                    'email' => $tamu->email ? mb_substr($tamu->email, 0, 50) : null,
+                    'instansi' => $tamu->nama_perusahaan ? mb_substr($tamu->nama_perusahaan, 0, 50) : null,
                     'durasi_pengisian' => $durasi,
                     'tanggal_respon' => $waktuSelesai->toDateTimeString(),
                 ]);
+                $respon->save();
 
                 $urutanOpsiRating = [];
 
@@ -158,7 +229,7 @@ class TamuController extends Controller
                     if (in_array($p->tipe_pertanyaan, ['rating', 'pilihan_ganda'])) {
                         $opsi = Opsi::find($jawabanInput);
 
-                        // Urutan opsi (1, 2, 3, dst.) untuk rating -> dipakai untuk deteksi pola
+                        // Urutan opsi (1, 2, 3, dst.) untuk rating
                         $ratingValue = null;
                         if ($p->tipe_pertanyaan === 'rating') {
                             $ratingValue = $p->opsi->pluck('id_opsi')->search($opsi->id_opsi) + 1;
@@ -183,7 +254,7 @@ class TamuController extends Controller
                     }
                 }
 
-                // Hitung skor rata-rata rating, standar deviasi, dan deteksi pola jawaban
+                // Hitung skor rata-rata rating
                 $this->hitungSkorDanPola($respon, $urutanOpsiRating);
 
                 ActivityLog::catat(
@@ -192,7 +263,8 @@ class TamuController extends Controller
                 );
             });
 
-            // PERBAIKAN UTAMA: nama route disamakan dengan yang terdaftar di web.php
+            session()->forget('survei_id_tamu');
+
             return redirect()->route('survei.thanks')->with('success', 'Survei berhasil dikirim!');
 
         } catch (\Exception $e) {

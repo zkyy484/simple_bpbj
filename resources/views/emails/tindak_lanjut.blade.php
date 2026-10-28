@@ -105,7 +105,7 @@
                                             📄 {{ basename($tamu->dokumen_lampiran) }}
                                         </td>
                                         <td align="right">
-                                            <a href="{{ asset('storage/' . $tamu->dokumen_lampiran) }}" target="_blank" style="display:inline-block; padding:7px 14px; background-color:#173860; color:#ffffff; font-size:12px; font-weight:700; text-decoration:none; border-radius:6px;">
+                                            <a href="{{ $tamu->urlDokumen(60 * 24 * 7) }}" target="_blank" style="display:inline-block; padding:7px 14px; background-color:#173860; color:#ffffff; font-size:12px; font-weight:700; text-decoration:none; border-radius:6px;">
                                                 Unduh / Lihat Dokumen
                                             </a>
                                         </td>

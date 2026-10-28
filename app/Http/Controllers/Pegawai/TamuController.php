@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\TindakLanjutMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TamuController extends Controller
 {
@@ -56,29 +57,23 @@ class TamuController extends Controller
             'dokumen_lampiran.max' => 'Ukuran file dokumen maksimal 5 MB.',
         ]);
 
-        // Handle Upload File (jika ada file diunggah)
+        // Handle Upload File (jika ada file diunggah) -> disimpan di disk PRIVATE
         if ($request->hasFile('dokumen_lampiran')) {
             // Hapus file lama jika sebelumnya sudah pernah diunggah
-            if ($tamu->dokumen_lampiran && Storage::disk('public')->exists($tamu->dokumen_lampiran)) {
-                Storage::disk('public')->delete($tamu->dokumen_lampiran);
+            if ($tamu->dokumen_lampiran && Storage::disk('local')->exists($tamu->dokumen_lampiran)) {
+                Storage::disk('local')->delete($tamu->dokumen_lampiran);
             }
 
             $file = $request->file('dokumen_lampiran');
 
-            // 1. Ambil nama asli file (beserta ekstensi)
-            $originalName = $file->getClientOriginalName();
+            // Nama unik (ID tamu + kode acak + nama asli yang sudah di-slug)
+            // agar file tamu lain dengan nama sama tidak saling menimpa
+            $safeFileName = $tamu->getKey() . '-' . Str::random(8) . '-'
+                . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
+                . '.' . strtolower($file->getClientOriginalExtension());
 
-            // 2. Bersihkan karakter khusus agar aman di URL (Opsional tapi direkomendasikan)
-            $filename = pathinfo($originalName, PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension();
-            $safeFileName = \Str::slug($filename) . '.' . $extension;
-
-            // 3. Simpan dengan nama asli (menggunakan storeAs)
-            // Jika ingin 100% persis tanpa diubah sedikitpun, gunakan: $file->storeAs('dokumen_tamu', $originalName, 'public');
-            $filePath = $file->storeAs('dokumen_tamu', $safeFileName, 'public');
-
-            // 4. Simpan path file ke database
-            $tamu->dokumen_lampiran = $filePath;
+            // Simpan ke storage/app/private/dokumen_tamu (tidak bisa diakses langsung lewat URL)
+            $tamu->dokumen_lampiran = $file->storeAs('dokumen_tamu', $safeFileName, 'local');
         }
 
         $tamu->solusi = $request->solusi;
@@ -159,5 +154,23 @@ class TamuController extends Controller
         return redirect()
             ->route('pegawai.tamu.index')
             ->with('success', 'Tamu berhasil diterima. Silakan lakukan tindak lanjut.');
+    }
+
+    // MENYAJIKAN DOKUMEN LAMPIRAN (diakses lewat signed URL, bukan symlink public/storage)
+    public function dokumen(int $id)
+    {
+        $tamu = Tamu::findOrFail($id);
+
+        abort_unless(
+            $tamu->dokumen_lampiran && Storage::disk('local')->exists($tamu->dokumen_lampiran),
+            404,
+            'Dokumen tidak ditemukan.'
+        );
+
+        // PDF dibuka di browser, Word/Excel otomatis terunduh
+        return Storage::disk('local')->response(
+            $tamu->dokumen_lampiran,
+            basename($tamu->dokumen_lampiran)
+        );
     }
 }

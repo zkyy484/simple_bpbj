@@ -9,7 +9,7 @@
         loadingDetail: false,
         detailContent: '',
         selectedItem: {},
-
+    
         async loadDetail(id) {
             this.openDetail = true;
             this.loadingDetail = true;
@@ -47,8 +47,24 @@
                 <form action="{{ route('laporan.survei.index') }}" method="GET"
                     class="flex flex-col lg:flex-row items-end justify-between gap-4">
 
-                    {{-- Input Filter Tanggal & Dropdown Deteksi (Auto Submit on Change) --}}
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1 w-full">
+                    {{-- Input Filter Tanggal, Tahun, & Dropdown Deteksi (Auto Submit on Change) --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 flex-1 w-full">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 mb-1.5">Tahun</label>
+                            <select name="tahun" onchange="this.form.submit()"
+                                class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
+                                <option value="">Semua Tahun</option>
+                                @php
+                                    $currentYear = date('Y');
+                                    $startYear = 2024; // Sesuaikan dengan tahun awal sistem Anda dibuat
+                                @endphp
+                                @for ($y = $currentYear; $y >= $startYear; $y--)
+                                    <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>
+                                        {{ $y }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
                         <div>
                             <label class="block text-xs font-semibold text-gray-600 mb-1.5">Mulai Tanggal</label>
                             <input type="date" name="tanggal_awal" value="{{ request('tanggal_awal') }}"
@@ -66,15 +82,17 @@
                             <select name="deteksi" onchange="this.form.submit()"
                                 class="w-full bg-[#f0f2f5] border-none rounded-lg px-3.5 py-2.5 text-sm text-gray-800 focus:ring-2 focus:ring-[#173860] outline-none cursor-pointer">
                                 <option value="" {{ request('deteksi') == '' ? 'selected' : '' }}>Semua Data</option>
-                                <option value="normal" {{ request('deteksi') == 'normal' ? 'selected' : '' }}>Normal / Valid</option>
-                                <option value="anomali" {{ request('deteksi') == 'anomali' ? 'selected' : '' }}>Anomali</option>
+                                <option value="normal" {{ request('deteksi') == 'normal' ? 'selected' : '' }}>Normal / Valid
+                                </option>
+                                <option value="anomali" {{ request('deteksi') == 'anomali' ? 'selected' : '' }}>Anomali
+                                </option>
                             </select>
                         </div>
                     </div>
 
                     {{-- Action Buttons (Reset, Arsip, Export PDF & Excel) --}}
                     <div class="flex items-center gap-2 shrink-0 w-full lg:w-auto justify-end flex-wrap">
-                        @if (request()->hasAny(['tanggal_awal', 'tanggal_akhir', 'deteksi']))
+                        @if (request()->hasAny(['tahun', 'tanggal_awal', 'tanggal_akhir', 'deteksi']))
                             <a href="{{ route('laporan.survei.index') }}"
                                 class="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-lg transition">
                                 Reset Filter
@@ -201,7 +219,8 @@
                                                         id: '{{ $respon->id_respon }}',
                                                         nama: '{{ $respon->nama_lengkap }}'
                                                     };
-                                                    openDelete = true;" class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                                                    openDelete = true;"
+                                                class="px-3 py-1.5 bg-red-600 hover:bg-red-700 rounded-lg text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                                 <span>Hapus</span>
                                             </button>

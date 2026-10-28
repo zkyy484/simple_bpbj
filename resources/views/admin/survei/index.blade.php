@@ -248,11 +248,13 @@
                     @endif
                 </div>
             </div>
-
-            {{-- INCLUDES MODAL --}}
-            @include('admin.survei.delete')
-            @include('admin.survei.detail')
         </div>
+        <!-- AKHIR CONTENT MAIN -->
+
+        {{-- MODALS DILETAKKAN DI LUAR KONTEN UTAMA AGAR TIDAK TERKENA EFEK BLUR --}}
+        @include('admin.survei.delete')
+        @include('admin.survei.detail')
+
     </div>
 @endsection
 

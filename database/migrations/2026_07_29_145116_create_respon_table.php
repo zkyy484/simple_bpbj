@@ -14,6 +14,12 @@ return new class extends Migration {
 
             $table->id('id_respon');
 
+            // Relasi respon survei -> tamu
+            $table->foreignId('id_tamu')
+                ->nullable()
+                ->constrained('tamus', 'id_tamu')
+                ->nullOnDelete();
+
             $table->string('nama_lengkap', 50);
 
             $table->string('email', 50)->nullable();

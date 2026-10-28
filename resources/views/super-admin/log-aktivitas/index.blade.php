@@ -74,6 +74,7 @@
                         <option value="super_admin" @selected($role === 'super_admin')>Super Admin</option>
                         <option value="admin" @selected($role === 'admin')>Admin</option>
                         <option value="pegawai" @selected($role === 'pegawai')>Pegawai</option>
+                        <option value="admin_survei" @selected($role === 'admin_survei')>Admin Survei</option>
                     </select>
                 </div>
 

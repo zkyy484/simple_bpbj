@@ -45,6 +45,7 @@ class ActivityLog extends Model
             'super_admin' => 'Super Admin',
             'admin_fo' => 'Admin FO',
             'pegawai' => 'Pegawai',
+            'admin_survei' => 'Admin Survei',
             default => '-',
         };
     }

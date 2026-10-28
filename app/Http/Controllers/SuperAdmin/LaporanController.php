@@ -117,38 +117,38 @@ class LaporanController extends Controller
     }
 
     public function exportPengunjungPdf(Request $request)
-{
-    // Ambil query utama dan pastikan relasi jenisPermohonan diikutsertakan (eager load)
-    $query = $this->filteredQueryPengunjung($request)->with('jenisPermohonan');
+    {
+        // Ambil query utama dan pastikan relasi jenisPermohonan diikutsertakan (eager load)
+        $query = $this->filteredQueryPengunjung($request)->with('jenisPermohonan');
 
-    $pengunjungs = $query->get();
+        $pengunjungs = $query->get();
 
-    $periode = trim(
-        ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
-    );
+        $periode = trim(
+            ($request->tanggal_awal ?? '-') . ' s/d ' . ($request->tanggal_akhir ?? '-')
+        );
 
-    // Ambil nama jenis permohonan yang difilter jika ada
-    $jenisPermohonanNama = 'Semua';
-    if ($request->filled('id_jenis_permohonan')) {
-        $jenisPermohonan = \App\Models\JenisPermohonan::find($request->id_jenis_permohonan);
-        if ($jenisPermohonan) {
-            $jenisPermohonanNama = $jenisPermohonan->nama_jenis_permohonan;
+        // Ambil nama jenis permohonan yang difilter jika ada
+        $jenisPermohonanNama = 'Semua';
+        if ($request->filled('id_jenis_permohonan')) {
+            $jenisPermohonan = \App\Models\JenisPermohonan::find($request->id_jenis_permohonan);
+            if ($jenisPermohonan) {
+                $jenisPermohonanNama = $jenisPermohonan->nama_jenis_permohonan;
+            }
         }
+
+        $pdf = Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
+            'pengunjungs' => $pengunjungs,
+            'periode' => $periode,
+            'jenisPermohonan' => $jenisPermohonanNama,
+        ])->setPaper('a4', 'landscape');
+
+        ActivityLog::catat(
+            'Export Laporan Pengunjung',
+            "Mengekspor laporan pengunjung periode {$periode} ke PDF."
+        );
+
+        return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
     }
-
-    $pdf = Pdf::loadView('super-admin.laporan.pengunjung-pdf', [
-        'pengunjungs' => $pengunjungs,
-        'periode' => $periode,
-        'jenisPermohonan' => $jenisPermohonanNama,
-    ])->setPaper('a4', 'landscape');
-
-    ActivityLog::catat(
-        'Export Laporan Pengunjung',
-        "Mengekspor laporan pengunjung periode {$periode} ke PDF."
-    );
-
-    return $pdf->download('laporan-pengunjung-' . now()->format('Ymd-His') . '.pdf');
-}
 
     // LAPORAN SURVEI
     /**
@@ -175,6 +175,7 @@ class LaporanController extends Controller
 
     protected function filteredQuerySurveiTamu(Request $request)
     {
+        $tahun = $request->tahun;
         $tanggalAwal = $request->tanggal_awal;
         $tanggalAkhir = $request->tanggal_akhir;
         $search = $request->search;
@@ -189,6 +190,7 @@ class LaporanController extends Controller
                         ->orWhere('instansi', 'like', "%{$search}%");
                 });
             })
+            ->when($tahun, fn($q) => $q->whereYear('tanggal_respon', $tahun))
             ->when($tanggalAwal, fn($q) => $q->whereDate('tanggal_respon', '>=', $tanggalAwal))
             ->when($tanggalAkhir, fn($q) => $q->whereDate('tanggal_respon', '<=', $tanggalAkhir))
             ->latest('tanggal_respon');

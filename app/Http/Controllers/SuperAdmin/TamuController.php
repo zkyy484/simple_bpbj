@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ActivityLog;
+use App\Models\Respon;
 use App\Models\Tamu;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,7 +16,7 @@ class TamuController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-         $admins = auth::user();
+        $admins = Auth::user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'aktif')
@@ -38,7 +39,7 @@ class TamuController extends Controller
     public function arsip(Request $request)
     {
         $search = $request->search;
-        $admins = auth::user();
+        $admins = Auth::user();
 
         $tamus = Tamu::with(['subBagian', 'tujuan', 'pegawai'])
             ->where('status_aktif', 'non_aktif')
@@ -114,6 +115,38 @@ class TamuController extends Controller
         );
 
         return back()->with('success', 'Status approval berhasil diperbarui.');
+    }
+
+    // Ceklis validasi survei tamu.
+    // Dicentang: jika respon survei tamu belum ada, dibuat otomatis (nama, email,
+    // instansi, tanggal respon; sisanya null). Jika respon sudah ada (kosong
+    // maupun sudah diisi tamu), data respon tidak diubah.
+    public function cek(Tamu $tamu)
+    {
+        $cekBaru = !$tamu->cek_survei;
+
+        $tamu->update(['cek_survei' => $cekBaru]);
+
+        if (!$cekBaru) {
+            ActivityLog::catat(
+                'Batalkan Ceklis Survei Tamu',
+                "Membatalkan ceklis survei tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+            );
+
+            return back()->with('success', 'Ceklis survei dibatalkan.');
+        }
+
+        $dibuat = Respon::buatKosongDariTamu($tamu);
+
+        ActivityLog::catat(
+            'Ceklis Survei Tamu',
+            "Mencentang validasi survei tamu atas nama {$tamu->nama_lengkap} (Tiket {$tamu->kode_tiket})."
+            . ($dibuat ? ' Data respon survei dibuat otomatis.' : '')
+        );
+
+        return back()->with('success', $dibuat
+            ? 'Ceklis disimpan. Data survei tamu dibuat otomatis karena belum diisi.'
+            : 'Ceklis disimpan. Survei tamu sudah ada, data tidak diubah.');
     }
 
     public function destroy(Tamu $tamu)

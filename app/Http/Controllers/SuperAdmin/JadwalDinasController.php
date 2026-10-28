@@ -9,6 +9,7 @@ use App\Models\Tamu;
 use App\Models\User;
 use App\Models\ActivityLog;
 use App\Models\Pengaturan;
+use App\Models\SubBagian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -36,9 +37,17 @@ class JadwalDinasController extends Controller
         }
 
         $jadwalDinas = $query->paginate(10)->withQueryString();
-        $pegawaiList = User::orderBy('nama_lengkap')->get();
 
-        return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList', 'admins'));
+        // Daftar pegawai lengkap dengan sub bagian, dipakai untuk filter
+        // "Yang Hadir" per Sub Bagian pada modal Tambah/Edit Jadwal Dinas.
+        $pegawaiList = User::with('subBagian')->orderBy('nama_lengkap')->get();
+
+        // Daftar Sub Bagian aktif untuk dropdown filter "Yang Hadir".
+        $subBagianList = SubBagian::where('status', 'aktif')
+            ->orderBy('nama_sub_bagian')
+            ->get();
+
+        return view('super-admin.jadwal-dinas.index', compact('jadwalDinas', 'pegawaiList', 'subBagianList', 'admins'));
     }
 
     // Simpan Jadwal Dinas Baru
@@ -144,14 +153,16 @@ class JadwalDinasController extends Controller
     public function displayTV()
     {
         $today = Carbon::today('Asia/Makassar');
+        $tomorrow = Carbon::tomorrow('Asia/Makassar');
         $now = Carbon::now('Asia/Makassar');
 
-        // ==== Statistik Kunjungan & SKM ====
+        // ==== Statistik Kunjungan & SKM (Tahun Ini) ====
         $stats = $this->hitungStatistikDisplay($today);
 
-        // ==== Jadwal Dinas Hari Ini ====
-        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
-            ->whereDate('hari_tanggal', $today)
+        // ==== Jadwal Dinas Hari Ini & Besok ====
+        $jadwalGabungan = JadwalDinas::with(['pegawais.subBagian'])
+            ->whereIn('hari_tanggal', [$today->toDateString(), $tomorrow->toDateString()])
+            ->orderBy('hari_tanggal')
             ->orderBy('waktu')
             ->get();
 
@@ -165,14 +176,15 @@ class JadwalDinasController extends Controller
 
         return view('display', array_merge($stats, compact(
             'today',
+            'tomorrow',
             'now',
-            'jadwalHariIni',
+            'jadwalGabungan',
             'linkVideoEmbeds'
         )));
     }
 
     // Endpoint AJAX: dipanggil berkala oleh display.blade.php untuk refresh
-    // statistik kartu (Total Kunjungan, Kunjungan Hari Ini, Nilai SKM) tanpa
+    // statistik kartu (Total Kunjungan Tahun Ini, Kunjungan Hari Ini, Nilai SKM Tahun Ini) tanpa
     // reload seluruh halaman, supaya video Display Online tidak ikut terputus.
     public function displayStats()
     {
@@ -182,20 +194,26 @@ class JadwalDinasController extends Controller
     }
 
     // Endpoint AJAX: dipanggil berkala oleh display.blade.php untuk refresh
-    // baris "Jadwal Dinas Hari Ini" tanpa reload seluruh halaman, supaya
+    // baris "Jadwal Dinas Hari Ini & Besok" tanpa reload seluruh halaman, supaya
     // video Display Online tidak ikut terputus dan jadwal tetap akurat
     // meskipun tanggal berganti hari saat TV menyala terus-menerus.
     public function displayJadwal()
     {
         $today = Carbon::today('Asia/Makassar');
+        $tomorrow = Carbon::tomorrow('Asia/Makassar');
 
-        $jadwalHariIni = JadwalDinas::with(['pegawais.subBagian'])
-            ->whereDate('hari_tanggal', $today)
+        $jadwalGabungan = JadwalDinas::with(['pegawais.subBagian'])
+            ->whereIn('hari_tanggal', [$today->toDateString(), $tomorrow->toDateString()])
+            ->orderBy('hari_tanggal')
             ->orderBy('waktu')
             ->get();
 
-        $data = $jadwalHariIni->map(function ($jadwal) {
+        $data = $jadwalGabungan->map(function ($jadwal) use ($today) {
+            $isToday = Carbon::parse($jadwal->hari_tanggal)->isToday();
+            $labelHari = $isToday ? 'Hari Ini' : 'Besok (' . Carbon::parse($jadwal->hari_tanggal)->translatedFormat('d M') . ')';
+
             return [
+                'label_hari' => $labelHari,
                 'waktu' => $jadwal->waktu ? Carbon::parse($jadwal->waktu)->format('H:i') : null,
                 'acara' => $jadwal->acara,
                 'bidang_sekretariat' => $jadwal->bidang_sekretariat,
@@ -205,14 +223,16 @@ class JadwalDinasController extends Controller
             ];
         });
 
-        return response()->json(['jadwal' => $data]);
+        return response()->json(['jadwalGabungan' => $data]);
     }
 
     // Kalkulasi statistik yang dipakai bersama oleh displayTV() dan displayStats()
     private function hitungStatistikDisplay(Carbon $today): array
     {
-        // ==== Statistik Kunjungan ====
-        $totalKunjungan = Tamu::where('status_aktif', 'aktif')->count();
+        // ==== Statistik Kunjungan (Total Kunjungan Tahun Ini) ====
+        $totalKunjungan = Tamu::where('status_aktif', 'aktif')
+            ->whereYear('created_at', $today->year)
+            ->count();
 
         $kunjunganHariIni = Tamu::where('status_aktif', 'aktif')
             ->whereDate('created_at', $today)
@@ -227,20 +247,25 @@ class JadwalDinasController extends Controller
             ? round((($kunjunganHariIni - $kunjunganKemarin) / $kunjunganKemarin) * 100, 1)
             : ($kunjunganHariIni > 0 ? 100 : 0);
 
-        // ==== Statistik SKM ====
-        $skmQuery = Respon::where('status', 'aktif');
+        // ==== Statistik SKM (Tahun Ini) ====
+        // Nilai SKM/Survei dihitung ulang setiap tahun (reset otomatis ke 0
+        // saat tahun berganti, mis. dari 2026 ke 2027) dengan membatasi data
+        // hanya pada respon yang tanggal pengisiannya (tanggal_respon) ada
+        // di tahun berjalan (Asia/Makassar).
+        $skmQuery = Respon::where('status', 'aktif')
+            ->whereYear('tanggal_respon', $today->year);
 
         $totalResponden = (clone $skmQuery)->count();
         $rataRatingGlobal = (clone $skmQuery)->avg('rata_rating');
         $nilaiSkm = $rataRatingGlobal ? round($rataRatingGlobal * 25, 2) : 0;
 
-        return compact(
-            'totalKunjungan',
-            'kunjunganHariIni',
-            'persenHariIni',
-            'nilaiSkm',
-            'totalResponden'
-        );
+        return [
+            'totalKunjungan' => $totalKunjungan, // Ini sekarang sudah berisi total kunjungan tahun ini
+            'kunjunganHariIni' => $kunjunganHariIni,
+            'persenHariIni' => $persenHariIni,
+            'nilaiSkm' => $nilaiSkm,
+            'totalResponden' => $totalResponden
+        ];
     }
 
     public function exportExcel(Request $request)

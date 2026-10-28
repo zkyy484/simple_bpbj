@@ -27,6 +27,7 @@ return new class extends Migration
                 'super_admin',
                 'admin_fo',
                 'pegawai',
+                'admin_survei'
             ])->nullable();
 
             // Judul singkat aktivitas, contoh: "Login", "Logout", "Tambah Akun"

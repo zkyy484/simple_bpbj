@@ -55,27 +55,23 @@
                         <h2 class="text-lg font-bold text-gray-800 mb-4">Informasi Diri</h2>
                         
                         <div class="space-y-4">
+                            <p class="text-xs text-gray-500">Data diri terisi otomatis dari Buku Tamu dan tidak dapat diubah.</p>
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    Nama Lengkap <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required
-                                    class="w-full rounded-xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860] @error('nama_lengkap') border-red-400 @else border-gray-300 @enderror">
-                                @error('nama_lengkap')
-                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                                @enderror
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                                <input type="text" value="{{ $tamu->nama_lengkap }}" readonly
+                                    class="w-full rounded-xl border border-gray-300 bg-gray-100 text-gray-600 px-4 py-3 cursor-not-allowed outline-none">
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
-                                    <input type="email" name="email" value="{{ old('email') }}"
-                                        class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
+                                    <input type="text" value="{{ $tamu->email ?? '-' }}" readonly
+                                        class="w-full rounded-xl border border-gray-300 bg-gray-100 text-gray-600 px-4 py-3 cursor-not-allowed outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Instansi</label>
-                                    <input type="text" name="instansi" value="{{ old('instansi') }}"
-                                        class="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#173860]">
+                                    <input type="text" value="{{ $tamu->nama_perusahaan ?? '-' }}" readonly
+                                        class="w-full rounded-xl border border-gray-300 bg-gray-100 text-gray-600 px-4 py-3 cursor-not-allowed outline-none">
                                 </div>
                             </div>
                         </div>
